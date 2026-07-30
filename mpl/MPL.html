@@ -1,0 +1,30 @@
+{% extends "global/Page.html" %}
+{% block title %}選択{% endblock %}
+{% block content %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>行</th>
+      <th>確率</th>
+      <th>ロッタリー A</th>
+      <th>ロッタリー B</th>
+      <th>選択</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.row }}</td>
+    <td>{{ r.p_high_str }} 高 / {{ r.p_low_str }} 低</td>
+
+      <td>高 {{ r.A_high }}, 低 {{ r.A_low }}</td>
+      <td>高 {{ r.B_high }}, 低 {{ r.B_low }}</td>
+      <td>
+        {{ formfield r.field_name }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{{ next_button }}
+{% endblock %}

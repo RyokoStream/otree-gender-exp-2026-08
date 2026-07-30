@@ -1,0 +1,71 @@
+{{ block title }}
+    実験結果・謝礼金抽選結果
+{{ endblock }}
+
+{{ block content }}
+    <p style="font-size: 1.1rem;">意思決定と集計が完了しました。</p>
+
+    <!-- 1. 入力値と集計結果 -->
+    <div class="card mb-4" style="border-left: 5px solid #6c757d; background-color: #f8f9fa;">
+        <div class="card-body">
+            <h5 class="card-title" style="font-weight: bold;">入力結果および集計</h5>
+            <hr style="margin: 10px 0;">
+            <p style="margin-bottom: 5px;">あなたが入力した p: <strong>{{ my_p }}</strong></p>
+            <p style="margin-bottom: 10px;">相手が入力した p: <strong>{{ other_p }}</strong></p>
+            <hr style="margin: 10px 0;">
+            <p style="font-size: 1.2rem; color: #0d6efd; font-weight: bold; margin: 0;">
+                集計された確率 P（平均値）: {{ group_P }}
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. くじの候補一覧 -->
+    <div class="card mb-4" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;">
+        <div class="card-header font-weight-bold" style="background-color: #f1f3f5; font-size: 1.05rem;">
+            📊 あなた（{{ role_name }}）の謝礼金くじの構成
+        </div>
+        <div class="card-body p-0">
+            <table style="width: 100%; text-align: center; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                        <th style="padding: 10px; width: 25%;">結果</th>
+                        <th style="padding: 10px; width: 25%;">確率</th>
+                        <th style="padding: 10px; width: 25%;">計算式</th>
+                        <th style="padding: 10px; width: 25%;">対応金額</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #dee2e6; background-color: #f4fbf7;">
+                        <td style="padding: 12px; font-weight: bold; color: #198754;">結果 1</td>
+                        <td style="padding: 12px; font-weight: bold; color: #198754;">{{ prob_result1 }}%</td>
+                        <td style="padding: 12px;">{{ group_P }} × 100</td>
+                        <td style="padding: 12px; font-weight: bold;">{{ amount_result1 }} 円</td>
+                    </tr>
+                    <tr style="background-color: #ffffff;">
+                        <td style="padding: 12px; font-weight: bold; color: #6c757d;">結果 2</td>
+                        <td style="padding: 12px; font-weight: bold; color: #6c757d;">{{ prob_result2 }}%</td>
+                        <td style="padding: 12px;">(1 - {{ group_P }}) × 100</td>
+                        <td style="padding: 12px; font-weight: bold;">{{ amount_result2 }} 円</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. ★確定謝礼金の抽選結果枠★ -->
+    <div class="card mb-4" style="border: 3px solid #198754; border-radius: 8px; background-color: #f4fbf7;">
+        <div class="card-body text-center p-4">
+            <h4 style="color: #198754; font-weight: bold; margin-bottom: 15px;">
+                🎲 コンピュータによる自動抽選結果
+            </h4>
+            <p style="font-size: 1.2rem; margin-bottom: 10px;">
+                確率に従った自動抽選の結果、<strong>【{{ drawn_result }}】</strong> が選ばれました！
+            </p>
+            <div style="font-size: 1.8rem; font-weight: bold; color: #198754; margin-top: 10px; padding: 12px 24px; background-color: #ffffff; border: 2px dashed #198754; border-radius: 8px; display: inline-block;">
+                あなたの確定謝礼金: {{ final_payoff }} 円
+            </div>
+        </div>
+    </div>
+
+    <p style="font-size: 1.05rem;">ご参加ありがとうございました。</p>
+{{ endblock }}

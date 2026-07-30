@@ -1,0 +1,11 @@
+{% extends "global/Page.html" %}
+{% block title %}結果{% endblock %}
+{% block content %}
+<p>支払い対象の行: <strong>{{ target.row }}</strong></p>
+<p>その行の確率: 高 {{ target.p_high|floatformat:1 }} / 低 {{ target.p_low|floatformat:1 }}</p>
+<p>あなたの選択: <strong>{{ target.choice }}</strong></p>
+<p>抽選結果: <strong>{{ target.draw }}</strong></p>
+<p>今回の支払ポイント: <strong>{{ target.amount }}</strong></p>
+<p>合計ペイオフ（ポイント）: <strong>{{ player.payoff }}</strong></p>
+{{ next_button }}
+{% endblock %}

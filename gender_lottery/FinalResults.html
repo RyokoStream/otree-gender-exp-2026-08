@@ -1,0 +1,17 @@
+{{ block title }}
+    最終結果
+{{ endblock }}
+
+{{ block content }}
+    <p>すべてのラウンドが終了しました。</p>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">獲得報酬の決定</h5>
+            <p>全5ラウンドの中からランダムに選ばれた決算ラウンド: <strong>第 {{ winning_round }} ラウンド</strong></p>
+            <p>あなたが獲得した報酬: <strong>{{ winning_payoff }}</strong></p>
+        </div>
+    </div>
+
+    <p>ご参加ありがとうございました！</p>
+{{ endblock }}

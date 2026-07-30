@@ -1,0 +1,62 @@
+{{ block title }}
+    意思決定
+{{ endblock }}
+
+{{ block content }}
+    <!-- 1. 共有情報 -->
+    <div class="card mb-3" style="border-left: 5px solid #0d6efd; background-color: #f8f9fa;">
+        <div class="card-body">
+            <h5 class="card-title" style="font-weight: bold;">共有情報</h5>
+            <p class="card-text" style="font-size: 1.05rem; margin-bottom: 8px;">
+                あなたの役割: <strong>{{ role_name }}</strong><br>
+                ペア相手の性別: <strong style="color: #0d6efd;">{{ other_gender }}</strong>
+            </p>
+            <hr style="margin: 10px 0;">
+            <p class="card-text" style="font-size: 1.05rem; margin: 0; color: #0d6efd; font-weight: bold;">
+                💡 集計された確率 P は、あなたとペア相手が入力した p の平均値となります。
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. あなた（役割）の報酬ルール・確率 -->
+    <div class="card mb-4" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.1rem;">
+            🎲 あなた（{{ role_name }}）のくじの構成
+        </div>
+        <div class="card-body p-0">
+            <table style="width: 100%; text-align: center; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; padding: 20px; border-right: 2px solid #dee2e6; background-color: #f4fbf7;">
+                        <div style="color: #198754; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 結果 1 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #198754; font-size: 1.5rem;">{{ prob_result1 }}%</strong>
+                        </div>
+                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
+                            得られる金額: P × 100
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding: 20px; background-color: #f8f9fa;">
+                        <div style="color: #6c757d; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 結果 2 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #6c757d; font-size: 1.5rem;">{{ prob_result2 }}%</strong>
+                        </div>
+                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
+                            得られる金額: (1 - P) × 100
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. 入力フォーム -->
+    <p style="font-size: 1.05rem;">p の値を入力してください（0.0 〜 1.0）。</p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+{{ endblock }}
