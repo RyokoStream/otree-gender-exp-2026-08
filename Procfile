@@ -1,1 +1,1 @@
-web: otree runprod
+web: otree prodserver
