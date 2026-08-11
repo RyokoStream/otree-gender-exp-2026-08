@@ -2,13 +2,15 @@ import random
 from otree.api import *
 
 doc = """
-Gender Lottery Experiment (Practice 1-2, Sequential Decisions 1-3, FinalResult)
+情報共有型くじ実験（両役体験練習付き）
 """
+
 
 class C(BaseConstants):
     NAME_IN_URL = 'gender_lottery'
-    PLAYERS_PER_GROUP = None
-    NUM_ROUNDS = 1
+    PLAYERS_PER_GROUP = 2
+    NUM_ROUNDS = 3
+    PROBS_A_RESULT1 = {1: 60, 2: 70, 3: 80}
 
 
 class Subsession(BaseSubsession):
@@ -16,137 +18,248 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup):
-    pass
+    group_P = models.FloatField()
 
 
 class Player(BasePlayer):
-    # --- 練習1 ---
-    practice1_choice = models.IntegerField(
-        choices=[[1, '結果 1'], [2, '結果 2']],
-        widget=widgets.RadioSelect,
-        label="【練習1】どちらかを選択してください。"
+    student_id = models.StringField(label="ID（学籍番号など）を入力してください:")
+    gender = models.StringField(
+        label="戸籍上の性別を選択してください。",
+        choices=['男性', '女性'],
+        widget=widgets.RadioSelect
     )
-
-    # --- 練習2 ---
-    practice2_choice = models.IntegerField(
-        choices=[[1, '結果 1'], [2, '結果 2']],
-        widget=widgets.RadioSelect,
-        label="【練習2】どちらかを選択してください。"
+    practice_p1 = models.FloatField(
+        label="【プレイヤーAとして】p を入力してください（0.0 〜 1.0）:",
+        min=0.0,
+        max=1.0
     )
-
-    # --- 本番1〜3 ---
-    decision1_choice = models.IntegerField(
-        choices=[[1, '結果 1'], [2, '結果 2']],
-        widget=widgets.RadioSelect,
-        label="【本番 1/3】どちらかを選択してください。"
+    practice_p2 = models.FloatField(
+        label="【プレイヤーBとして】p を入力してください（0.0 〜 1.0）:",
+        min=0.0,
+        max=1.0
     )
-
-    decision2_choice = models.IntegerField(
-        choices=[[1, '結果 1'], [2, '結果 2']],
-        widget=widgets.RadioSelect,
-        label="【本番 2/3】どちらかを選択してください。"
+    p_input = models.FloatField(
+        label="p の値を入力してください（0.0 〜 1.0）:",
+        min=0.0,
+        max=1.0
     )
-
-    decision3_choice = models.IntegerField(
-        choices=[[1, '結果 1'], [2, '結果 2']],
-        widget=widgets.RadioSelect,
-        label="【本番 3/3】どちらかを選択してください。"
-    )
-
-    # --- 抽選結果記録用 ---
-    selected_decision = models.IntegerField()  # 1, 2, 3のいずれか
-    selected_choice = models.IntegerField()    # 1（結果1） または 2（結果2）
-    final_outcome = models.StringField()      # 最終判定結果
-
-
-def set_payoffs(player: Player):
-    # 3回の本番から1つをランダムに選出
-    chosen_num = random.randint(1, 3)
-    player.selected_decision = chosen_num
-
-    # 選ばれた本番でプレイヤーが選択していた回答を取得
-    if chosen_num == 1:
-        player.selected_choice = player.decision1_choice
-    elif chosen_num == 2:
-        player.selected_choice = player.decision2_choice
-    else:
-        player.selected_choice = player.decision3_choice
-
-    # 選択に基づく最終結果の判定
-    if player.selected_choice == 1:
-        player.final_outcome = "結果 1"
-    else:
-        player.final_outcome = "結果 2"
+    drawn_result = models.StringField()
+    round_payoff = models.FloatField()
 
 
 # --- PAGES ---
 
-class Instructions(Page):
-    pass
-
-
-class Practice1(Page):
+class Demographics(Page):
     form_model = 'player'
-    form_fields = ['practice1_choice']
+    form_fields = ['student_id', 'gender']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
 
 
-class Practice1Results(Page):
+class DemographicsWaitPage(WaitPage):
+    title_text = "待機中"
+    body_text = "ペアの相手が入力するのを待っています..."
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+
+class Instructions(Page):
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+
+class Practice(Page):
+    """練習1（プレイヤーAの立場）"""
+    form_model = 'player'
+    form_fields = ['practice_p1']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+
+class PracticeResults(Page):
+    """練習1の結果"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
     @staticmethod
     def vars_for_template(player: Player):
-        return {'choice_label': "結果 1" if player.practice1_choice == 1 else "結果 2"}
+        my_p = player.practice_p1
+        other_p = 0.50
+        group_P = round((my_p + other_p) / 2, 4)
+
+        return {
+            'my_p': my_p,
+            'other_p': other_p,
+            'group_P': group_P,
+            'amount_result1': round(group_P * 2000),
+            'amount_result2': round((1 - group_P) * 2000),
+        }
 
 
 class Practice2(Page):
+    """練習2（プレイヤーBの立場）"""
     form_model = 'player'
-    form_fields = ['practice2_choice']
+    form_fields = ['practice_p2']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
 
 
-class Practice2Results(Page):
+class PracticeResults2(Page):
+    """練習2の結果"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
     @staticmethod
     def vars_for_template(player: Player):
-        return {'choice_label': "結果 1" if player.practice2_choice == 1 else "結果 2"}
+        my_p = player.practice_p2
+        other_p = 0.50
+        group_P = round((my_p + other_p) / 2, 4)
+
+        return {
+            'my_p': my_p,
+            'other_p': other_p,
+            'group_P': group_P,
+            'amount_result1': round(group_P * 2000),
+            'amount_result2': round((1 - group_P) * 2000),
+        }
 
 
-class Decision1(Page):
+class Decision(Page):
     form_model = 'player'
-    form_fields = ['decision1_choice']
+    form_fields = ['p_input']
 
+    @staticmethod
+    def vars_for_template(player: Player):
+        other_player = player.get_others_in_group()[0]
+        first_other = other_player.in_round(1)
+        
+        is_player_a = (player.id_in_group == 1)
+        r_num = player.round_number
+        
+        prob_a_res1 = C.PROBS_A_RESULT1[r_num]
+        prob_a_res2 = 100 - prob_a_res1
 
-class Decision2(Page):
-    form_model = 'player'
-    form_fields = ['decision2_choice']
+        if is_player_a:
+            role_name = "プレイヤーA"
+            prob_result1 = prob_a_res1
+            prob_result2 = prob_a_res2
+        else:
+            role_name = "プレイヤーB"
+            prob_result1 = prob_a_res2
+            prob_result2 = prob_a_res1
 
-
-class Decision3(Page):
-    form_model = 'player'
-    form_fields = ['decision3_choice']
+        return {
+            'role_name': role_name,
+            'other_id': first_other.student_id,
+            'other_gender': first_other.gender,
+            'prob_result1': prob_result1,
+            'prob_result2': prob_result2,
+            'round_num': r_num,
+        }
 
 
 class ResultsWaitPage(WaitPage):
-    pass
+    title_text = "集計中"
+    body_text = "ペアの入力完了を待っています..."
+
+    @staticmethod
+    def after_all_players_arrive(group: Group):
+        players = group.get_players()
+        avg_p = sum([p.p_input for p in players]) / len(players)
+        group.group_P = round(avg_p, 4)
+
+        P = group.group_P
+        r_num = group.round_number
+        prob_a_threshold = C.PROBS_A_RESULT1[r_num] / 100.0
+
+        for p in players:
+            is_player_a = (p.id_in_group == 1)
+            prob_res1_threshold = prob_a_threshold if is_player_a else (1.0 - prob_a_threshold)
+
+            if random.random() < prob_res1_threshold:
+                p.drawn_result = "状況 1"
+                p.round_payoff = round(P * 2000)
+            else:
+                p.drawn_result = "状況 2"
+                p.round_payoff = round((1 - P) * 2000)
+
+            p.payoff = p.round_payoff
+
+        if group.round_number == C.NUM_ROUNDS:
+            for p in players:
+                selected_round = random.randint(1, C.NUM_ROUNDS)
+                p.participant.vars['selected_round'] = selected_round
+                selected_player = p.in_round(selected_round)
+                p.participant.payoff = selected_player.round_payoff
 
 
-class FinalResult(Page):
+class FinalResults(Page):
+    """全3回終了後の最終清算画面"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == C.NUM_ROUNDS
+
     @staticmethod
     def vars_for_template(player: Player):
-        set_payoffs(player)
-        selected_choice_text = "結果 1" if player.selected_choice == 1 else "結果 2"
+        all_rounds_data = []
+        is_player_a = (player.id_in_group == 1)
+        role_name = "プレイヤーA" if is_player_a else "プレイヤーB"
+
+        for p in player.in_all_rounds():
+            r_num = p.round_number
+            other_p = p.get_others_in_group()[0]
+            
+            prob_a_res1 = C.PROBS_A_RESULT1[r_num]
+            prob_a_res2 = 100 - prob_a_res1
+
+            prob_result1 = prob_a_res1 if is_player_a else prob_a_res2
+            prob_result2 = prob_a_res2 if is_player_a else prob_a_res1
+
+            group_P = p.group.group_P
+
+            all_rounds_data.append({
+                'round_num': r_num,
+                'my_p': p.p_input,
+                'other_p': other_p.p_input,
+                'group_P': group_P,
+                'prob_result1': prob_result1,
+                'prob_result2': prob_result2,
+                'amount_result1': round(group_P * 2000),
+                'amount_result2': round((1 - group_P) * 2000),
+                'drawn_result': p.drawn_result,
+                'round_payoff': int(p.round_payoff),
+            })
+
+        selected_round = player.participant.vars.get('selected_round', 1)
+
         return {
-            'selected_decision': player.selected_decision,
-            'selected_choice_text': selected_choice_text,
-            'final_outcome': player.final_outcome,
+            'all_rounds': all_rounds_data,
+            'selected_round': selected_round,
+            'role_name': role_name,
+            'final_payoff': int(player.participant.payoff),
         }
 
 
 page_sequence = [
+    Demographics, 
+    DemographicsWaitPage, 
     Instructions,
-    Practice1,
-    Practice1Results,
-    Practice2,
-    Practice2Results,
-    Decision1,
-    Decision2,
-    Decision3,
-    ResultsWaitPage,
-    FinalResult,
+    Practice, 
+    PracticeResults, 
+    Practice2, 
+    PracticeResults2, 
+    Decision, 
+    ResultsWaitPage, 
+    FinalResults
 ]
