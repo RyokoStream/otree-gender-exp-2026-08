@@ -2,150 +2,147 @@ import random
 from otree.api import *
 
 doc = """
-情報共有型くじ実験
+Gender Lottery Experiment (Practice 1, Practice 2, Decision with Payoff Randomization)
 """
 
 class C(BaseConstants):
     NAME_IN_URL = 'gender_lottery'
-    PLAYERS_PER_GROUP = 2
+    PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 1
-
 
 class Subsession(BaseSubsession):
     pass
 
-
 class Group(BaseGroup):
-    # 集計された P の値（2人の入力の平均値）
-    group_P = models.FloatField()
-
+    pass
 
 class Player(BasePlayer):
-    # 性別選択
-    gender = models.StringField(
-        label="あなたの性別を選択してください。",
-        choices=['男性', '女性', 'その他・回答しない'],
-        widget=widgets.RadioSelect
+    # --- 練習1 ---
+    practice1_choice = models.IntegerField(
+        choices=[[1, 'オプション A（安全）'], [2, 'オプション B（リスク）']],
+        widget=widgets.RadioSelect,
+        label="【練習1】どちらかのオプションを選択してください。"
     )
-    # p の入力（0.0 から 1.0 の間）
-    p_input = models.FloatField(
-        label="p の値を入力してください（0.0 〜 1.0）:",
-        min=0.0,
-        max=1.0
+
+    # --- 練習2 ---
+    practice2_choice = models.IntegerField(
+        choices=[[1, 'オプション A（安全）'], [2, 'オプション B（リスク）']],
+        widget=widgets.RadioSelect,
+        label="【練習2】異なる条件での選択です。どちらかを選択してください。"
     )
-    # 抽選結果と最終確定金額
-    drawn_result = models.StringField()
-    final_payoff = models.FloatField()
+
+    # --- 本番意思決定（複数質問例：Q1〜Q3） ---
+    decision_q1 = models.IntegerField(
+        choices=[[1, '確実な 100 円'], [2, '50%で 300 円 / 50%で 0 円']],
+        widget=widgets.RadioSelect,
+        label="質問 1"
+    )
+    decision_q2 = models.IntegerField(
+        choices=[[1, '確実な 150 円'], [2, '50%で 300 円 / 50%で 0 円']],
+        widget=widgets.RadioSelect,
+        label="質問 2"
+    )
+    decision_q3 = models.IntegerField(
+        choices=[[1, '確実な 200 円'], [2, '50%で 300 円 / 50%で 0 円']],
+        widget=widgets.RadioSelect,
+        label="質問 3"
+    )
+
+    # --- 抽選結果保存用 ---
+    selected_question = models.IntegerField()  # 何番目の質問が選ばれたか (1, 2, 3)
+    selected_choice = models.IntegerField()    # その質問で選んだ選択肢 (1:結果1, 2:結果2)
+    lottery_outcome = models.StringField()    # 抽選の結果（例: "300円", "0円", "100円"）
+
+# --- FUNCTIONS ---
+
+def set_payoffs(player: Player):
+    """最終結果の決定ロジック：質問をランダムに1つ抽出し、結果を計算"""
+    # 質問1〜3の中から1つをランダム選択
+    player.selected_question = random.randint(1, 3)
+    
+    # 選択された質問の回答を取得
+    if player.selected_question == 1:
+        player.selected_choice = player.decision_q1
+    elif player.selected_question == 2:
+        player.selected_choice = player.decision_q2
+    else:
+        player.selected_choice = player.decision_q3
+
+    # 選んだ選択肢に応じて結果を判定
+    if player.selected_choice == 1:
+        # 結果1（安全肢を選んでいた場合）
+        if player.selected_question == 1:
+            player.lottery_outcome = "確実な 100 円"
+        elif player.selected_question == 2:
+            player.lottery_outcome = "確実な 150 円"
+        else:
+            player.lottery_outcome = "確実な 200 円"
+    else:
+        # 結果2（リスク肢を選んでいた場合：50%で当たり）
+        if random.random() < 0.5:
+            player.lottery_outcome = "300 円（当たり）"
+        else:
+            player.lottery_outcome = "0 円（ハズレ）"
 
 
 # --- PAGES ---
 
-class Demographics(Page):
+class Instructions(Page):
+    pass
+
+class Practice1(Page):
     form_model = 'player'
-    form_fields = ['gender']
+    form_fields = ['practice1_choice']
 
+class Practice1Results(Page):
+    @staticmethod
+    def vars_for_template(player: Player):
+        return {
+            'choice_label': "オプション A" if player.practice1_choice == 1 else "オプション B"
+        }
 
-class DemographicsWaitPage(WaitPage):
-    title_text = "待機中"
-    body_text = "ペアの相手が入力するのを待っています..."
+class Practice2(Page):
+    form_model = 'player'
+    form_fields = ['practice2_choice']
 
+class Practice2Results(Page):
+    @staticmethod
+    def vars_for_template(player: Player):
+        return {
+            'choice_label': "オプション A" if player.practice2_choice == 1 else "オプション B"
+        }
 
 class Decision(Page):
     form_model = 'player'
-    form_fields = ['p_input']
-
-    @staticmethod
-    def vars_for_template(player: Player):
-        other_player = player.get_others_in_group()[0]
-        
-        is_player_a = (player.id_in_group == 1)
-        
-        if is_player_a:
-            role_name = "プレイヤーA"
-            prob_result1 = 70
-            prob_result2 = 30
-        else:
-            role_name = "プレイヤーB"
-            prob_result1 = 30
-            prob_result2 = 70
-
-        return {
-            'role_name': role_name,
-            'other_gender': other_player.gender,
-            'prob_result1': prob_result1,
-            'prob_result2': prob_result2,
-        }
-
+    form_fields = ['decision_q1', 'decision_q2', 'decision_q3']
 
 class ResultsWaitPage(WaitPage):
-    title_text = "集計中"
-    body_text = "全員の入力値を集計し、くじの抽選を行っています..."
-
+    """抽選計算を行う処理ページ"""
+    after_all_players_arrive = lambda group: None
+    
     @staticmethod
-    def after_all_players_arrive(group: Group):
-        players = group.get_players()
-        # 2人の入力値の平均を計算して集計 P とする
-        avg_p = sum([p.p_input for p in players]) / len(players)
-        group.group_P = round(avg_p, 4)
-
-        P = group.group_P
-
-        # プレイヤーごとに確率に従って自動抽選を実施
-        for p in players:
-            is_player_a = (p.id_in_group == 1)
-            prob_res1_threshold = 0.70 if is_player_a else 0.30
-
-            # 乱数を使って 確率に応じ「結果1」か「結果2」を決定
-            if random.random() < prob_res1_threshold:
-                p.drawn_result = "結果 1"
-                p.final_payoff = round(P * 100, 2)
-            else:
-                p.drawn_result = "結果 2"
-                p.final_payoff = round((1 - P) * 100, 2)
-
-            # oTree標準の利得フィールドにも保存
-            p.payoff = p.final_payoff
-
+    def is_displayed(player: Player):
+        set_payoffs(player)
+        return True
 
 class Results(Page):
+    """最終結果：何番目が選ばれ、どちらの結果になったかを表示"""
     @staticmethod
     def vars_for_template(player: Player):
-        group = player.group
-        other_player = player.get_others_in_group()[0]
-        
-        is_player_a = (player.id_in_group == 1)
-        role_name = "プレイヤーA" if is_player_a else "プレイヤーB"
-        
-        if is_player_a:
-            prob_result1 = 70
-            prob_result2 = 30
-        else:
-            prob_result1 = 30
-            prob_result2 = 70
-
-        P = group.group_P
-        
-        amount_result1 = round(P * 100, 2)
-        amount_result2 = round((1 - P) * 100, 2)
-
+        selected_option = "結果 1（安全肢）" if player.selected_choice == 1 else "結果 2（リスク肢）"
         return {
-            'role_name': role_name,
-            'my_p': player.p_input,
-            'other_p': other_player.p_input,
-            'group_P': P,
-            'prob_result1': prob_result1,
-            'prob_result2': prob_result2,
-            'amount_result1': amount_result1,
-            'amount_result2': amount_result2,
-            'drawn_result': player.drawn_result,
-            'final_payoff': player.final_payoff,
+            'question_num': player.selected_question,
+            'selected_option': selected_option,
+            'outcome': player.lottery_outcome,
         }
 
-
 page_sequence = [
-    Demographics, 
-    DemographicsWaitPage, 
-    Decision, 
-    ResultsWaitPage, 
-    Results
+    Instructions,
+    Practice1,
+    Practice1Results,
+    Practice2,
+    Practice2Results,
+    Decision,
+    ResultsWaitPage,
+    Results,
 ]
