@@ -17,12 +17,19 @@ class Subsession(BaseSubsession):
     pass
 
 
+def creating_session(subsession: Subsession):
+    # ラウンド1の時点で、グループごとに支払対象ラウンド（1〜3）を1つ確定させておく
+    if subsession.round_number == 1:
+        for group in subsession.get_groups():
+            group.session.vars[f'selected_round_group_{group.id_in_subsession}'] = random.randint(1, C.NUM_ROUNDS)
+
+
 class Group(BaseGroup):
     group_P = models.FloatField()
 
 
 class Player(BasePlayer):
-    student_id = models.StringField(label="　もらっているID番号を入力してください。学籍番号を入力しないように:")
+    student_id = models.StringField(label=" もらっているID番号を入力してください。学籍番号を入力しないように:")
     gender = models.StringField(
         label="戸籍上の性別を選択してください:",
         choices=['男性', '女性'],
@@ -199,9 +206,13 @@ class ResultsWaitPage(WaitPage):
 
             p.payoff = p.round_payoff
 
+        # 最終第3ラウンド終了時に、グループ共通の決定済ラウンドから支払額を確定させる
         if group.round_number == C.NUM_ROUNDS:
+            selected_round = group.session.vars.get(
+                f'selected_round_group_{group.id_in_subsession}',
+                random.randint(1, C.NUM_ROUNDS)
+            )
             for p in players:
-                selected_round = random.randint(1, C.NUM_ROUNDS)
                 p.participant.vars['selected_round'] = selected_round
                 selected_player = p.in_round(selected_round)
                 p.participant.payoff = selected_player.round_payoff
