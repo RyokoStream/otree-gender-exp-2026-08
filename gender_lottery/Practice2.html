@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <!-- 2. くじの構成（本番と同じレイアウト） -->
+    <!-- 2. くじの構成（練習用固定数値） -->
     <div class="card mb-4" style="border: 2px solid #17a2b8; border-radius: 8px; overflow: hidden;">
         <div class="card-header text-white font-weight-bold" style="background-color: #17a2b8; font-size: 1.1rem;">
             🎲 あなた（プレイヤーB）のくじの構成
@@ -40,7 +40,7 @@
                             【 状況 1 】
                         </div>
                         <div style="font-size: 1.1rem; margin-bottom: 6px;">
-                            確率 <strong style="color: #198754; font-size: 1.5rem;">{% if prob_result1 %}{{ prob_result1 }}%{% else %}40%{% endif %}</strong>
+                            確率 <strong style="color: #198754; font-size: 1.5rem;">40%</strong>
                         </div>
                         <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
                             得られる金額: P × 2000円
@@ -51,7 +51,7 @@
                             【 状況 2 】
                         </div>
                         <div style="font-size: 1.1rem; margin-bottom: 6px;">
-                            確率 <strong style="color: #6c757d; font-size: 1.5rem;">{% if prob_result2 %}{{ prob_result2 }}%{% else %}60%{% endif %}</strong>
+                            確率 <strong style="color: #6c757d; font-size: 1.5rem;">60%</strong>
                         </div>
                         <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
                             得られる金額: (1 - P) × 2000円
@@ -79,47 +79,6 @@
     </div>
 
     <!-- 5. ボタン -->
-    <div class="mt-4 text-center">
-        <button class="otree-btn-next btn btn-info text-white btn-lg">プレイヤーB の結果を計算してみる</button>
-    </div>
-{% endblock %}
-
-{% extends "global/Page.html" %}
-{% load otree %}
-
-{% block title %}
-    【練習2】プレイヤーB の立場を体験する
-{% endblock %}
-
-{% block content %}
-    <div class="alert alert-info">
-        <strong>💡 練習2（謝礼金には影響しません）</strong><br>
-        次は、相手側の立場である <strong>【プレイヤーB】</strong> だった場合の計算を体験してみましょう。
-    </div>
-
-    <!-- 視覚的な図解カード -->
-    <div class="card mb-4" style="border: 2px solid #17a2b8; background-color: #f8f9fa;">
-        <div class="card-body">
-            <h5 class="card-title font-weight-bold" style="color: #17a2b8;">🗺️ プレイヤーB の計算ルール</h5>
-            <div style="background: white; padding: 12px; border-radius: 5px; border: 1px solid #dee2e6;" class="mb-2">
-                <strong>① 平均 P:</strong> （あなたの p ＋ 相手の p）÷ 2
-            </div>
-            <div style="background: white; padding: 12px; border-radius: 5px; border: 1px solid #dee2e6;">
-                <strong>② 各状況の金額:</strong><br>
-                ・<strong>状況 1:</strong> 平均 P × 2,000円<br>
-                ・<strong>状況 2:</strong> (1 - 平均 P) × 2,000円
-            </div>
-        </div>
-    </div>
-
-    <div class="card mb-3" style="border: 2px solid #17a2b8;">
-        <div class="card-body">
-            <p>仮に、<strong>相手（プレイヤーA）が p = 0.50 を入力してきたと想定</strong>します。<br>
-            プレイヤーBの立場として、好きな p の値（0.0 〜 1.0）を入力してください。</p>
-            {% formfields %}
-        </div>
-    </div>
-
     <div class="mt-4 text-center">
         <button class="otree-btn-next btn btn-info text-white btn-lg">プレイヤーB の結果を計算してみる</button>
     </div>
