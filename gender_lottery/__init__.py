@@ -22,9 +22,9 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    student_id = models.StringField(label="ID（学籍番号など）を入力してください:")
+    student_id = models.StringField(label="　もらっているID番号を入力してください。学籍番号を入力しないように:")
     gender = models.StringField(
-        label="戸籍上の性別を選択してください。",
+        label="戸籍上の性別を選択してください:",
         choices=['男性', '女性'],
         widget=widgets.RadioSelect
     )
