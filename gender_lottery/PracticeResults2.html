@@ -1,46 +1,15 @@
+<!-- 補足説明メッセージ -->
+    <div class="alert alert-info border-info mb-4" style="background-color: #e7f5ff; color: #1864ab; border-radius: 8px; padding: 15px;">
+        <p class="m-0" style="font-size: 1.05rem; line-height: 1.6;">
+            💡 <strong>理解のポイント:</strong><br>
+            状況 1 は 0.6 の確率で、状況 2 は 0.4 の確率で発生します。この両方の結果が同時に起きてくるわけではないため、<strong>どちらか一方の利得を得る可能性がある</strong>ということを理解してください。
+        </p>
+    </div>
+
+
 {% extends "global/Page.html" %}
 {% load otree %}
 
 {% block title %}
     【練習2の結果】プレイヤーB の計算結果
-{% endblock %}
-
-{% block content %}
-    <div class="alert alert-info mb-3">
-        <strong>💡 練習2の結果計算</strong><br>
-        入力された数値をもとに計算した結果です。（謝礼金には影響しません）
-    </div>
-
-    <!-- 結果カード -->
-    <div class="card mb-4" style="border: 2px solid #17a2b8;">
-        <div class="card-body">
-            <h5 class="card-title font-weight-bold" style="color: #17a2b8;">📊 練習2 の集計結果</h5>
-            <ul style="font-size: 1.1rem; line-height: 1.8;">
-                <li>あなたの入力（p_B）: <strong>{{ my_p }} %</strong></li>
-                <li>相手の想定入力（p_A）: <strong>{{ other_p }} %</strong></li>
-                <li>集計された確率 P: <strong>{{ group_P }}</strong> （({{ my_p }} + {{ other_p }}) ÷ 2 ÷ 100）</li>
-            </ul>
-            <hr>
-            <div class="row text-center mt-3">
-                <div class="col-md-6 mb-2">
-                    <div style="background-color: #f4fbf7; padding: 15px; border-radius: 5px; border: 1px solid #198754;">
-                        <span style="color: #198754; font-weight: bold;">【 状況 1 の獲得額 】</span><br>
-                        <strong style="font-size: 1.3rem;">{{ amount_result1 }} 円</strong><br>
-                        <small class="text-muted">(P × 2,000円)</small>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-2">
-                    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #6c757d;">
-                        <span style="color: #6c757d; font-weight: bold;">【 状況 2 の獲得額 】</span><br>
-                        <strong style="font-size: 1.3rem;">{{ amount_result2 }} 円</strong><br>
-                        <small class="text-muted">((1 - P) × 2,000円)</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-4 text-center">
-        <button class="otree-btn-next btn btn-info text-white btn-lg">本番の意思決定に進む</button>
-    </div>
 {% endblock %}
