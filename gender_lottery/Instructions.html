@@ -1,5 +1,5 @@
 {% extends "global/Page.html" %}
-{% load otree %}
+{% load otree static %}
 
 {% block title %}
     実験の説明
@@ -16,6 +16,18 @@
                 <li><strong>ラウンド数:</strong> 本番の意思決定は<strong>全3ラウンド</strong>行います。途中で相手の入力結果や抽選結果は表示されません。</li>
                 <li><strong>最終謝礼金:</strong> 全3ラウンド終了後、3つのラウンドの中から<strong>ランダムに1つのラウンドが自動選出</strong>され、そのラウンドで獲得した金額が最終謝礼金となります。</li>
             </ul>
+        </div>
+    </div>
+
+    <!-- 画像並列表示エリア -->
+    <div class="row my-4">
+        <!-- 左側：Player A -->
+        <div class="col-md-6 text-center mb-3 mb-md-0">
+            <img src="{{ static 'playerA_point.png' }}" class="img-fluid border rounded p-1" alt="Player A の利得構造">
+        </div>
+        <!-- 右側：Player B -->
+        <div class="col-md-6 text-center">
+            <img src="{{ static 'playerB_point.png' }}" class="img-fluid border rounded p-1" alt="Player B の利得構造">
         </div>
     </div>
 
