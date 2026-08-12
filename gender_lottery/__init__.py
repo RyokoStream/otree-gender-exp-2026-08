@@ -28,20 +28,20 @@ class Player(BasePlayer):
         choices=['男性', '女性'],
         widget=widgets.RadioSelect
     )
-    practice_p1 = models.FloatField(
-        label="【プレイヤーAとして】p を入力してください（0.0 〜 1.0）:",
-        min=0.0,
-        max=1.0
+    practice_p1 = models.IntegerField(
+        label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
+        min=0,
+        max=100
     )
-    practice_p2 = models.FloatField(
-        label="【プレイヤーBとして】p を入力してください（0.0 〜 1.0）:",
-        min=0.0,
-        max=1.0
+    practice_p2 = models.IntegerField(
+        label="【プレイヤーBとして】p の値を入力してください（0 〜 100）:",
+        min=0,
+        max=100
     )
-    p_input = models.FloatField(
-        label="p の値を入力してください（0.0 〜 1.0）:",
-        min=0.0,
-        max=1.0
+    p_input = models.IntegerField(
+        label="p の値を入力してください（0 〜 100）:",
+        min=0,
+        max=100
     )
     drawn_result = models.StringField()
     round_payoff = models.FloatField()
@@ -91,13 +91,14 @@ class PracticeResults(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        my_p = player.practice_p1
-        other_p = 0.50
-        group_P = round((my_p + other_p) / 2, 4)
+        my_p_int = player.practice_p1
+        my_p_ratio = my_p_int / 100.0
+        other_p_ratio = 0.50
+        group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
 
         return {
-            'my_p': my_p,
-            'other_p': other_p,
+            'my_p': my_p_int,
+            'other_p': 50,
             'group_P': group_P,
             'amount_result1': round(group_P * 2000),
             'amount_result2': round((1 - group_P) * 2000),
@@ -122,13 +123,14 @@ class PracticeResults2(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        my_p = player.practice_p2
-        other_p = 0.50
-        group_P = round((my_p + other_p) / 2, 4)
+        my_p_int = player.practice_p2
+        my_p_ratio = my_p_int / 100.0
+        other_p_ratio = 0.50
+        group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
 
         return {
-            'my_p': my_p,
-            'other_p': other_p,
+            'my_p': my_p_int,
+            'other_p': 50,
             'group_P': group_P,
             'amount_result1': round(group_P * 2000),
             'amount_result2': round((1 - group_P) * 2000),
@@ -176,8 +178,9 @@ class ResultsWaitPage(WaitPage):
     @staticmethod
     def after_all_players_arrive(group: Group):
         players = group.get_players()
-        avg_p = sum([p.p_input for p in players]) / len(players)
-        group.group_P = round(avg_p, 4)
+        # 0〜100 の入力値の平均を取り、100 で割って 0.0〜1.0 の確率 P に変換
+        avg_p_int = sum([p.p_input for p in players]) / len(players)
+        group.group_P = round(avg_p_int / 100.0, 4)
 
         P = group.group_P
         r_num = group.round_number
