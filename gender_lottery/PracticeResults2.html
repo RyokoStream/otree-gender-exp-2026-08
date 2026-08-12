@@ -2,49 +2,45 @@
 {% load otree %}
 
 {% block title %}
-    【練習2】プレイヤーB の計算結果
+    【練習2の結果】プレイヤーB の計算結果
 {% endblock %}
 
 {% block content %}
-    <div class="card mb-4" style="background-color: #f8f9fa;">
+    <div class="alert alert-info mb-3">
+        <strong>💡 練習2の結果計算</strong><br>
+        入力された数値をもとに計算した結果です。（謝礼金には影響しません）
+    </div>
+
+    <!-- 結果カード -->
+    <div class="card mb-4" style="border: 2px solid #17a2b8;">
         <div class="card-body">
-            <p>あなたの入力した p: <strong>{{ my_p }}</strong></p>
-            <p>相手（想定）が入力した p: <strong>{{ other_p }}</strong></p>
+            <h5 class="card-title font-weight-bold" style="color: #17a2b8;">📊 練習2 の集計結果</h5>
+            <ul style="font-size: 1.1rem; line-height: 1.8;">
+                <li>あなたの入力（p_B）: <strong>{{ my_p }} %</strong></li>
+                <li>相手の想定入力（p_A）: <strong>{{ other_p }} %</strong></li>
+                <li>集計された確率 P: <strong>{{ group_P }}</strong> （({{ my_p }} + {{ other_p }}) ÷ 2 ÷ 100）</li>
+            </ul>
             <hr>
-            <p style="font-size: 1.1rem; color: #0d6efd; font-weight: bold; margin: 0;">
-                集計された平均 P: {{ group_P }}
-            </p>
+            <div class="row text-center mt-3">
+                <div class="col-md-6 mb-2">
+                    <div style="background-color: #f4fbf7; padding: 15px; border-radius: 5px; border: 1px solid #198754;">
+                        <span style="color: #198754; font-weight: bold;">【 状況 1 の獲得額 】</span><br>
+                        <strong style="font-size: 1.3rem;">{{ amount_result1 }} 円</strong><br>
+                        <small class="text-muted">(P × 2,000円)</small>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #6c757d;">
+                        <span style="color: #6c757d; font-weight: bold;">【 状況 2 の獲得額 】</span><br>
+                        <strong style="font-size: 1.3rem;">{{ amount_result2 }} 円</strong><br>
+                        <small class="text-muted">((1 - P) × 2,000円)</small>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <p>プレイヤーB視点での各状況の対応金額：</p>
-    <table class="table table-bordered text-center mb-4">
-        <thead class="table-light">
-            <tr>
-                <th>発生する状況</th>
-                <th>計算式</th>
-                <th>対応金額</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="font-weight: bold; color: #198754;">状況 1</td>
-                <td>{{ group_P }} × 2,000円</td>
-                <td style="font-weight: bold;">{{ amount_result1 }} 円</td>
-            </tr>
-            <tr>
-                <td style="font-weight: bold; color: #6c757d;">状況 2</td>
-                <td>(1 - {{ group_P }}) × 2,000円</td>
-                <td style="font-weight: bold;">{{ amount_result2 }} 円</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="alert alert-success text-center font-weight-bold mb-4">
-        これで両方の立場のシミュレーションが完了しました！準備ができたら本番に進みましょう。
-    </div>
-
     <div class="mt-4 text-center">
-        <button class="otree-btn-next btn btn-primary btn-lg">理解できたので本番実験に進む</button>
+        <button class="otree-btn-next btn btn-info text-white btn-lg">本番の意思決定に進む</button>
     </div>
 {% endblock %}
