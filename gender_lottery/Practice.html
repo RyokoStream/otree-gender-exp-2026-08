@@ -1,0 +1,40 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+    【練習1】プレイヤーA の立場を体験する
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-warning">
+        <strong>💡 練習1（謝礼金には影響しません）</strong><br>
+        まずはあなたが <strong>【プレイヤーA】</strong> だった場合の計算を体験してみましょう。
+    </div>
+
+    <!-- 視覚的な図解カード -->
+    <div class="card mb-4" style="border: 2px solid #0d6efd; background-color: #f8f9fa;">
+        <div class="card-body">
+            <h5 class="card-title font-weight-bold" style="color: #0d6efd;">🗺️ プレイヤーA の計算ルール</h5>
+            <div style="background: white; padding: 12px; border-radius: 5px; border: 1px solid #dee2e6;" class="mb-2">
+                <strong>① 平均 P:</strong> （あなたの p ＋ 相手の p）÷ 2
+            </div>
+            <div style="background: white; padding: 12px; border-radius: 5px; border: 1px solid #dee2e6;">
+                <strong>② 各状況の金額:</strong><br>
+                ・<strong>状況 1:</strong> 平均 P × 2,000円<br>
+                ・<strong>状況 2:</strong> (1 - 平均 P) × 2,000円
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3" style="border: 2px solid #ffc107;">
+        <div class="card-body">
+            <p>仮に、<strong>相手（プレイヤーB）が p = 0.50 を入力してきたと想定</strong>します。<br>
+            あなたの好きな p の値（0.0 〜 1.0）を入力してください。</p>
+            {% formfields %}
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <button class="otree-btn-next btn btn-warning btn-lg">プレイヤーA の結果を計算してみる</button>
+    </div>
+{% endblock %}
