@@ -67,12 +67,12 @@
         <img src="{% static 'playerB_04_point.png' %}" style="max-width: 100%; height: auto;" alt="プレイヤーBのポイント">
     </div>
 
-    <!-- 4. 入力フォーム -->
+    <!-- 4. 入力フォーム（整数案内へ修正） -->
     <div class="card mb-3" style="border: 2px solid #17a2b8;">
         <div class="card-body">
             <p style="font-size: 1.05rem;" class="mb-2">
                 仮に、<strong>相手（プレイヤーA）が p = 0.50 を入力してきたと想定</strong>します。<br>
-                プレイヤーBの立場として、好きな p の値（0.0 〜 1.0）を入力してください。
+                プレイヤーBの立場として、好きな p の値を <strong>0 〜 100 の整数</strong> で入力してください。
             </p>
             {% formfields %}
         </div>
