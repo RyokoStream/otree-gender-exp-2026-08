@@ -6,34 +6,79 @@
 {% endblock %}
 
 {% block content %}
-    <div class="alert alert-warning">
+    <div class="alert alert-warning mb-3">
         <strong>💡 練習1（謝礼金には影響しません）</strong><br>
         まずはあなたが <strong>【プレイヤーA】</strong> だった場合の計算を体験してみましょう。
     </div>
 
-    <!-- 視覚的な図解カード -->
-    <div class="card mb-4" style="border: 2px solid #0d6efd; background-color: #f8f9fa;">
+    <!-- 1. 共有情報（練習用） -->
+    <div class="card mb-3" style="border-left: 5px solid #0d6efd; background-color: #f8f9fa;">
         <div class="card-body">
-            <h5 class="card-title font-weight-bold" style="color: #0d6efd;">🗺️ プレイヤーA の計算ルール</h5>
-            <div style="background: white; padding: 12px; border-radius: 5px; border: 1px solid #dee2e6;" class="mb-2">
-                <strong>① 平均 P:</strong> （あなたの p ＋ 相手の p）÷ 2
-            </div>
-            <div style="background: white; padding: 12px; border-radius: 5px; border: 1px solid #dee2e6;">
-                <strong>② 各状況の金額:</strong><br>
-                ・<strong>状況 1:</strong> 平均 P × 2,000円<br>
-                ・<strong>状況 2:</strong> (1 - 平均 P) × 2,000円
-            </div>
+            <h5 class="card-title" style="font-weight: bold;">共有情報（練習）</h5>
+            <p class="card-text" style="font-size: 1.05rem; margin-bottom: 8px;">
+                あなたの役割: <strong>プレイヤーA</strong><br>
+                ペア相手のID: <strong style="color: #0d6efd;">練習用ペア</strong><br>
+                ペア相手の性別: <strong style="color: #0d6efd;">--</strong>
+            </p>
+            <hr style="margin: 10px 0;">
+            <p class="card-text" style="font-size: 1.05rem; margin: 0; color: #0d6efd; font-weight: bold;">
+                💡 集計された確率 P は、あなたとペア相手が入力した p の平均値となります。
+            </p>
         </div>
     </div>
 
+    <!-- 2. くじの構成（本番と同じレイアウト） -->
+    <div class="card mb-4" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.1rem;">
+            🎲 あなた（プレイヤーA）のくじの構成
+        </div>
+        <div class="card-body p-0">
+            <table style="width: 100%; text-align: center; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; padding: 20px; border-right: 2px solid #dee2e6; background-color: #f4fbf7;">
+                        <div style="color: #198754; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 状況 1 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #198754; font-size: 1.5rem;">{% if prob_result1 %}{{ prob_result1 }}%{% else %}60%{% endif %}</strong>
+                        </div>
+                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
+                            得られる金額: P × 2000円
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding: 20px; background-color: #f8f9fa;">
+                        <div style="color: #6c757d; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 状況 2 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #6c757d; font-size: 1.5rem;">{% if prob_result2 %}{{ prob_result2 }}%{% else %}40%{% endif %}</strong>
+                        </div>
+                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
+                            得られる金額: (1 - P) × 2000円
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. 解説図（playerA_point.png）の埋め込み -->
+    <div class="card mb-4 text-center" style="border: 1px solid #dee2e6; padding: 15px;">
+        <img src="{% static 'playerA_point.png' %}" style="max-width: 100%; height: auto;" alt="プレイヤーAのポイント">
+    </div>
+
+    <!-- 4. 入力フォーム -->
     <div class="card mb-3" style="border: 2px solid #ffc107;">
         <div class="card-body">
-            <p>仮に、<strong>相手（プレイヤーB）が p = 0.50 を入力してきたと想定</strong>します。<br>
-            あなたの好きな p の値（0.0 〜 1.0）を入力してください。</p>
+            <p style="font-size: 1.05rem;" class="mb-2">
+                仮に、<strong>相手（プレイヤーB）が p = 0.50 を入力してきたと想定</strong>します。<br>
+                あなたの好きな p の値（0.0 〜 1.0）を入力してください。
+            </p>
             {% formfields %}
         </div>
     </div>
 
+    <!-- 5. ボタン -->
     <div class="mt-4 text-center">
         <button class="otree-btn-next btn btn-warning btn-lg">プレイヤーA の結果を計算してみる</button>
     </div>
