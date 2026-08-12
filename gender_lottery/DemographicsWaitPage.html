@@ -1,10 +1,11 @@
-class DemographicsWaitPage(WaitPage):
-    title_text = "待機中"
-    body_text = "ペアの相手が入力するのを待っています..."
-
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1
-
 {% extends "global/WaitPage.html" %}
 {% load otree %}
+
+{% block title %}
+    待機中
+{% endblock %}
+
+{% block content %}
+    <p>ペアの相手が基本情報を入力するのを待っています...</p>
+    <p>しばらくそのままお待ちください。</p>
+{% endblock %}
