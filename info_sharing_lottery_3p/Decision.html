@@ -1,5 +1,5 @@
 {% extends "global/Page.html" %}
-{% load otree static %}
+{% load otree %}
 
 {% block title %}
     意思決定（本番 第 {{ round_num }} / 4 ラウンド）
@@ -28,12 +28,38 @@
         </div>
     </div>
 
-    <!-- 2. 静的画像（利得構造・生起確率図解）の表示 -->
+    <!-- 2. くじの構成（画像ではなく表で表示） -->
     <div class="card mb-4" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
         <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.1rem;">
-            🎲 あなた（{{ role_name }}）の利得構造および確率設定
+            🎲 あなた（{{ role_name }}）のくじの構成
         </div>
-        <div class="card-body text-center p-3">
+        <div class="card-body p-0">
+            <table style="width: 100%; text-align: center; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; padding: 20px; border-right: 2px solid #dee2e6; background-color: #f4fbf7;">
+                        <div style="color: #198754; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 状況 1 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #198754; font-size: 1.5rem;">{{ prob_result1 }}%</strong>
+                        </div>
+                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
+                            得られる金額: {{ payoff_result1_formula }}
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding: 20px; background-color: #f8f9fa;">
+                        <div style="color: #6c757d; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 状況 2 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #6c757d; font-size: 1.5rem;">{{ prob_result2 }}%</strong>
+                        </div>
+                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
+                            得られる金額: {{ payoff_result2_formula }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 
@@ -41,7 +67,7 @@
     <div class="card mb-3" style="border: 2px solid #ffc107;">
         <div class="card-body">
             <p style="font-size: 1.05rem;" class="mb-2">
-                あなた（<strong>{{ role_name }}</strong>）にとって望ましい p の値を <strong>0 〜 100 の整数</strong> で宣言してください。
+                あなたにとって望ましい p の値を <strong>0 〜 100 の整数</strong> で宣言してください。
             </p>
             {% formfields %}
         </div>
