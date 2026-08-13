@@ -42,7 +42,7 @@ class Player(BasePlayer):
     # --- 3. 本番意思決定の入力値 ---
     declaration = models.IntegerField(
         min=0, max=100,
-        label="あなたにとって望ましいい確率 p (%) を宣言してください"
+        label="あなたにとって望ましい確率 p (%) を宣言してください"
     )
 
     # --- 4. 最終謝礼用の結果記録（第4ラウンドのPlayerオブジェクトに保存） ---
@@ -140,19 +140,20 @@ class Decision(Page):
         r = player.round_number
         id_in_g = player.id_in_group
 
-        # ラウンド別の確率設定（セッション1 / セッション2）
+        # ラウンド別の確率設定（1,2,3番目のプレイヤー順）
         if r in [1, 3]:
             prob1 = 80 if id_in_g == 1 else (50 if id_in_g == 2 else 20)
         else:
             prob1 = 60 if id_in_g == 1 else (50 if id_in_g == 2 else 40)
 
-        role_map = {1: 'プレイヤーA', 2: 'プレイヤーC', 3: 'プレイヤーB'}
+        # 1: プレイヤーA, 2: プレイヤーB, 3: プレイヤーC
+        role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
 
-        # 静的画像の切り替え
+        # 静的画像の切り替え（playler のタイポを player に修正、1=A, 2=B, 3=C に対応）
         rule_prefix = '3mean' if r <= 2 else '3median'
-        role_letter = 'A' if id_in_g == 1 else ('C' if id_in_g == 2 else 'B')
+        role_letter = 'A' if id_in_g == 1 else ('B' if id_in_g == 2 else 'C')
         prob_str = f"{prob1:02d}"
-        image_name = f"{rule_prefix}_playler{role_letter}_{prob_str}_point.png"
+        image_name = f"{rule_prefix}_player{role_letter}_{prob_str}_point.png"
 
         return {
             'round_num': r,
@@ -326,7 +327,7 @@ class FinalResults(Page):
                 state = 1 if random.random() < (prob1 / 100.0) else 2
                 round_pay = amt1 if state == 1 else amt2
 
-            role_map = {1: 'プレイヤーA', 2: 'プレイヤーC', 3: 'プレイヤーB'}
+            role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
 
             all_rounds_data.append({
                 'round_num': r,
@@ -373,4 +374,6 @@ page_sequence = [
     # --- 最終結果算出・表示 ---
     FinalResultsWaitPage,
     FinalResults,
+]
+
 ]
