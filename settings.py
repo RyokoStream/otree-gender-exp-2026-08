@@ -3,7 +3,7 @@ from os import environ
 SESSION_CONFIGS = [
     # ▼ 今回作成した3人グループ実験（新規追加）
     dict(
-        name='lottery_experiment_3p',
+        name='info_sharing_lottery_3p',
         display_name="3人グループ利得構造実験（前半平均・後半メジアン）",
         app_sequence=['info_sharing_lottery_3p'],
         num_demo_participants=3,  # 3人1グループのため
