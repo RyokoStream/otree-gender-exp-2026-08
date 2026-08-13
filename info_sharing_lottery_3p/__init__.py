@@ -6,25 +6,35 @@ doc = """
 3人グループ利得構造実験（前半：平均値ルール / 後半：メジアンルール）
 """
 
+
 class C(BaseConstants):
     NAME_IN_URL = 'lottery_experiment_3p'
     PLAYERS_PER_GROUP = 3
     NUM_ROUNDS = 4  # 全4ラウンド（1, 2: 平均値 / 3, 4: メジアン）
 
+
 class Subsession(BaseSubsession):
     pass
+
 
 class Group(BaseGroup):
     calculated_P = models.FloatField()  # グループ内で決定された確率 P
 
+
 class Player(BasePlayer):
     # --- 1. 基本情報アンケート（Demographics用） ---
+    participant_id = models.StringField(
+        label="あなたの参加者ID（または学籍番号など）を入力してください",
+    )
     gender = models.StringField(
         label="あなたの戸籍上の性別を教えてください",
         choices=['男性', '女性'],
         widget=widgets.RadioSelect
     )
-    # ※年齢(age)は使用しないため削除しました
+    age = models.IntegerField(
+        label="あなたの年齢を入力してください（半角数字）",
+        min=18, max=100
+    )
 
     # --- 2. 練習画面の入力値 ---
     practice1_p = models.IntegerField(min=0, max=100, label="申告する確率 p_A (%)")
@@ -52,14 +62,8 @@ class Player(BasePlayer):
 class Demographics(Page):
     """実験開始前の基本情報入力画面"""
     form_model = 'player'
-    form_fields = ['gender']  # 年齢(age)を削除
+    form_fields = ['participant_id', 'gender', 'age']  # participant_id をしっかり含めています
 
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1
-
-class DemographicsWaitPage(WaitPage):
-    """【追加】全員がジェンダーを回答するのを待つページ"""
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1
@@ -82,6 +86,7 @@ class Practice1(Page):
     def is_displayed(player: Player):
         return player.round_number == 1
 
+
 class Practice1Results(Page):
     @staticmethod
     def is_displayed(player: Player):
@@ -98,6 +103,7 @@ class Practice1Results(Page):
             'payoff_s2': int((1 - big_p) * 2000),
         }
 
+
 class Practice2(Page):
     form_model = 'player'
     form_fields = ['practice2_p']
@@ -105,6 +111,7 @@ class Practice2(Page):
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1
+
 
 class Practice2Results(Page):
     @staticmethod
@@ -146,22 +153,6 @@ class Decision(Page):
 
         role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
 
-        # ==========================================
-        # 【追加】グループ全員（自分を含む）のジェンダー情報を取得
-        # ==========================================
-        group_info = []
-        for p in player.group.get_players():
-            # ジェンダーはラウンド1で答えているため in_round(1) を参照
-            p_r1 = p.in_round(1)
-            group_info.append({
-                'role_name': role_map.get(p.id_in_group),
-                'gender': p_r1.gender if p_r1.gender else "未回答",
-                'is_me': p.id_in_group == id_in_g
-            })
-        # 役割順（A→B→C）に並び替える
-        group_info.sort(key=lambda x: x['role_name'])
-        # ==========================================
-
         return {
             'round_num': r,
             'role_name': role_map.get(id_in_g, 'プレイヤーA'),
@@ -172,7 +163,6 @@ class Decision(Page):
             'prob_result2': 100 - my_prob1,
             'payoff_result1_formula': 'P × 2000円',
             'payoff_result2_formula': '(1 - P) × 2000円',
-            'group_info': group_info,  # ← 取得した全員の情報をHTMLに渡す
         }
 
 
@@ -202,6 +192,7 @@ class Practice3(Page):
     def is_displayed(player: Player):
         return player.round_number == 2
 
+
 class Practice3Results(Page):
     @staticmethod
     def is_displayed(player: Player):
@@ -218,6 +209,7 @@ class Practice3Results(Page):
             'payoff_s2': int((1 - big_p) * 2000),
         }
 
+
 class Practice4(Page):
     form_model = 'player'
     form_fields = ['practice4_p']
@@ -225,6 +217,7 @@ class Practice4(Page):
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 2
+
 
 class Practice4Results(Page):
     @staticmethod
@@ -351,7 +344,6 @@ class FinalResults(Page):
 
 page_sequence = [
     Demographics,
-    DemographicsWaitPage,  # ← 【追加】ここで全員のジェンダー入力を待つ
     Instructions,
     Practice1,
     Practice1Results,
