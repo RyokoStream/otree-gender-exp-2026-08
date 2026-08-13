@@ -29,7 +29,7 @@ class Player(BasePlayer):
         widget=widgets.RadioSelect
     )
     age = models.IntegerField(
-        label="あなたの年齢を入力してください（半角数字）",
+        label="あなたのIDを記入してください（学籍番号は入れないでください）",
         min=18, max=100
     )
 
