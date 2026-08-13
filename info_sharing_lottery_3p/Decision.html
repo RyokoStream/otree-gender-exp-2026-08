@@ -16,7 +16,7 @@
             </p>
             <hr style="margin: 12px 0;">
             
-            {% if is_median %}
+            {% if round_num > 2 %}
                 <p class="card-text" style="font-size: 1.05rem; margin: 0; color: #d63384; font-weight: bold;">
                     💡 集計された確率 P は、グループ3名（A, B, C）が宣言した p の【中央値（メジアン ÷ 100）】となります。
                 </p>
@@ -28,38 +28,13 @@
         </div>
     </div>
 
-    <!-- 2. 全員のくじの構成・生起確率一覧 -->
+    <!-- 2. 静的画像（利得構造・生起確率図解）の表示 -->
     <div class="card mb-4" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
         <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.1rem;">
-            🎲 グループ全員のくじの構成（現在のラウンド）
+            🎲 あなた（{{ role_name }}）の利得構造および確率設定
         </div>
-        <div class="card-body p-0">
-            <table class="table table-bordered text-center mb-0" style="vertical-align: middle;">
-                <thead class="table-light">
-                    <tr>
-                        <th>プレイヤー</th>
-                        <th>状況 1 の確率 ($p_1$)</th>
-                        <th>状況 2 の確率 ($p_2$)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr {% if role_name == 'プレイヤーA' %}style="background-color: #e8f5e9; font-weight: bold;"{% endif %}>
-                        <td>プレイヤーA {% if role_name == 'プレイヤーA' %}(あなた){% endif %}</td>
-                        <td style="color: #198754; font-size: 1.2rem;">{{ prob_a_1 }}%</td>
-                        <td style="color: #6c757d; font-size: 1.2rem;">{{ prob_a_2 }}%</td>
-                    </tr>
-                    <tr {% if role_name == 'プレイヤーC' %}style="background-color: #fff3cd; font-weight: bold;"{% endif %}>
-                        <td>プレイヤーC {% if role_name == 'プレイヤーC' %}(あなた){% endif %}</td>
-                        <td style="color: #198754; font-size: 1.2rem;">{{ prob_c_1 }}%</td>
-                        <td style="color: #6c757d; font-size: 1.2rem;">{{ prob_c_2 }}%</td>
-                    </tr>
-                    <tr {% if role_name == 'プレイヤーB' %}style="background-color: #e7f1ff; font-weight: bold;"{% endif %}>
-                        <td>プレイヤーB {% if role_name == 'プレイヤーB' %}(あなた){% endif %}</td>
-                        <td style="color: #198754; font-size: 1.2rem;">{{ prob_b_1 }}%</td>
-                        <td style="color: #6c757d; font-size: 1.2rem;">{{ prob_b_2 }}%</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="card-body text-center p-3">
+            <img src="{{ static image_name }}" style="max-width: 100%; height: auto; border: 1px solid #dee2e6; border-radius: 4px;">
         </div>
     </div>
 
@@ -78,7 +53,7 @@
         {% if round_num < 4 %}
             <button class="otree-btn-next btn btn-primary btn-lg">次の選択に進んでください</button>
         {% else %}
-            <button class="otree-btn-next btn btn-primary btn-lg">送信して実験を終了する</button>
+            <button class="otree-btn-next btn btn-primary btn-lg">送信して結果画面へ進む</button>
         {% endif %}
     </div>
 {% endblock %}
