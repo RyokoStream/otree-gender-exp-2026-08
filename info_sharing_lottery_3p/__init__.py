@@ -375,5 +375,3 @@ page_sequence = [
     FinalResultsWaitPage,
     FinalResults,
 ]
-
-]
