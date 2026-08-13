@@ -1,0 +1,54 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    実験の説明
+{% endblock %}
+
+{% block content %}
+    <div class="card mb-4" style="border-left: 5px solid #0d6efd; background-color: #f8f9fa;">
+        <div class="card-body">
+            <h5 class="card-title font-weight-bold">実験の基本構造</h5>
+            <ul style="line-height: 1.8; margin-bottom: 0;">
+                <li><strong>グループと役割:</strong> あなたは他の参加者2名を含む<strong>3名グループ（プレイヤーA, B, C）</strong>になります。役割は本番開始時に自動的に割り当てられます。</li>
+                <li><strong>情報の共有:</strong> 各ラウンドの意思決定前に、グループの他のプレイヤーに配られたくじの情報（$p_1, p_2$）を互いに確認することができます。</li>
+                <li><strong>意思決定と確率 P:</strong>
+                    <ul>
+                        <li>各ラウンドで望ましい $p$（0 〜 100 の整数）を入力します。</li>
+                        <li><strong>前半（第1・2ラウンド）:</strong> 3名が宣言した $p$ の<strong>平均値（÷ 100）</strong>が $P$ となります。</li>
+                        <li><strong>後半（第3・4ラウンド）:</strong> 3名が宣言した $p$ の<strong>中央値（メジアン ÷ 100）</strong>が $P$ となります。</li>
+                    </ul>
+                </li>
+                <li><strong>状況1 と 状況2:</strong> コンピュータによって確率的に「状況1」または「状況2」が発生し、決定した $P$ に基づいて利得が計算されます。</li>
+                <li><strong>フィードバック:</strong> 途中のラウンドでは、他のプレイヤーが入力した数値や結果は表示されません。</li>
+                <li><strong>最終謝礼金:</strong> 本番全4ラウンド終了後、ランダムに<strong>選ばれた1つのラウンドの獲得金額</strong>が最終謝礼金となります。</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 画像3並列表示エリア（前半：平均値ルールの例） -->
+    <h5 class="text-center font-weight-bold my-3">【前半の利得構造：平均値ルール】</h5>
+    <div class="row my-4">
+        <!-- 左：Player A -->
+        <div class="col-md-4 text-center mb-3 mb-md-0">
+            <img src="{{ static '3mean_playlerA_07_point.png' }}" class="img-fluid border rounded p-1" alt="Player A の利得構造">
+        </div>
+        <!-- 中：Player C -->
+        <div class="col-md-4 text-center mb-3 mb-md-0">
+            <img src="{{ static '3mean_playlerC_05_point.png' }}" class="img-fluid border rounded p-1" alt="Player C の利得構造">
+        </div>
+        <!-- 右：Player B -->
+        <div class="col-md-4 text-center">
+            <img src="{{ static '3mean_playlerB_03_point.png' }}" class="img-fluid border rounded p-1" alt="Player B の利得構造">
+        </div>
+    </div>
+
+    <p style="font-size: 1.05rem;" class="text-center fw-bold">
+        まずは理解を深めるため、前半ルール（平均値）の練習を2回行います。<br>
+        （練習では Player A の立場と Player B の立場を1回ずつ体験します。練習結果は謝礼金に影響しません）
+    </p>
+
+    <div class="mt-4 text-center">
+        {% next_button %}
+    </div>
+{% endblock %}
