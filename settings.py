@@ -1,7 +1,14 @@
 from os import environ
 
 SESSION_CONFIGS = [
-    # ▼ 追加したご自身のアプリ
+    # ▼ 今回作成した3人グループ実験（新規追加）
+    dict(
+        name='lottery_experiment_3p',
+        display_name="3人グループ利得構造実験（前半平均・後半メジアン）",
+        app_sequence=['lottery_experiment_3p'],
+        num_demo_participants=3,  # 3人1グループのため
+    ),
+    # ▼ 以前作成されたアプリ
     dict(
         name='gender_lottery',
         display_name="情報共有型くじ実験",
