@@ -1,0 +1,31 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+    【練習3 計算結果】メジアンルール（プレイヤーA）
+{% endblock %}
+
+{% block content %}
+    <div class="card mb-4" style="border: 2px solid #d63384; border-radius: 8px;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #d63384; font-size: 1.15rem;">
+            📊 練習3 の計算結果（メジアンルール）
+        </div>
+        <div class="card-body">
+            <p style="font-size: 1.1rem; line-height: 1.8;">
+                ・あなたの申告値 ($p_A$): <strong>{{ your_p }}</strong><br>
+                ・想定される他プレイヤーの申告: プレイヤーB = 30, プレイヤーC = 50<br>
+                ・算出された確率 P (中央値/メジアン): <strong style="color: #d63384; font-size: 1.3rem;">{{ big_p }}</strong>
+            </p>
+            <hr>
+            <h6 class="font-weight-bold">【発生した状況に応じた利得結果】</h6>
+            <ul style="font-size: 1.05rem; line-height: 1.8;">
+                <li><strong>状況 1 が発生した場合:</strong> $P \times 2000 = {{ big_p }} \times 2000 =$ <strong style="color: #198754;">{{ payoff_s1 }} 円</strong></li>
+                <li><strong>状況 2 が発生した場合:</strong> $(1 - P) \times 2000 = (1 - {{ big_p }}) \times 2000 =$ <strong style="color: #6c757d;">{{ payoff_s2 }} 円</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        {% next_button %}
+    </div>
+{% endblock %}
