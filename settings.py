@@ -1,12 +1,11 @@
-from os import environ
 
+from os import environ
 SESSION_CONFIGS = [
-    # ▼ 今回作成した3人グループ実験（新規追加）
     dict(
-        name='info_sharing_lottery_3p',
+        name='info_sharing_lottery_3p',  # フォルダ名と統一
         display_name="3人グループ利得構造実験（前半平均・後半メジアン）",
-        app_sequence=['info_sharing_lottery_3p'],
-        num_demo_participants=3,  # 3人1グループのため
+        app_sequence=['info_sharing_lottery_3p'],  # 👈 実際のフォルダ名にする
+        num_demo_participants=3,
     ),
     # ▼ 以前作成されたアプリ
     dict(
