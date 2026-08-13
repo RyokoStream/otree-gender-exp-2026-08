@@ -27,24 +27,24 @@
         </div>
     </div>
 
-    <!-- 2. 全員の利得構造図（A, C, B 3枚並列） -->
+    <!-- 2. 全員の利得構造図（A, B, C 3枚並列） -->
     <div class="card mb-4" style="border: 1px solid #dee2e6; padding: 15px; background-color: #ffffff;">
         <h5 class="text-center font-weight-bold mb-3">【グループ全員の利得構造（メジアンルール）】</h5>
         <div class="row">
-            <!-- 左：Player A -->
+            <!-- 左：Player A (あなたの利得構造 / 確率80%) -->
             <div class="col-md-4 text-center mb-3 mb-md-0">
                 <p class="font-weight-bold mb-1" style="color: #198754;">あなたの利得構造 (Player A)</p>
-                <img src="{% static '3median_playlerA_07_point.png' %}" class="img-fluid border rounded p-1" alt="Player A の利得構造">
+                <img src="{% static '3median_playerA_08_point.png' %}" class="img-fluid border rounded p-1" alt="Player A の利得構造">
             </div>
-            <!-- 中：Player C -->
+            <!-- 中：Player B (確率50%) -->
             <div class="col-md-4 text-center mb-3 mb-md-0">
-                <p class="font-weight-bold mb-1" style="color: #fd7e14;">Player C の利得構造</p>
-                <img src="{% static '3median_playlerC_05_point.png' %}" class="img-fluid border rounded p-1" alt="Player C の利得構造">
-            </div>
-            <!-- 右：Player B -->
-            <div class="col-md-4 text-center">
                 <p class="font-weight-bold mb-1" style="color: #0d6efd;">Player B の利得構造</p>
-                <img src="{% static '3median_playlerB_03_point.png' %}" class="img-fluid border rounded p-1" alt="Player B の利得構造">
+                <img src="{% static '3median_playerB_05_point.png' %}" class="img-fluid border rounded p-1" alt="Player B の利得構造">
+            </div>
+            <!-- 右：Player C (確率20%) -->
+            <div class="col-md-4 text-center">
+                <p class="font-weight-bold mb-1" style="color: #fd7e14;">Player C の利得構造</p>
+                <img src="{% static '3median_playerC_02_point.png' %}" class="img-fluid border rounded p-1" alt="Player C の利得構造">
             </div>
         </div>
     </div>
