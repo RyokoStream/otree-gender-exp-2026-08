@@ -1,0 +1,84 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    【練習1】プレイヤーA の立場を体験する
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-warning mb-3">
+        <strong>💡 練習1（謝礼金には影響しません）</strong><br>
+        まずはあなたが <strong>【プレイヤーA】</strong> だった場合の計算を体験してみましょう。
+    </div>
+
+    <!-- 1. 共有情報（練習用） -->
+    <div class="card mb-3" style="border-left: 5px solid #0d6efd; background-color: #f8f9fa;">
+        <div class="card-body">
+            <h5 class="card-title" style="font-weight: bold;">共有情報（練習）</h5>
+            <p class="card-text" style="font-size: 1.05rem; margin-bottom: 8px;">
+                あなたの役割: <strong>プレイヤーA</strong><br>
+                他のプレイヤー: <strong style="color: #0d6efd;">練習用プレイヤーB, 練習用プレイヤーC</strong>
+            </p>
+            <hr style="margin: 10px 0;">
+            <p class="card-text" style="font-size: 1.05rem; margin: 0; color: #0d6efd; font-weight: bold;">
+                💡 集計された確率 P は、あなたが宣言した $p_A$ と、プレイヤーBが入力した $p_B$、プレイヤーCが入力した $p_C$ の<strong>平均値（÷ 100）</strong>となります。
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. くじの構成（練習用固定数値） -->
+    <div class="card mb-4" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.1rem;">
+            🎲 あなた（プレイヤーA）のくじの構成
+        </div>
+        <div class="card-body p-0">
+            <table style="width: 100%; text-align: center; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; padding: 20px; border-right: 2px solid #dee2e6; background-color: #f4fbf7;">
+                        <div style="color: #198754; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 状況 1 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #198754; font-size: 1.5rem;">70%</strong>
+                        </div>
+                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
+                            得られる金額: P × 2000円
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding: 20px; background-color: #f8f9fa;">
+                        <div style="color: #6c757d; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 状況 2 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #6c757d; font-size: 1.5rem;">30%</strong>
+                        </div>
+                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
+                            得られる金額: (1 - P) × 2000円
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. 解説図の埋め込み -->
+    <div class="card mb-4 text-center" style="border: 1px solid #dee2e6; padding: 15px;">
+        <img src="{% static '3mean_playlerA_07_point.png' %}" style="max-width: 100%; height: auto;" alt="プレイヤーAのポイント">
+    </div>
+
+    <!-- 4. 入力フォーム -->
+    <div class="card mb-3" style="border: 2px solid #ffc107;">
+        <div class="card-body">
+            <p style="font-size: 1.05rem;" class="mb-2">
+                仮に、<strong>プレイヤーBが 30 (30%)、プレイヤーCが 50 (50%)</strong> を入力してきたと想定します。<br>
+                あなたにとって望ましい $p_A$ の値を <strong>0 〜 100 の整数</strong> で入力してください。（例：70 と入力すれば $p_A = 0.70$ ） 
+            </p>
+            {% formfields %}
+        </div>
+    </div>
+
+    <!-- 5. ボタン -->
+    <div class="mt-4 text-center">
+        <button class="otree-btn-next btn btn-warning btn-lg">プレイヤーA の結果を計算してみる</button>
+    </div>
+{% endblock %}
