@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-    <!-- 1. 共有情報（グループ情報・ルール強調表示） -->
+    <!-- 1. グループ共有情報 -->
     <div class="card mb-3" style="border: 3px solid #0d6efd; background-color: #f8f9fa;">
         <div class="card-body" style="padding: 20px;">
             <h5 class="card-title font-weight-bold" style="color: #0d6efd; font-size: 1.25rem;">グループ共有情報</h5>
@@ -28,10 +28,37 @@
         </div>
     </div>
 
-    <!-- 2. くじの構成（画像ではなく表で表示） -->
+    <!-- 2. グループ全体の確率構成（A, B, C全員の情報） -->
+    <div class="card mb-4" style="border: 2px solid #6c757d; border-radius: 8px; overflow: hidden;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #495057; font-size: 1.1rem;">
+            📊 グループ全員の【状況1】が発生する確率
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-bordered text-center m-0" style="font-size: 1.1rem;">
+                <thead class="table-light">
+                    <tr>
+                        <th>メンバー</th>
+                        <th>プレイヤーA {% if role_name == 'プレイヤーA' %}(あなた){% endif %}</th>
+                        <th>プレイヤーB {% if role_name == 'プレイヤーB' %}(あなた){% endif %}</th>
+                        <th>プレイヤーC {% if role_name == 'プレイヤーC' %}(あなた){% endif %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>状況1 の確率</strong></td>
+                        <td style="color: #198754; font-weight: bold;">{{ prob_A }}%</td>
+                        <td style="color: #198754; font-weight: bold;">{{ prob_B }}%</td>
+                        <td style="color: #198754; font-weight: bold;">{{ prob_C }}%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. あなたのくじの構成 -->
     <div class="card mb-4" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
         <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.1rem;">
-            🎲 あなた（{{ role_name }}）のくじの構成
+            🎲 あなた（{{ role_name }}）の利得構造
         </div>
         <div class="card-body p-0">
             <table style="width: 100%; text-align: center; border-collapse: collapse;">
@@ -63,17 +90,17 @@
         </div>
     </div>
 
-    <!-- 3. 入力フォーム -->
+    <!-- 4. 入力フォーム -->
     <div class="card mb-3" style="border: 2px solid #ffc107;">
         <div class="card-body">
             <p style="font-size: 1.05rem;" class="mb-2">
-                あなたにとって望ましい p の値を <strong>0 〜 100 の整数</strong> で宣言してください。
+                あなた（<strong>{{ role_name }}</strong>）にとって望ましい p の値を <strong>0 〜 100 の整数</strong> で宣言してください。
             </p>
             {% formfields %}
         </div>
     </div>
 
-    <!-- 4. ボタン文言 -->
+    <!-- 5. 送信ボタン -->
     <div class="mt-4 text-center">
         {% if round_num < 4 %}
             <button class="otree-btn-next btn btn-primary btn-lg">次の選択に進んでください</button>
