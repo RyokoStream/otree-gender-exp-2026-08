@@ -24,8 +24,8 @@ class Group(BaseGroup):
 class Player(BasePlayer):
     # --- 1. 基本情報アンケート（Demographics用） ---
     gender = models.StringField(
-        label="あなたの性別を教えてください",
-        choices=['男性', '女性', 'その他 / 回答しない'],
+        label="あなたの戸籍上の性別を教えてください",
+        choices=['男性', '女性'],
         widget=widgets.RadioSelect
     )
     age = models.IntegerField(
@@ -42,7 +42,7 @@ class Player(BasePlayer):
     # --- 3. 本番意思決定の入力値 ---
     declaration = models.IntegerField(
         min=0, max=100,
-        label="あなたの宣言する確率 p (%) を入力してください"
+        label="あなたにとって望ましいい確率 p (%) を宣言してください"
     )
 
     # --- 4. 最終謝礼用の結果記録（第4ラウンドのPlayerオブジェクトに保存） ---
