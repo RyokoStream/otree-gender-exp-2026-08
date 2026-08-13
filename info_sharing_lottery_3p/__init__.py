@@ -149,18 +149,14 @@ class Decision(Page):
         # 1: プレイヤーA, 2: プレイヤーB, 3: プレイヤーC
         role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
 
-        # 静的画像の切り替え（playler のタイポを player に修正、1=A, 2=B, 3=C に対応）
-        rule_prefix = '3mean' if r <= 2 else '3median'
-        role_letter = 'A' if id_in_g == 1 else ('B' if id_in_g == 2 else 'C')
-        prob_str = f"{prob1:02d}"
-        image_name = f"{rule_prefix}_player{role_letter}_{prob_str}_point.png"
-
+        # Decision.html の変数名（prob_result1, prob_result2等）に合わせて返します
         return {
             'round_num': r,
             'role_name': role_map.get(id_in_g, 'プレイヤーA'),
-            'prob_s1': prob1,
-            'prob_s2': 100 - prob1,
-            'image_name': image_name,
+            'prob_result1': prob1,
+            'prob_result2': 100 - prob1,
+            'payoff_result1_formula': 'P × 2000円',
+            'payoff_result2_formula': '(1 - P) × 2000円',
         }
 
 
@@ -249,8 +245,6 @@ class FinalResultsWaitPage(WaitPage):
 
     @staticmethod
     def after_all_players_arrive(group: Group):
-        subsession = group.subsession
-        
         # グループ内の全プレイヤーで同じ支払対象ラウンドを選択
         selected_r = random.randint(1, C.NUM_ROUNDS)
 
