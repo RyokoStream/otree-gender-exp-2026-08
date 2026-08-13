@@ -5,7 +5,7 @@ SESSION_CONFIGS = [
     dict(
         name='lottery_experiment_3p',
         display_name="3人グループ利得構造実験（前半平均・後半メジアン）",
-        app_sequence=['lottery_experiment_3p'],
+        app_sequence=['info_sharing_lottery_3p'],
         num_demo_participants=3,  # 3人1グループのため
     ),
     # ▼ 以前作成されたアプリ
