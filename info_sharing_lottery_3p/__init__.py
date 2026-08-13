@@ -92,7 +92,6 @@ class Practice1Results(Page):
     @staticmethod
     def vars_for_template(player: Player):
         your_p = player.practice1_p
-        # プレイヤーA(your_p), B(30), C(50) の平均値
         big_p = round((your_p + 30 + 50) / 300.0, 3)
         return {
             'your_p': your_p,
@@ -119,7 +118,6 @@ class Practice2Results(Page):
     @staticmethod
     def vars_for_template(player: Player):
         your_p = player.practice2_p
-        # プレイヤーB(your_p), A(70), C(50) の平均値
         big_p = round((70 + your_p + 50) / 300.0, 3)
         return {
             'your_p': your_p,
@@ -140,21 +138,26 @@ class Decision(Page):
         r = player.round_number
         id_in_g = player.id_in_group
 
-        # ラウンド別の確率設定（1,2,3番目のプレイヤー順）
+        # ラウンド別のグループ全員（A, B, C）の状況1発生確率
         if r in [1, 3]:
-            prob1 = 80 if id_in_g == 1 else (50 if id_in_g == 2 else 20)
+            prob_A, prob_B, prob_C = 80, 50, 20
         else:
-            prob1 = 60 if id_in_g == 1 else (50 if id_in_g == 2 else 40)
+            prob_A, prob_B, prob_C = 60, 50, 40
 
-        # 1: プレイヤーA, 2: プレイヤーB, 3: プレイヤーC
+        # 自身の役割に応じた確率設定
+        probs = {1: prob_A, 2: prob_B, 3: prob_C}
+        my_prob1 = probs.get(id_in_g, prob_A)
+
         role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
 
-        # Decision.html の変数名（prob_result1, prob_result2等）に合わせて返します
         return {
             'round_num': r,
             'role_name': role_map.get(id_in_g, 'プレイヤーA'),
-            'prob_result1': prob1,
-            'prob_result2': 100 - prob1,
+            'prob_A': prob_A,
+            'prob_B': prob_B,
+            'prob_C': prob_C,
+            'prob_result1': my_prob1,
+            'prob_result2': 100 - my_prob1,
             'payoff_result1_formula': 'P × 2000円',
             'payoff_result2_formula': '(1 - P) × 2000円',
         }
@@ -169,10 +172,8 @@ class DecisionWaitPage(WaitPage):
         declarations = [p.declaration / 100.0 for p in players]
 
         if r <= 2:
-            # 前半（第1・2ラウンド）：平均値ルール
             p_calc = sum(declarations) / 3.0
         else:
-            # 後半（第3・4ラウンド）：メジアンルール
             p_calc = float(np.median(declarations))
 
         group.calculated_P = round(p_calc, 3)
@@ -186,7 +187,6 @@ class Practice3(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        # 第2ラウンド（前半本番）終了後、後半練習へ移動
         return player.round_number == 2
 
 
@@ -198,7 +198,6 @@ class Practice3Results(Page):
     @staticmethod
     def vars_for_template(player: Player):
         your_p = player.practice3_p
-        # プレイヤーA(your_p), B(30), C(50) の中央値
         big_p = round(float(np.median([your_p / 100.0, 0.30, 0.50])), 3)
         return {
             'your_p': your_p,
@@ -225,7 +224,6 @@ class Practice4Results(Page):
     @staticmethod
     def vars_for_template(player: Player):
         your_p = player.practice4_p
-        # プレイヤーB(your_p), A(70), C(50) の中央値
         big_p = round(float(np.median([0.70, your_p / 100.0, 0.50])), 3)
         return {
             'your_p': your_p,
@@ -238,46 +236,40 @@ class Practice4Results(Page):
 # --- 全ラウンド終了時の最終集計処理 ---
 
 class FinalResultsWaitPage(WaitPage):
-    """全ラウンド終了後、支払対象ラウンド（1〜4）を1つランダム抽出して確定謝礼金を計算"""
+    """全ラウンド終了後、支払対象ラウンドを抽出して謝礼計算"""
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == C.NUM_ROUNDS
 
     @staticmethod
     def after_all_players_arrive(group: Group):
-        # グループ内の全プレイヤーで同じ支払対象ラウンドを選択
         selected_r = random.randint(1, C.NUM_ROUNDS)
 
         for p in group.get_players():
-            # 選ばれたラウンドのプレイヤーおよびグループデータを取得
             target_p = p.in_round(selected_r)
             target_g = group.in_round(selected_r)
 
             big_p = target_g.calculated_P
             id_in_g = target_p.id_in_group
 
-            # 選定ラウンドでの状況1の発生確率（くじの確率）
             if selected_r in [1, 3]:
                 prob1 = 80 if id_in_g == 1 else (50 if id_in_g == 2 else 20)
             else:
                 prob1 = 60 if id_in_g == 1 else (50 if id_in_g == 2 else 40)
 
-            # コンピュータによる自動抽選（状況1 または 状況2）
             drawn_state = 1 if random.random() < (prob1 / 100.0) else 2
 
-            # 確定謝礼金の計算
             if drawn_state == 1:
                 final_payoff = int(big_p * 2000)
             else:
                 final_payoff = int((1.0 - big_p) * 2000)
 
-            # 第4ラウンド（最終結果画面表示用）のフィールドに記録を保持
             final_p_obj = p.in_round(C.NUM_ROUNDS)
             final_p_obj.selected_round = selected_r
             final_p_obj.final_p = big_p
             final_p_obj.chosen_state = drawn_state
             final_p_obj.payoff_amount = final_payoff
-            final_p_obj.payoff = final_payoff  # oTree標準の謝礼フィールド
+            final_p_obj.payoff = final_payoff
 
 
 # --- 最終結果画面 ---
@@ -293,7 +285,6 @@ class FinalResults(Page):
         chosen_r = player.selected_round
         all_rounds_data = []
 
-        # 全4ラウンド分の履歴データを構築
         for r in range(1, C.NUM_ROUNDS + 1):
             r_player = player.in_round(r)
             r_group = player.group.in_round(r)
@@ -313,7 +304,6 @@ class FinalResults(Page):
             amt1 = int(calc_p_round * 2000)
             amt2 = int((1 - calc_p_round) * 2000)
 
-            # 選定ラウンドは確定結果を使用し、それ以外は個別計算
             if r == chosen_r:
                 state = player.chosen_state
                 round_pay = player.payoff_amount
@@ -327,8 +317,8 @@ class FinalResults(Page):
                 'round_num': r,
                 'role_name': role_map.get(id_in_g, 'プレイヤーA'),
                 'my_p': my_p,
-                'other_p_1': other_decls[0],
-                'other_p_2': other_decls[1],
+                'other_p_1': other_decls[0] if len(other_decls) > 0 else 0,
+                'other_p_2': other_decls[1] if len(other_decls) > 1 else 0,
                 'group_P': calc_p_round,
                 'prob_result1': prob1,
                 'prob_result2': prob2,
@@ -350,22 +340,18 @@ class FinalResults(Page):
 # =========================================================
 
 page_sequence = [
-    Demographics,         # 基本情報入力
-    Instructions,         # 全体説明
-    # --- 前半（平均値ルール）練習 ---
+    Demographics,
+    Instructions,
     Practice1,
     Practice1Results,
     Practice2,
     Practice2Results,
-    # --- 本番意思決定（第1〜4ラウンド共通） ---
     Decision,
     DecisionWaitPage,
-    # --- 第2ラウンド終了時に挿入される後半練習 ---
     Practice3,
     Practice3Results,
     Practice4,
     Practice4Results,
-    # --- 最終結果算出・表示 ---
     FinalResultsWaitPage,
     FinalResults,
 ]
