@@ -23,8 +23,8 @@ class Group(BaseGroup):
 
 class Player(BasePlayer):
     # --- 1. 基本情報アンケート（Demographics用） ---
-    participant_id = models.StringField(
-        label="あなたの参加者ID（または学籍番号など）を入力してください",
+    student_id = models.StringField(
+        label="IDを入力してください",  # ここをシンプルに修正しました
     )
     gender = models.StringField(
         label="あなたの戸籍上の性別を教えてください",
@@ -62,7 +62,7 @@ class Player(BasePlayer):
 class Demographics(Page):
     """実験開始前の基本情報入力画面"""
     form_model = 'player'
-    form_fields = ['participant_id', 'gender', 'age']  # participant_id をしっかり含めています
+    form_fields = ['student_id', 'gender', 'age']
 
     @staticmethod
     def is_displayed(player: Player):
