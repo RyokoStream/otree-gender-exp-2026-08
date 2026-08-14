@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <!-- 2. グループ全体の確率構成（タイトル変更＆状況2の行を追加） -->
+    <!-- 2. グループ全体の確率構成（タイトル変更＆状況1・状況2の両行を完備） -->
     <div class="card mb-4" style="border: 2px solid #6c757d; border-radius: 8px; overflow: hidden;">
         <div class="card-header text-white font-weight-bold" style="background-color: #495057; font-size: 1.1rem;">
             📊 グループ全員の状況別発生確率
@@ -68,17 +68,31 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- 状況1 の確率 -->
                     <tr>
                         <td><strong>状況1 の確率</strong></td>
-                        <td style="color: #198754; font-weight: bold;">{{ prob_A }}%</td>
-                        <td style="color: #198754; font-weight: bold;">{{ prob_B }}%</td>
-                        <td style="color: #198754; font-weight: bold;">{{ prob_C }}%</td>
+                        <td style="color: #198754; font-weight: bold;">
+                            {% if prob_result1_A %}{{ prob_result1_A }}{% else %}{{ prob_A }}{% endif %}%
+                        </td>
+                        <td style="color: #198754; font-weight: bold;">
+                            {% if prob_result1_B %}{{ prob_result1_B }}{% else %}{{ prob_B }}{% endif %}%
+                        </td>
+                        <td style="color: #198754; font-weight: bold;">
+                            {% if prob_result1_C %}{{ prob_result1_C }}{% else %}{{ prob_C }}{% endif %}%
+                        </td>
                     </tr>
+                    <!-- 状況2 の確率 -->
                     <tr>
                         <td><strong>状況2 の確率</strong></td>
-                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_result2_A|default:"" }}{% if not prob_result2_A %}{{ 100|sub:prob_A }}{% endif %}%</td>
-                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_result2_B|default:"" }}{% if not prob_result2_B %}{{ 100|sub:prob_B }}{% endif %}%</td>
-                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_result2_C|default:"" }}{% if not prob_result2_C %}{{ 100|sub:prob_C }}{% endif %}%</td>
+                        <td style="color: #0d6efd; font-weight: bold;">
+                            {% if prob_result2_A %}{{ prob_result2_A }}{% else %}{{ 100|sub:prob_A }}{% endif %}%
+                        </td>
+                        <td style="color: #0d6efd; font-weight: bold;">
+                            {% if prob_result2_B %}{{ prob_result2_B }}{% else %}{{ 100|sub:prob_B }}{% endif %}%
+                        </td>
+                        <td style="color: #0d6efd; font-weight: bold;">
+                            {% if prob_result2_C %}{{ prob_result2_C }}{% else %}{{ 100|sub:prob_C }}{% endif %}%
+                        </td>
                     </tr>
                 </tbody>
             </table>
