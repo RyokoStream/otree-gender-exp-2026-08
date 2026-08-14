@@ -130,6 +130,42 @@ class Practice2Results(Page):
         }
 
 
+# --- 本番前の同期・グループ情報確認画面 ---
+
+class GroupWaitPage(WaitPage):
+    """本番ラウンド開始前、全員が揃うのを待つページ"""
+    title_text = "他のメンバーを待っています"
+    body_text = "全員が揃うまでしばらくお待ちください..."
+
+
+class GroupInfo(Page):
+    """グループ構成（性別）を表示する専用ページ"""
+    @staticmethod
+    def vars_for_template(player: Player):
+        r = player.round_number
+        id_in_g = player.id_in_group
+        role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
+
+        group_info = []
+        for p in player.group.get_players():
+            p_first_round = p.in_round(1)
+            try:
+                gender_val = p_first_round.gender
+            except Exception:
+                gender_val = None
+
+            group_info.append({
+                'role_name': role_map.get(p.id_in_group, ''),
+                'gender': gender_val if gender_val else '未回答',
+                'is_me': (p.id_in_group == id_in_g)
+            })
+
+        return {
+            'round_num': r,
+            'group_info': group_info,
+        }
+
+
 # --- 本番意思決定画面 ---
 
 class Decision(Page):
@@ -173,7 +209,6 @@ class Decision(Page):
             'prob_A': prob_A,
             'prob_B': prob_B,
             'prob_C': prob_C,
-            # ↓ テンプレートのエラー回避のため、100からの引き算（状況2の確率）をここで計算して渡します
             'prob_A_rem': 100 - prob_A,
             'prob_B_rem': 100 - prob_B,
             'prob_C_rem': 100 - prob_C,
@@ -364,16 +399,22 @@ class FinalResults(Page):
 page_sequence = [
     Demographics,
     Instructions,
+    # --- 前半練習 ---
     Practice1,
     Practice1Results,
     Practice2,
     Practice2Results,
-    Decision,
+    # --- 本番ラウンド ---
+    GroupWaitPage,  # ★ 全員が揃うのを待機
+    GroupInfo,      # ★ 性別情報を一斉に確認
+    Decision,       # 本番意思決定
     DecisionWaitPage,
+    # --- 後半練習 ---
     Practice3,
     Practice3Results,
     Practice4,
     Practice4Results,
+    # --- 最終結果 ---
     FinalResultsWaitPage,
     FinalResults,
 ]
