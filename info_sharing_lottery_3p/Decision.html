@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <!-- 2. グループ全体の確率構成 -->
+    <!-- 2. グループ全体の確率構成（安全な直接変数参照） -->
     <div class="card mb-4" style="border: 2px solid #6c757d; border-radius: 8px; overflow: hidden;">
         <div class="card-header text-white font-weight-bold" style="background-color: #495057; font-size: 1.1rem;">
             📊 グループ全員の状況別発生確率
@@ -71,28 +71,16 @@
                     <!-- 状況1 の確率 -->
                     <tr>
                         <td><strong>状況1 の確率</strong></td>
-                        <td style="color: #198754; font-weight: bold;">
-                            {% if prob_result1_A %}{{ prob_result1_A }}{% else %}{{ prob_A }}{% endif %}%
-                        </td>
-                        <td style="color: #198754; font-weight: bold;">
-                            {% if prob_result1_B %}{{ prob_result1_B }}{% else %}{{ prob_B }}{% endif %}%
-                        </td>
-                        <td style="color: #198754; font-weight: bold;">
-                            {% if prob_result1_C %}{{ prob_result1_C }}{% else %}{{ prob_C }}{% endif %}%
-                        </td>
+                        <td style="color: #198754; font-weight: bold;">{{ prob_A }}%</td>
+                        <td style="color: #198754; font-weight: bold;">{{ prob_B }}%</td>
+                        <td style="color: #198754; font-weight: bold;">{{ prob_C }}%</td>
                     </tr>
-                    <!-- 状況2 の確率（修正箇所：|sub フィルターを使わず残りの確率変数を参照） -->
+                    <!-- 状況2 の確率 -->
                     <tr>
                         <td><strong>状況2 の確率</strong></td>
-                        <td style="color: #0d6efd; font-weight: bold;">
-                            {% if prob_result2_A %}{{ prob_result2_A }}{% else %}{{ prob_A_rem }}{% endif %}%
-                        </td>
-                        <td style="color: #0d6efd; font-weight: bold;">
-                            {% if prob_result2_B %}{{ prob_result2_B }}{% else %}{{ prob_B_rem }}{% endif %}%
-                        </td>
-                        <td style="color: #0d6efd; font-weight: bold;">
-                            {% if prob_result2_C %}{{ prob_result2_C }}{% else %}{{ prob_C_rem }}{% endif %}%
-                        </td>
+                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_A_rem }}%</td>
+                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_B_rem }}%</td>
+                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_C_rem }}%</td>
                     </tr>
                 </tbody>
             </table>
