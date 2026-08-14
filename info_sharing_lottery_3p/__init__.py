@@ -24,7 +24,7 @@ class Group(BaseGroup):
 class Player(BasePlayer):
     # --- 1. 基本情報アンケート（Demographics用） ---
     student_id = models.StringField(
-        label="IDを入力してください",  # ここをシンプルに修正しました
+        label="IDを入力してください",
     )
     gender = models.StringField(
         label="あなたの戸籍上の性別を教えてください",
@@ -48,7 +48,7 @@ class Player(BasePlayer):
         label="あなたにとって望ましい確率 p (%) を宣言してください"
     )
 
-    # --- 4. 最終謝礼用の結果記録（第4ラウンドのPlayerオブジェクトに保存） ---
+    # --- 4. 最終謝礼用の結果記録 ---
     selected_round = models.IntegerField()  # 支払対象として選ばれたラウンド
     final_p = models.FloatField()          # 選ばれたラウンドの集計確率 P
     chosen_state = models.IntegerField()     # 選ばれたラウンドで発生した状況（1 または 2）
@@ -147,11 +147,20 @@ class Decision(Page):
         else:
             prob_A, prob_B, prob_C = 60, 50, 40
 
-        # 自身の役割に応じた確率設定
         probs = {1: prob_A, 2: prob_B, 3: prob_C}
         my_prob1 = probs.get(id_in_g, prob_A)
 
         role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
+
+        # メンバーの性別情報（Decision.html の group_info 用）
+        group_info = []
+        for p in player.group.get_players():
+            p_first_round = p.in_round(1)
+            group_info.append({
+                'role_name': role_map.get(p.id_in_group, ''),
+                'gender': p_first_round.gender if p_first_round.gender else '未回答',
+                'is_me': (p.id_in_group == id_in_g)
+            })
 
         return {
             'round_num': r,
@@ -163,6 +172,7 @@ class Decision(Page):
             'prob_result2': 100 - my_prob1,
             'payoff_result1_formula': 'P × 2000円',
             'payoff_result2_formula': '(1 - P) × 2000円',
+            'group_info': group_info,  # <--- ここを追加しました
         }
 
 
