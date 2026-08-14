@@ -30,27 +30,6 @@
         </div>
     </div>
 
-    <!-- 👥 グループメンバーのジェンダー情報 -->
-    <div class="card mb-4" style="border-left: 5px solid #6f42c1; background-color: #f8f9fa;">
-        <div class="card-body">
-            <h5 class="card-title font-weight-bold" style="color: #6f42c1;">
-                👥 グループのメンバー構成
-            </h5>
-            <p class="mb-2" style="font-size: 1.05rem;">
-                このグループ（あなたを含む3人）の性別は以下の通りです。
-            </p>
-            <ul style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 0;">
-                {% for member in group_info %}
-                    <li>
-                        {{ member.role_name }}: <strong>{{ member.gender }}</strong>
-                        {% if member.is_me %}
-                            <span class="badge bg-secondary ms-2">あなた</span>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
 
     <!-- 2. グループ全体の確率構成（安全な直接変数参照） -->
     <div class="card mb-4" style="border: 2px solid #6c757d; border-radius: 8px; overflow: hidden;">
