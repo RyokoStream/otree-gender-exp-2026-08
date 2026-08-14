@@ -1,21 +1,23 @@
 {% extends "global/Page.html" %}
-{% load otree %}
+{% load otree static %}
 
 {% block title %}
     意思決定（本番 第 {{ round_num }} / 4 ラウンド）
 {% endblock %}
 
 {% block content %}
-    <!-- 1. グループ共有情報 -->
-    <div class="card mb-3" style="border: 3px solid #0d6efd; background-color: #f8f9fa;">
-        <div class="card-body" style="padding: 20px;">
-            <h5 class="card-title font-weight-bold" style="color: #0d6efd; font-size: 1.25rem;">グループ共有情報</h5>
-            <p class="card-text" style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 12px;">
-                あなたの役割: <strong>{{ role_name }}</strong><br>
-                グループメンバー: <span class="badge bg-primary" style="font-size: 1.1rem; padding: 6px 12px;">プレイヤーA, プレイヤーB, プレイヤーC</span>
+
+    <!-- 1. グループ共有情報ヘッダー -->
+    <div class="card mb-4" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.15rem;">
+            🌐 グループ共有情報
+        </div>
+        <div class="card-body" style="background-color: #f8f9fa;">
+            <p class="card-text" style="font-size: 1.1rem; margin-bottom: 8px;">
+                あなたの役割: <strong style="color: #0d6efd; font-size: 1.2rem;">{{ role_name }}</strong>
+                <span class="ms-3" style="color: #6c757d;">（グループメンバー: プレイヤーA, プレイヤーB, プレイヤーC）</span>
             </p>
             <hr style="margin: 12px 0;">
-            
             {% if round_num > 2 %}
                 <p class="card-text" style="font-size: 1.05rem; margin: 0; color: #d63384; font-weight: bold;">
                     💡 集計された確率 P は、グループ3名（A, B, C）が宣言した p の【中央値（メジアン ÷ 100）】となります。
@@ -28,11 +30,15 @@
         </div>
     </div>
 
-    <!-- 👥 グループメンバーのジェンダー情報（追加部分） -->
+    <!-- 👥 グループメンバーのジェンダー情報 -->
     <div class="card mb-4" style="border-left: 5px solid #6f42c1; background-color: #f8f9fa;">
         <div class="card-body">
-            <h5 class="card-title font-weight-bold" style="color: #6f42c1;">👥 グループのメンバー構成</h5>
-            <p class="mb-2" style="font-size: 1.05rem;">このグループ（あなたを含む3人）の性別は以下の通りです。</p>
+            <h5 class="card-title font-weight-bold" style="color: #6f42c1;">
+                👥 グループのメンバー構成
+            </h5>
+            <p class="mb-2" style="font-size: 1.05rem;">
+                このグループ（あなたを含む3人）の性別は以下の通りです。
+            </p>
             <ul style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 0;">
                 {% for member in group_info %}
                     <li>
@@ -46,10 +52,10 @@
         </div>
     </div>
 
-    <!-- 2. グループ全体の確率構成（A, B, C全員の情報） -->
+    <!-- 2. グループ全体の確率構成（タイトル変更＆状況2の行を追加） -->
     <div class="card mb-4" style="border: 2px solid #6c757d; border-radius: 8px; overflow: hidden;">
         <div class="card-header text-white font-weight-bold" style="background-color: #495057; font-size: 1.1rem;">
-            📊 グループ全員の【状況1】が発生する確率
+            📊 グループ全員の状況別発生確率
         </div>
         <div class="card-body p-0">
             <table class="table table-bordered text-center m-0" style="font-size: 1.1rem;">
@@ -67,6 +73,12 @@
                         <td style="color: #198754; font-weight: bold;">{{ prob_A }}%</td>
                         <td style="color: #198754; font-weight: bold;">{{ prob_B }}%</td>
                         <td style="color: #198754; font-weight: bold;">{{ prob_C }}%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>状況2 の確率</strong></td>
+                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_result2_A|default:"" }}{% if not prob_result2_A %}{{ 100|sub:prob_A }}{% endif %}%</td>
+                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_result2_B|default:"" }}{% if not prob_result2_B %}{{ 100|sub:prob_B }}{% endif %}%</td>
+                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_result2_C|default:"" }}{% if not prob_result2_C %}{{ 100|sub:prob_C }}{% endif %}%</td>
                     </tr>
                 </tbody>
             </table>
@@ -86,21 +98,21 @@
                             【 状況 1 】
                         </div>
                         <div style="font-size: 1.1rem; margin-bottom: 6px;">
-                            確率 <strong style="color: #198754; font-size: 1.5rem;">{{ prob_result1 }}%</strong>
+                            確率 <strong style="color: #198754; font-size: 1.2rem;">{{ prob_result1 }}%</strong>
                         </div>
-                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
-                            得られる金額: {{ payoff_result1_formula }}
+                        <div style="font-size: 1.05rem; color: #495057;">
+                            得られる金額: <strong>{{ payoff_result1_formula }}</strong>
                         </div>
                     </td>
-                    <td style="width: 50%; padding: 20px; background-color: #f8f9fa;">
-                        <div style="color: #6c757d; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                    <td style="width: 50%; padding: 20px; background-color: #f0f7ff;">
+                        <div style="color: #0d6efd; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
                             【 状況 2 】
                         </div>
                         <div style="font-size: 1.1rem; margin-bottom: 6px;">
-                            確率 <strong style="color: #6c757d; font-size: 1.5rem;">{{ prob_result2 }}%</strong>
+                            確率 <strong style="color: #0d6efd; font-size: 1.2rem;">{{ prob_result2 }}%</strong>
                         </div>
-                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
-                            得られる金額: {{ payoff_result2_formula }}
+                        <div style="font-size: 1.05rem; color: #495057;">
+                            得られる金額: <strong>{{ payoff_result2_formula }}</strong>
                         </div>
                     </td>
                 </tr>
@@ -108,22 +120,23 @@
         </div>
     </div>
 
-    <!-- 4. 入力フォーム -->
-    <div class="card mb-3" style="border: 2px solid #ffc107;">
-        <div class="card-body">
-            <p style="font-size: 1.05rem;" class="mb-2">
-                あなた（<strong>{{ role_name }}</strong>）にとって望ましい p の値を <strong>0 〜 100 の整数</strong> で宣言してください。
+    <!-- 4. 意志決定入力フォーム -->
+    <div class="card mb-4" style="border: 2px solid #212529; border-radius: 8px; overflow: hidden;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #212529; font-size: 1.1rem;">
+            ✏️ あなたの宣言の入力
+        </div>
+        <div class="card-body" style="background-color: #ffffff;">
+            <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                あなた（ <strong>{{ role_name }}</strong> ）にとって望ましい <strong style="color: #d63384;">p の値</strong> を <em>0 〜 100 の整数</em> で宣言してください。
             </p>
-            {% formfields %}
+            <div class="mb-3">
+                {% formfields %}
+            </div>
         </div>
     </div>
 
-    <!-- 5. 送信ボタン -->
-    <div class="mt-4 text-center">
-        {% if round_num < 4 %}
-            <button class="otree-btn-next btn btn-primary btn-lg">次の選択に進んでください</button>
-        {% else %}
-            <button class="otree-btn-next btn btn-primary btn-lg">送信して結果画面へ進む</button>
-        {% endif %}
+    <div class="text-end mt-4 mb-5">
+        {% next_button %}
     </div>
+
 {% endblock %}
