@@ -152,11 +152,11 @@ class Decision(Page):
 
         role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
 
-        # メンバーの性別情報（Null Safe に取得）
+        # Python標準関数 getattr で安全に取得
         group_info = []
         for p in player.group.get_players():
             p_first_round = p.in_round(1)
-            gender_val = field_maybe_none(p_first_round, 'gender')
+            gender_val = getattr(p_first_round, 'gender', None)
             group_info.append({
                 'role_name': role_map.get(p.id_in_group, ''),
                 'gender': gender_val if gender_val else '未回答',
