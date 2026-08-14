@@ -1,14 +1,4 @@
-
-
-
 from otree.api import *
-import random
-import numpy as np
-
-doc = """
-3人グループ利得構造実験（前半：平均値ルール / 後半：メジアンルール）
-"""
-from otree.api import *, field_maybe_none
 import random
 import numpy as np
 
@@ -162,11 +152,15 @@ class Decision(Page):
 
         role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
 
-        # otree.api からインポートした field_maybe_none を使用して安全に取得
+        # try...except で安全に取得（エラー発生時は「未回答」にする）
         group_info = []
         for p in player.group.get_players():
             p_first_round = p.in_round(1)
-            gender_val = field_maybe_none(p_first_round, 'gender')
+            try:
+                gender_val = p_first_round.gender
+            except Exception:
+                gender_val = None
+
             group_info.append({
                 'role_name': role_map.get(p.id_in_group, ''),
                 'gender': gender_val if gender_val else '未回答',
