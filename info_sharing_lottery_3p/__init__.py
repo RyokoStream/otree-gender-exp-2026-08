@@ -152,13 +152,14 @@ class Decision(Page):
 
         role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
 
-        # メンバーの性別情報（Decision.html の group_info 用）
+        # メンバーの性別情報（Null Safe に取得）
         group_info = []
         for p in player.group.get_players():
             p_first_round = p.in_round(1)
+            gender_val = field_maybe_none(p_first_round, 'gender')
             group_info.append({
                 'role_name': role_map.get(p.id_in_group, ''),
-                'gender': p_first_round.gender if p_first_round.gender else '未回答',
+                'gender': gender_val if gender_val else '未回答',
                 'is_me': (p.id_in_group == id_in_g)
             })
 
@@ -172,7 +173,7 @@ class Decision(Page):
             'prob_result2': 100 - my_prob1,
             'payoff_result1_formula': 'P × 2000円',
             'payoff_result2_formula': '(1 - P) × 2000円',
-            'group_info': group_info,  # <--- ここを追加しました
+            'group_info': group_info,
         }
 
 
