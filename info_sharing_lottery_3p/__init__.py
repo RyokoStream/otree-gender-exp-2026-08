@@ -94,7 +94,7 @@ class Practice1Results(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        your_p = player.practice1_p
+        your_p = player.practice1_p if player.practice1_p is not None else 0
         big_p = round((your_p + 30 + 50) / 300.0, 3)
         return {
             'your_p': your_p,
@@ -120,7 +120,7 @@ class Practice2Results(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        your_p = player.practice2_p
+        your_p = player.practice2_p if player.practice2_p is not None else 0
         big_p = round((70 + your_p + 50) / 300.0, 3)
         return {
             'your_p': your_p,
@@ -133,9 +133,14 @@ class Practice2Results(Page):
 # --- 本番前の同期・グループ情報確認画面 ---
 
 class GroupWaitPage(WaitPage):
-    """本番ラウンド開始前、全員が揃うのを待つページ"""
+    """本番ラウンド（第1ラウンド）の開始前のみ、全員が揃うのを待つページ"""
     title_text = "他のメンバーを待っています"
-    body_text = "全員が揃うまでしばらくお待ちください..."
+    body_text = "グループ全員が準備完了になるまでしばらくお待ちください..."
+
+    @staticmethod
+    def is_displayed(player: Player):
+        # 第1ラウンド（本番開始時）のみ待機ページを表示
+        return player.round_number == 1
 
 
 class GroupInfo(Page):
@@ -148,9 +153,10 @@ class GroupInfo(Page):
 
         group_info = []
         for p in player.group.get_players():
-            p_first_round = p.in_round(1)
+            # 安全に第1ラウンドの性別を取得
             try:
-                gender_val = p_first_round.gender
+                p_r1 = p.in_round(1)
+                gender_val = getattr(p_r1, 'gender', None)
             except Exception:
                 gender_val = None
 
@@ -188,12 +194,11 @@ class Decision(Page):
 
         role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
 
-        # try...except で安全に取得（エラー発生時は「未回答」にする）
         group_info = []
         for p in player.group.get_players():
-            p_first_round = p.in_round(1)
             try:
-                gender_val = p_first_round.gender
+                p_r1 = p.in_round(1)
+                gender_val = getattr(p_r1, 'gender', None)
             except Exception:
                 gender_val = None
 
@@ -226,7 +231,7 @@ class DecisionWaitPage(WaitPage):
     def after_all_players_arrive(group: Group):
         r = group.round_number
         players = group.get_players()
-        declarations = [p.declaration / 100.0 for p in players]
+        declarations = [(p.declaration or 0) / 100.0 for p in players]
 
         if r <= 2:
             p_calc = sum(declarations) / 3.0
@@ -254,7 +259,7 @@ class Practice3Results(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        your_p = player.practice3_p
+        your_p = player.practice3_p if player.practice3_p is not None else 0
         big_p = round(float(np.median([your_p / 100.0, 0.30, 0.50])), 3)
         return {
             'your_p': your_p,
@@ -280,7 +285,7 @@ class Practice4Results(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        your_p = player.practice4_p
+        your_p = player.practice4_p if player.practice4_p is not None else 0
         big_p = round(float(np.median([0.70, your_p / 100.0, 0.50])), 3)
         return {
             'your_p': your_p,
@@ -306,7 +311,7 @@ class FinalResultsWaitPage(WaitPage):
             target_p = p.in_round(selected_r)
             target_g = group.in_round(selected_r)
 
-            big_p = target_g.calculated_P
+            big_p = target_g.calculated_P if target_g.calculated_P is not None else 0.5
             id_in_g = target_p.id_in_group
 
             if selected_r in [1, 3]:
@@ -347,8 +352,8 @@ class FinalResults(Page):
             r_group = player.group.in_round(r)
             r_players = r_group.get_players()
 
-            my_p = r_player.declaration
-            other_decls = [p.declaration for p in r_players if p.id_in_group != r_player.id_in_group]
+            my_p = r_player.declaration or 0
+            other_decls = [(p.declaration or 0) for p in r_players if p.id_in_group != r_player.id_in_group]
 
             id_in_g = r_player.id_in_group
             if r in [1, 3]:
@@ -357,7 +362,7 @@ class FinalResults(Page):
                 prob1 = 60 if id_in_g == 1 else (50 if id_in_g == 2 else 40)
             prob2 = 100 - prob1
 
-            calc_p_round = r_group.calculated_P
+            calc_p_round = r_group.calculated_P if r_group.calculated_P is not None else 0.5
             amt1 = int(calc_p_round * 2000)
             amt2 = int((1 - calc_p_round) * 2000)
 
@@ -404,9 +409,9 @@ page_sequence = [
     Practice1Results,
     Practice2,
     Practice2Results,
-    # --- 本番ラウンド ---
-    GroupWaitPage,  # ★ 全員が揃うのを待機
-    GroupInfo,      # ★ 性別情報を一斉に確認
+    # --- 本番ラウンド前の待機・確認 ---
+    GroupWaitPage,  # ★ ラウンド1の前に全員揃うのを同期
+    GroupInfo,      # ★ 全員の性別情報を表示
     Decision,       # 本番意思決定
     DecisionWaitPage,
     # --- 後半練習 ---
