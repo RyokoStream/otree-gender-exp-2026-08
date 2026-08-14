@@ -133,18 +133,23 @@ class Practice2Results(Page):
 # --- 本番前の同期・グループ情報確認画面 ---
 
 class GroupWaitPage(WaitPage):
-    """本番ラウンド（第1ラウンド）の開始前のみ、全員が揃うのを待つページ"""
+    """第1ラウンド開始前のみ、全員が揃うのを待つページ"""
     title_text = "他のメンバーを待っています"
     body_text = "グループ全員が準備完了になるまでしばらくお待ちください..."
 
     @staticmethod
     def is_displayed(player: Player):
-        # 第1ラウンド（本番開始時）のみ待機ページを表示
+        # 第1ラウンド（最初）のみ表示
         return player.round_number == 1
 
 
 class GroupInfo(Page):
-    """グループ構成（性別）を表示する専用ページ"""
+    """グループ構成（性別）を表示する専用ページ（最初だけ表示）"""
+    @staticmethod
+    def is_displayed(player: Player):
+        # 第1ラウンド（最初）のみ表示
+        return player.round_number == 1
+
     @staticmethod
     def vars_for_template(player: Player):
         r = player.round_number
@@ -153,7 +158,6 @@ class GroupInfo(Page):
 
         group_info = []
         for p in player.group.get_players():
-            # 安全に第1ラウンドの性別を取得
             try:
                 p_r1 = p.in_round(1)
                 gender_val = getattr(p_r1, 'gender', None)
@@ -194,20 +198,7 @@ class Decision(Page):
 
         role_map = {1: 'プレイヤーA', 2: 'プレイヤーB', 3: 'プレイヤーC'}
 
-        group_info = []
-        for p in player.group.get_players():
-            try:
-                p_r1 = p.in_round(1)
-                gender_val = getattr(p_r1, 'gender', None)
-            except Exception:
-                gender_val = None
-
-            group_info.append({
-                'role_name': role_map.get(p.id_in_group, ''),
-                'gender': gender_val if gender_val else '未回答',
-                'is_me': (p.id_in_group == id_in_g)
-            })
-
+        # ★ ここでは性別情報（group_info）を一切渡さず、純粋な意思決定画面にします
         return {
             'round_num': r,
             'role_name': role_map.get(id_in_g, 'プレイヤーA'),
@@ -221,7 +212,6 @@ class Decision(Page):
             'prob_result2': 100 - my_prob1,
             'payoff_result1_formula': 'P × 2000円',
             'payoff_result2_formula': '(1 - P) × 2000円',
-            'group_info': group_info,
         }
 
 
@@ -404,22 +394,22 @@ class FinalResults(Page):
 page_sequence = [
     Demographics,
     Instructions,
-    # --- 前半練習 ---
+    # --- 前半練習（平均値ルール） ---
     Practice1,
     Practice1Results,
     Practice2,
     Practice2Results,
-    # --- 本番ラウンド前の待機・確認 ---
-    GroupWaitPage,  # ★ ラウンド1の前に全員揃うのを同期
-    GroupInfo,      # ★ 全員の性別情報を表示
-    Decision,       # 本番意思決定
+    # --- 本番前の同期・グループ性別確認 ---
+    GroupWaitPage,  # ★ ラウンド1のみ：全員が揃うのを待機
+    GroupInfo,      # ★ ラウンド1のみ：メンバーの性別を表示（これ以降は表示なし）
+    Decision,       # 本番意思決定画面
     DecisionWaitPage,
-    # --- 後半練習 ---
+    # --- 後半練習（メジアンルール） ---
     Practice3,
     Practice3Results,
     Practice4,
     Practice4Results,
-    # --- 最終結果 ---
+    # --- 最終結果集計 ---
     FinalResultsWaitPage,
     FinalResults,
 ]
