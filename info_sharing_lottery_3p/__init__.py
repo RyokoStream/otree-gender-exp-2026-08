@@ -173,6 +173,10 @@ class Decision(Page):
             'prob_A': prob_A,
             'prob_B': prob_B,
             'prob_C': prob_C,
+            # ↓ テンプレートのエラー回避のため、100からの引き算（状況2の確率）をここで計算して渡します
+            'prob_A_rem': 100 - prob_A,
+            'prob_B_rem': 100 - prob_B,
+            'prob_C_rem': 100 - prob_C,
             'prob_result1': my_prob1,
             'prob_result2': 100 - my_prob1,
             'payoff_result1_formula': 'P × 2000円',
