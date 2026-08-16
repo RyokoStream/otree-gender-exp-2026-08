@@ -187,11 +187,11 @@ class Decision(Page):
         r = player.round_number
         id_in_g = player.id_in_group
 
-        # ラウンド別のグループ全員（A, B, C）の状況1発生確率
+        # ラウンド別のグループ全員（A, B, C）の状況1発生確率（BとCを反転: Cは常に50%）
         if r in [1, 3]:
-            prob_A, prob_B, prob_C = 80, 50, 20
+            prob_A, prob_B, prob_C = 80, 20, 50
         else:
-            prob_A, prob_B, prob_C = 60, 50, 40
+            prob_A, prob_B, prob_C = 60, 40, 50
 
         probs = {1: prob_A, 2: prob_B, 3: prob_C}
         my_prob1 = probs.get(id_in_g, prob_A)
@@ -304,10 +304,11 @@ class FinalResultsWaitPage(WaitPage):
             big_p = target_g.calculated_P if target_g.calculated_P is not None else 0.5
             id_in_g = target_p.id_in_group
 
+            # BとCの確率を反転（1:A=80/60, 2:B=20/40, 3:C=50/50）
             if selected_r in [1, 3]:
-                prob1 = 80 if id_in_g == 1 else (50 if id_in_g == 2 else 20)
+                prob1 = 80 if id_in_g == 1 else (20 if id_in_g == 2 else 50)
             else:
-                prob1 = 60 if id_in_g == 1 else (50 if id_in_g == 2 else 40)
+                prob1 = 60 if id_in_g == 1 else (40 if id_in_g == 2 else 50)
 
             drawn_state = 1 if random.random() < (prob1 / 100.0) else 2
 
@@ -346,10 +347,11 @@ class FinalResults(Page):
             other_decls = [(p.declaration or 0) for p in r_players if p.id_in_group != r_player.id_in_group]
 
             id_in_g = r_player.id_in_group
+            # BとCの確率を反転（1:A=80/60, 2:B=20/40, 3:C=50/50）
             if r in [1, 3]:
-                prob1 = 80 if id_in_g == 1 else (50 if id_in_g == 2 else 20)
+                prob1 = 80 if id_in_g == 1 else (20 if id_in_g == 2 else 50)
             else:
-                prob1 = 60 if id_in_g == 1 else (50 if id_in_g == 2 else 40)
+                prob1 = 60 if id_in_g == 1 else (40 if id_in_g == 2 else 50)
             prob2 = 100 - prob1
 
             calc_p_round = r_group.calculated_P if r_group.calculated_P is not None else 0.5
