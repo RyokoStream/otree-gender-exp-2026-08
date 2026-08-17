@@ -1,0 +1,130 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    意思決定（本番 第 {{ round_num }} / 4 ラウンド）
+{% endblock %}
+
+{% block content %}
+
+    <!-- 1. グループ共有情報ヘッダー -->
+    <div class="card mb-4" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.15rem;">
+            🌐 グループ共有情報
+        </div>
+        <div class="card-body" style="background-color: #f8f9fa;">
+            <p class="card-text" style="font-size: 1.1rem; margin-bottom: 8px;">
+                あなたの役割: <strong style="color: #0d6efd; font-size: 1.2rem;">{{ role_name }}</strong>
+                <span class="ms-3" style="color: #6c757d;">（グループメンバー: プレイヤーA, プレイヤーB, プレイヤーC）</span>
+            </p>
+            <hr style="margin: 12px 0;">
+            {% if round_num > 2 %}
+                <p class="card-text" style="font-size: 1.05rem; margin: 0; color: #dc3545; font-weight: bold;">
+                    💡 集計された確率 P は、グループ3名（A, B, C）が宣言した p の【中央値（メジアン ÷ 100）】となります。
+                </p>
+            {% else %}
+                <p class="card-text" style="font-size: 1.05rem; margin: 0; color: #0d6efd; font-weight: bold;">
+                    💡 集計された確率 P は、グループ3名（A, B, C）が宣言した p の【平均値（÷ 100）】となります。
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 2. グループ全員の状況別発生確率 -->
+    <div class="card mb-4" style="border: 2px solid #6c757d; border-radius: 8px; overflow: hidden;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #495057; font-size: 1.1rem;">
+            📊 グループ全員の状況別発生確率
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-bordered text-center m-0" style="font-size: 1.1rem;">
+                <thead class="table-light">
+                    <tr>
+                        <th>メンバー</th>
+                        <th>プレイヤーA {% if role_name == 'プレイヤーA' %}(あなた){% endif %}</th>
+                        <th>プレイヤーB {% if role_name == 'プレイヤーB' %}(あなた){% endif %}</th>
+                        <th>プレイヤーC {% if role_name == 'プレイヤーC' %}(あなた){% endif %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 状況1 の確率 -->
+                    <tr>
+                        <td><strong>状況1 の確率</strong></td>
+                        <td style="color: #198754; font-weight: bold;">{{ prob_A }}%</td>
+                        <td style="color: #198754; font-weight: bold;">{{ prob_B }}%</td>
+                        <td style="color: #198754; font-weight: bold;">{{ prob_C }}%</td>
+                    </tr>
+                    <!-- 状況2 の確率 -->
+                    <tr>
+                        <td><strong>状況2 の確率</strong></td>
+                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_A_rem }}%</td>
+                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_B_rem }}%</td>
+                        <td style="color: #0d6efd; font-weight: bold;">{{ prob_C_rem }}%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. あなたの損失構造（初期手元金 2,000円からの損失計算） -->
+    <div class="card mb-4" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.1rem;">
+            📉 あなた（{{ role_name }}）の損失構造（初期手元金: 2,000円）
+        </div>
+        <div class="card-body p-0">
+            <table style="width: 100%; text-align: center; border-collapse: collapse;">
+                <tr>
+                    <!-- 状況1 -->
+                    <td style="width: 50%; padding: 20px; border-right: 2px solid #dee2e6; background-color: #ffffff;">
+                        <div style="color: #198754; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 状況 1 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #198754; font-size: 1.2rem;">{{ prob_result1 }}%</strong>
+                        </div>
+                        <div style="font-size: 1.05rem; color: #495057;">
+                            発生する損失額: <strong style="color: #dc3545;">{{ loss_result1_formula }} 円</strong>
+                        </div>
+                        <div style="font-size: 0.95rem; color: #6c757d; margin-top: 4px;">
+                            （手元に残る金額: {{ payoff_result1_formula }} 円）
+                        </div>
+                    </td>
+                    <!-- 状況2 -->
+                    <td style="width: 50%; padding: 20px; background-color: #f8f9fa;">
+                        <div style="color: #0d6efd; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 状況 2 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #0d6efd; font-size: 1.2rem;">{{ prob_result2 }}%</strong>
+                        </div>
+                        <div style="font-size: 1.05rem; color: #495057;">
+                            発生する損失額: <strong style="color: #dc3545;">{{ loss_result2_formula }} 円</strong>
+                        </div>
+                        <div style="font-size: 0.95rem; color: #6c757d; margin-top: 4px;">
+                            （手元に残る金額: {{ payoff_result2_formula }} 円）
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. 意思決定入力フォーム -->
+    <div class="card mb-4" style="border: 2px solid #212529; border-radius: 8px; overflow: hidden;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #212529; font-size: 1.1rem;">
+            ✏️ あなたの宣言の入力
+        </div>
+        <div class="card-body" style="background-color: #ffffff;">
+            <p style="font-size: 1.1rem; margin-bottom: 15px;">
+                あなた（ <strong>{{ role_name }}</strong> ）にとって望ましい <strong style="color: #dc3545;">p の値</strong> を <em>0 〜 100 の整数</em> で宣言してください。
+            </p>
+            <div class="mb-3">
+                {% formfields %}
+            </div>
+        </div>
+    </div>
+
+    <div class="text-end mt-4 mb-5">
+        {% next_button %}
+    </div>
+
+{% endblock %}
