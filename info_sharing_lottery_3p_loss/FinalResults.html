@@ -8,7 +8,7 @@
 {% block content %}
     <p style="font-size: 1.1rem;">全4ラウンドの意思決定が完了しました。全4回の入力結果および各くじの結果は以下の通りです。</p>
 
-    <!-- 全4ラウンド分のくじと結果を表示 -->
+    <!-- 全4ラウンド分の記録を表示 -->
     {% for r in all_rounds %}
     <div class="card mb-4" style="border: 2px solid {% if r.round_num == selected_round %}#198754{% else %}#dee2e6{% endif %}; border-radius: 8px; overflow: hidden;">
         <div class="card-header font-weight-bold d-flex justify-content-between align-items-center" style="background-color: {% if r.round_num == selected_round %}#d1e7dd{% else %}#f8f9fa{% endif %}; font-size: 1.1rem;">
@@ -21,7 +21,7 @@
             <!-- 入力値と集計確率 -->
             <p style="margin-bottom: 5px;">あなたが宣言した p ({{ r.role_name }}): <strong>{{ r.my_p }} %</strong></p>
             <p style="margin-bottom: 5px;">他のメンバーが宣言した p: <strong>{{ r.other_p_1 }} % , {{ r.other_p_2 }} %</strong></p>
-            
+
             {% if r.round_num <= 2 %}
                 <p style="font-size: 1.05rem; color: #0d6efd; font-weight: bold; margin-bottom: 15px;">
                     集計された確率 P（平均値 ÷ 100）: {{ r.group_P }}
@@ -32,36 +32,33 @@
                 </p>
             {% endif %}
 
-            <!-- くじ構成表（損失構造） -->
-            <table class="table table-bordered text-center mb-3">
+            <!-- くじ構成表 -->
+            <table class="table table-bordered text-center mb-3" style="background-color: #ffffff;">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 20%;">発生した状況</th>
-                        <th style="width: 20%;">確率</th>
-                        <th style="width: 30%;">発生する損失額</th>
-                        <th style="width: 30%;">手元に残る金額（2,000円 - 損失）</th>
+                        <th style="width: 25%;">発生する状況</th>
+                        <th style="width: 25%;">確率</th>
+                        <th style="width: 50%;">獲得できる謝礼金</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="font-weight: bold; color: #dc3545;">状況 1</td>
+                        <td style="font-weight: bold; color: #0d6efd;">状況 1</td>
                         <td>{{ r.prob_result1 }}%</td>
-                        <td style="color: #dc3545;">- {{ r.loss_result1 }} 円</td>
                         <td style="font-weight: bold;">{{ r.amount_result1 }} 円</td>
                     </tr>
                     <tr>
                         <td style="font-weight: bold; color: #6c757d;">状況 2</td>
                         <td>{{ r.prob_result2 }}%</td>
-                        <td style="color: #dc3545;">- {{ r.loss_result2 }} 円</td>
                         <td style="font-weight: bold;">{{ r.amount_result2 }} 円</td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- ラウンドごとの抽選結果 -->
+            <!-- ラウンドごとの自動抽選結果 -->
             <div class="alert alert-secondary text-center m-0" style="padding: 10px;">
                 このラウンドの自動抽選結果: <strong>【状況 {{ r.drawn_result }}】</strong> 
-                （損失額: <span style="color: #dc3545; font-weight: bold;">-{{ r.drawn_loss }}円</span> ➔ 手元に残る金額: <strong>{{ r.round_payoff }} 円</strong>）
+                （獲得できる謝礼金: <strong>{{ r.round_payoff }} 円</strong>）
             </div>
         </div>
     </div>
@@ -76,16 +73,15 @@
             <p style="font-size: 1.2rem; margin-bottom: 10px;">
                 ランダム抽出の結果、支払対象には <strong>【第 {{ selected_round }} ラウンド】</strong> が選ばれました！
             </p>
-            
+
             {% for r in all_rounds %}
                 {% if r.round_num == selected_round %}
                     <p style="font-size: 1.1rem; margin-bottom: 10px; color: #333;">
-                        第 {{ selected_round }} ラウンドでは <strong>【状況 {{ r.drawn_result }}】</strong> が発生したため、<br>
-                        初期手元金 2,000円 から 損失 <strong>{{ r.drawn_loss }}円</strong> が差し引かれました。
+                        第 {{ selected_round }} ラウンドでは <strong>【状況 {{ r.drawn_result }}】</strong> が発生しました。
                     </p>
                 {% endif %}
             {% endfor %}
-            
+
             <div style="font-size: 1.8rem; font-weight: bold; color: #198754; margin-top: 10px; padding: 12px 24px; background-color: #ffffff; border: 2px dashed #198754; border-radius: 8px; display: inline-block;">
                 あなたの確定謝礼金: {{ final_payoff }} 円
             </div>
@@ -94,7 +90,7 @@
 
     <p style="font-size: 1.05rem;" class="text-center">ご参加ありがとうございました。</p>
 
-    <div class="text-center mt-4">
+    <div class="text-center mt-4 mb-5">
         {% next_button %}
     </div>
 {% endblock %}
