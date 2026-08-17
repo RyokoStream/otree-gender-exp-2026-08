@@ -32,25 +32,29 @@
                 </p>
             {% endif %}
 
-            <!-- くじ構成表 -->
+            <!-- くじ構成表（損失・利得の正負表記を自動判定） -->
             <table class="table table-bordered text-center mb-3" style="background-color: #ffffff;">
                 <thead class="table-light">
                     <tr>
                         <th style="width: 25%;">発生する状況</th>
                         <th style="width: 25%;">確率</th>
-                        <th style="width: 50%;">獲得できる謝礼金</th>
+                        <th style="width: 50%;">このラウンドの変動額</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="font-weight: bold; color: #0d6efd;">状況 1</td>
                         <td>{{ r.prob_result1 }}%</td>
-                        <td style="font-weight: bold;">{{ r.amount_result1 }} 円</td>
+                        <td style="font-weight: bold; {% if r.amount_result1 < 0 %}color: #dc3545;{% else %}color: #198754;{% endif %}">
+                            {{ r.amount_result1 }} 円
+                        </td>
                     </tr>
                     <tr>
                         <td style="font-weight: bold; color: #6c757d;">状況 2</td>
                         <td>{{ r.prob_result2 }}%</td>
-                        <td style="font-weight: bold;">{{ r.amount_result2 }} 円</td>
+                        <td style="font-weight: bold; {% if r.amount_result2 < 0 %}color: #dc3545;{% else %}color: #198754;{% endif %}">
+                            {{ r.amount_result2 }} 円
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -58,7 +62,7 @@
             <!-- ラウンドごとの自動抽選結果 -->
             <div class="alert alert-secondary text-center m-0" style="padding: 10px;">
                 このラウンドの自動抽選結果: <strong>【状況 {{ r.drawn_result }}】</strong> 
-                （獲得できる謝礼金: <strong>{{ r.round_payoff }} 円</strong>）
+                （獲得/損失額: <strong>{{ r.round_payoff }} 円</strong>）
             </div>
         </div>
     </div>
