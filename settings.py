@@ -1,6 +1,12 @@
 
 from os import environ
 SESSION_CONFIGS = [
+   dict(
+        name='info_sharing_lottery_3p_loss',
+        display_name="Info Sharing Lottery 3P (Loss Version)",
+        app_sequence=['info_sharing_lottery_3p_loss'],
+        num_demo_participants=3,
+    ),
     dict(
         name='info_sharing_lottery_3p',  # フォルダ名と統一
         display_name="3人グループ利得構造実験（前半平均・後半メジアン）",
