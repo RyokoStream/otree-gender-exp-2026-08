@@ -1,0 +1,63 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    【練習4】メジアンルールでの体験（プレイヤーB）
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-warning mb-3">
+        <strong>💡 練習4（謝礼金には影響しません）</strong><br>
+        最後の練習です。メジアンルールで <strong>【プレイヤーB】</strong> だった場合の計算を体験してみましょう。
+    </div>
+
+    <!-- 1. 共有情報 -->
+    <div class="card mb-3" style="border-left: 5px solid #0d6efd; background-color: #f8f9fa;">
+        <div class="card-body">
+            <h5 class="card-title" style="font-weight: bold;">共有情報（練習）</h5>
+            <p class="card-text" style="font-size: 1.05rem; margin-bottom: 8px;">
+                あなたの役割: <strong>プレイヤーB</strong><br>
+                他のプレイヤー: <strong style="color: #0d6efd;">練習用プレイヤーA, 練習用プレイヤーC</strong>
+            </p>
+            <hr style="margin: 10px 0;">
+            <p class="card-text" style="font-size: 1.05rem; margin: 0; color: #dc3545; font-weight: bold;">
+                💡 集計された確率 P は、宣言された 3 つの値（p_A, p_B, p_C）を大きさ順に並べた際の<strong>中央の値（メジアン ÷ 100）</strong>となります。
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. 全員の損失構造図 -->
+    <div class="card mb-4" style="border: 1px solid #dee2e6; padding: 15px; background-color: #ffffff;">
+        <h5 class="text-center font-weight-bold mb-3">【グループ全員の損失構造】</h5>
+        <div class="row">
+            <div class="col-md-4 text-center mb-3 mb-md-0">
+                <p class="font-weight-bold mb-1" style="color: #0d6efd;">Player A の損失構造</p>
+                <img src="{% static '3mean_playerA_07_point.png' %}" class="img-fluid border rounded p-1" alt="Player A の損失構造">
+            </div>
+            <div class="col-md-4 text-center mb-3 mb-md-0">
+                <p class="font-weight-bold mb-1" style="color: #198754;">あなたの損失構造 (Player B)</p>
+                <img src="{% static '3mean_playerB_03_point.png' %}" class="img-fluid border rounded p-1" alt="Player B の損失構造">
+            </div>
+            <div class="col-md-4 text-center">
+                <p class="font-weight-bold mb-1" style="color: #fd7e14;">Player C の損失構造</p>
+                <img src="{% static '3mean_playerC_05_point.png' %}" class="img-fluid border rounded p-1" alt="Player C の損失構造">
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 入力フォーム -->
+    <div class="card mb-3" style="border: 2px solid #ffc107;">
+        <div class="card-body">
+            <p style="font-size: 1.05rem;" class="mb-2">
+                仮に、<strong>プレイヤーAが 70 (70%)、プレイヤーCが 50 (50%)</strong> を入力してきたと想定します。<br>
+                あなた（プレイヤーB）にとって望ましい p_B の値を <strong>0 〜 100 の整数</strong> で入力してください。
+            </p>
+            {% formfields %}
+        </div>
+    </div>
+
+    <!-- 4. ボタン -->
+    <div class="mt-4 text-center">
+        <button class="otree-btn-next btn btn-warning btn-lg">プレイヤーB の結果を計算してみる</button>
+    </div>
+{% endblock %}
