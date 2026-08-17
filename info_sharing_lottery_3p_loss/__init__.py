@@ -217,9 +217,11 @@ class Decision(Page):
             'prob_C_rem': 100 - prob_C,
             'prob_result1': my_prob1,
             'prob_result2': 100 - my_prob1,
-            # Lossバージョン表記用の数式文字列
-            'payoff_result1_formula': '-(1 - P) × 2000円',
-            'payoff_result2_formula': '-P × 2000円',
+            # Decision.html のエラーを解消する変数を追加
+            'loss_result1_formula': '(1 - P) × 2,000',
+            'payoff_result1_formula': '2,000 - (1 - P) × 2,000',
+            'loss_result2_formula': 'P × 2,000',
+            'payoff_result2_formula': '2,000 - P × 2,000',
         }
 
 
@@ -373,7 +375,7 @@ class FinalResults(Page):
             prob2 = 100 - prob1
 
             calc_p_round = r_group.calculated_P if r_group.calculated_P is not None else 0.5
-            
+
             # 各状況での損失額
             loss_s1 = int(round((1.0 - calc_p_round) * C.INITIAL_ENDOWMENT))
             loss_s2 = int(round(calc_p_round * C.INITIAL_ENDOWMENT))
