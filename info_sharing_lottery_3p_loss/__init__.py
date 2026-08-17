@@ -98,7 +98,6 @@ class Practice1Results(Page):
     def vars_for_template(player: Player):
         your_p = player.practice1_p if player.practice1_p is not None else 0
         big_p = round((your_p + 30 + 50) / 300.0, 3)
-        # 損失額の算出: 状況1は (1-P)*2000, 状況2は P*2000
         loss_s1 = int(round((1.0 - big_p) * C.INITIAL_ENDOWMENT))
         loss_s2 = int(round(big_p * C.INITIAL_ENDOWMENT))
         return {
@@ -217,7 +216,6 @@ class Decision(Page):
             'prob_C_rem': 100 - prob_C,
             'prob_result1': my_prob1,
             'prob_result2': 100 - my_prob1,
-            # Decision.html のエラーを解消する変数を追加
             'loss_result1_formula': '(1 - P) × 2,000',
             'payoff_result1_formula': '2,000 - (1 - P) × 2,000',
             'loss_result2_formula': 'P × 2,000',
@@ -329,7 +327,6 @@ class FinalResultsWaitPage(WaitPage):
 
             drawn_state = 1 if random.random() < (prob1 / 100.0) else 2
 
-            # Loss形式の計算: 状況1は (1-P)*2000の損失、状況2は P*2000の損失
             if drawn_state == 1:
                 loss = int(round((1.0 - big_p) * C.INITIAL_ENDOWMENT))
             else:
@@ -402,6 +399,9 @@ class FinalResults(Page):
                 'prob_result2': prob2,
                 'loss_result1': loss_s1,
                 'loss_result2': loss_s2,
+                # FinalResults.html の表示用変数
+                'amount_result1': -loss_s1,
+                'amount_result2': -loss_s2,
                 'drawn_result': state,
                 'round_loss': round_loss,
                 'round_payoff': round_pay,
