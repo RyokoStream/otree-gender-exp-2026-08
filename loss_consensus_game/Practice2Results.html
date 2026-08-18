@@ -1,0 +1,64 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    【練習2】結果の確認（プレイヤーB）
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-info mb-3">
+        <strong>💡 練習2 計算結果</strong><br>
+        入力した値をもとに、ペア全体確率 P とあなたが発生する<strong>損失額</strong>を試算しました。
+    </div>
+
+    <!-- 1. 計算結果の概要 -->
+    <div class="card mb-3" style="border-left: 5px solid #17a2b8; background-color: #f8f9fa;">
+        <div class="card-body">
+            <h5 class="card-title" style="font-weight: bold;">ペア全体確率 P の計算</h5>
+            <p class="card-text" style="font-size: 1.05rem; margin-bottom: 8px;">
+                ・相手の入力値 (p_A): <strong>50%</strong><br>
+                ・あなたの入力値 (p_B): <strong>{{ your_p }}%</strong>
+            </p>
+            <hr style="margin: 10px 0;">
+            <p class="card-text" style="font-size: 1.1rem; margin: 0; color: #17a2b8; font-weight: bold;">
+                決定された確率 P = ( 50 + {{ your_p }} ) ÷ 200 = <span style="font-size: 1.3rem;">{{ big_p }}</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. 状況ごとの損失額計算結果 -->
+    <div class="card mb-4" style="border: 1px solid #dee2e6; padding: 15px; background-color: #ffffff;">
+        <h5 class="text-center font-weight-bold mb-3">【状況ごとの損失額と手元金】</h5>
+        <div class="row">
+            <!-- 状況1 -->
+            <div class="col-md-6 mb-3 mb-md-0">
+                <div class="p-3 border rounded h-100" style="background-color: #fff5f5; border-color: #f5c2c7 !important;">
+                    <h6 class="font-weight-bold text-danger">【状況1 が発生した場合】（確率 40%）</h6>
+                    <p class="card-text mt-2" style="font-size: 1.05rem;">
+                        初期手元金 2,000円 からの損失額：<br>
+                        <span style="font-size: 1.5rem; color: #dc3545; font-weight: bold;">{{ loss_s1 }} 円</span> を失います。
+                    </p>
+                    <hr style="margin: 8px 0;">
+                    <p class="text-muted mb-0">💰 手元に残る金額: <strong>{{ payoff_s1 }} 円</strong></p>
+                </div>
+            </div>
+            <!-- 状況2 -->
+            <div class="col-md-6">
+                <div class="p-3 border rounded h-100" style="background-color: #fff5f5; border-color: #f5c2c7 !important;">
+                    <h6 class="font-weight-bold text-danger">【状況2 が発生した場合】（確率 60%）</h6>
+                    <p class="card-text mt-2" style="font-size: 1.05rem;">
+                        初期手元金 2,000円 からの損失額：<br>
+                        <span style="font-size: 1.5rem; color: #dc3545; font-weight: bold;">{{ loss_s2 }} 円</span> を失います。
+                    </p>
+                    <hr style="margin: 8px 0;">
+                    <p class="text-muted mb-0">💰 手元に残る金額: <strong>{{ payoff_s2 }} 円</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ボタン -->
+    <div class="mt-4 text-center">
+        <button class="otree-btn-next btn btn-info text-white btn-lg">本番に進む</button>
+    </div>
+{% endblock %}
