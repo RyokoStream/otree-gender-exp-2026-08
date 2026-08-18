@@ -1,0 +1,91 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    【練習2】プレイヤーB の立場を体験する
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-info mb-3">
+        <strong>💡 練習2（謝礼金には影響しません）</strong><br>
+        次は、相手側の立場である <strong>【プレイヤーB】</strong> だった場合の計算を体験してみましょう。
+    </div>
+
+    <!-- 1. 共有情報（練習用） -->
+    <div class="card mb-3" style="border-left: 5px solid #17a2b8; background-color: #f8f9fa;">
+        <div class="card-body">
+            <h5 class="card-title" style="font-weight: bold;">共有情報（練習）</h5>
+            <p class="card-text" style="font-size: 1.05rem; margin-bottom: 8px;">
+                あなたの役割: <strong>プレイヤーB</strong><br>
+                ペア相手のID: <strong style="color: #17a2b8;">練習用ペア</strong><br>
+                ペア相手の性別: <strong style="color: #17a2b8;">--</strong>
+            </p>
+            <hr style="margin: 10px 0;">
+            <p class="card-text" style="font-size: 1.05rem; margin: 0; color: #17a2b8; font-weight: bold;">
+                💡 集計された確率 P は、あなたが宣言した p_B とペアの相手（ここではプレイヤーA）が入力した p_A の平均値となります。
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. くじの構成（練習用固定数値・損失フレーム） -->
+    <div class="card mb-4" style="border: 2px solid #17a2b8; border-radius: 8px; overflow: hidden;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #17a2b8; font-size: 1.1rem;">
+            🎲 あなた（プレイヤーB）のくじの構成（初期手元金: 2,000円）
+        </div>
+        <div class="card-body p-0">
+            <table style="width: 100%; text-align: center; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; padding: 20px; border-right: 2px solid #dee2e6; background-color: #fff5f5;">
+                        <div style="color: #dc3545; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 状況 1 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #dc3545; font-size: 1.5rem;">40%</strong>
+                        </div>
+                        <div style="font-size: 1.1rem; font-weight: bold; color: #dc3545; margin-bottom: 4px;">
+                            損失額: P × 2,000円
+                        </div>
+                        <div style="font-size: 0.95rem; color: #6c757d;">
+                            (手元に残る金額: 2,000円 - 損失額)
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding: 20px; background-color: #f8f9fa;">
+                        <div style="color: #6c757d; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
+                            【 状況 2 】
+                        </div>
+                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
+                            確率 <strong style="color: #6c757d; font-size: 1.5rem;">60%</strong>
+                        </div>
+                        <div style="font-size: 1.1rem; font-weight: bold; color: #dc3545; margin-bottom: 4px;">
+                            損失額: (1 - P) × 2,000円
+                        </div>
+                        <div style="font-size: 0.95rem; color: #6c757d;">
+                            (手元に残る金額: 2,000円 - 損失額)
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. 解説図（playerB_04_loss.png）の埋め込み -->
+    <div class="card mb-4 text-center" style="border: 1px solid #dee2e6; padding: 15px;">
+        <img src="{% static 'playerB_04_loss.png' %}" style="max-width: 100%; height: auto;" alt="プレイヤーBの損失構造">
+    </div>
+
+    <!-- 4. 入力フォーム -->
+    <div class="card mb-3" style="border: 2px solid #17a2b8;">
+        <div class="card-body">
+            <p style="font-size: 1.05rem;" class="mb-2">
+                仮に、<strong>相手（プレイヤーA）が p = 50 (0.50) を入力してきたと想定</strong>します。<br>
+                あなたにとって望ましい p_B の値を <strong>0 〜 100 の整数</strong> で入力してください。（例：45 と入力すれば p_B = 45% ）
+            </p>
+            {% formfields %}
+        </div>
+    </div>
+
+    <!-- 5. ボタン -->
+    <div class="mt-4 text-center">
+        <button class="otree-btn-next btn btn-info text-white btn-lg">プレイヤーB の結果を計算してみる</button>
+    </div>
+{% endblock %}
