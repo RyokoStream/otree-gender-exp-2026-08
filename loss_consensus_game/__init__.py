@@ -98,13 +98,11 @@ class PracticeResults(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        # 練習1で入力された値を取得
         my_p_int = player.practice_p1 if player.practice_p1 is not None else 0
         my_p_ratio = my_p_int / 100.0
         other_p_ratio = 0.50
         group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
 
-        # プレイヤーAとしての額計算
         amt_res1 = round(group_P * 2000)
         loss_res1 = 2000 - amt_res1
         amt_res2 = round((1 - group_P) * 2000)
@@ -114,7 +112,9 @@ class PracticeResults(Page):
             'my_p': my_p_int,
             'p_input': my_p_int,
             'other_p': 50,
+            'opponent_p': 50,           # HTMLテンプレート用の補正
             'group_P': group_P,
+            'group_p': int(group_P * 100), # HTMLテンプレート用の補正（%表記用）
             'loss_result1': loss_res1,
             'amount_result1': amt_res1,
             'loss_result2': loss_res2,
@@ -140,13 +140,11 @@ class PracticeResults2(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        # 練習2で入力された値を取得
         my_p_int = player.practice_p2 if player.practice_p2 is not None else 0
         my_p_ratio = my_p_int / 100.0
         other_p_ratio = 0.50
         group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
 
-        # プレイヤーBとしての額計算
         amt_res1 = round((1 - group_P) * 2000)
         loss_res1 = 2000 - amt_res1
         amt_res2 = round(group_P * 2000)
@@ -156,7 +154,9 @@ class PracticeResults2(Page):
             'my_p': my_p_int,
             'p_input': my_p_int,
             'other_p': 50,
+            'opponent_p': 50,           # HTMLテンプレート用の補正
             'group_P': group_P,
+            'group_p': int(group_P * 100), # HTMLテンプレート用の補正（%表記用）
             'loss_result1': loss_res1,
             'amount_result1': amt_res1,
             'loss_result2': loss_res2,
@@ -216,7 +216,6 @@ class ResultsWaitPage(WaitPage):
             is_player_a = (p.id_in_group == 1)
             prob_res1_threshold = prob_a_threshold if is_player_a else (1.0 - prob_a_threshold)
 
-            # くじの抽選処理
             if random.random() < prob_res1_threshold:
                 p.drawn_result = "状況 1"
                 payoff_val = (P * 2000) if is_player_a else ((1 - P) * 2000)
@@ -227,7 +226,6 @@ class ResultsWaitPage(WaitPage):
             p.round_payoff = round(payoff_val)
             p.payoff = p.round_payoff
 
-        # 最終ラウンドで支払対象ラウンドを決定・保存
         if group.round_number == C.NUM_ROUNDS:
             selected_round = group.session.vars.get(
                 f'selected_round_group_{group.id_in_subsession}',
@@ -278,7 +276,9 @@ class FinalResults(Page):
                 'round_num': r_num,
                 'my_p': p.p_input,
                 'other_p': other_p.p_input,
+                'opponent_p': other_p.p_input,
                 'group_P': group_P,
+                'group_p': int(group_P * 100),
                 'prob_result1': prob_result1,
                 'prob_result2': prob_result2,
                 'amount_result1': amt_res1,
