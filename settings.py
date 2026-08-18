@@ -1,22 +1,22 @@
-
 from os import environ
-SESSION_CONFIGS= [
- 　dict(
+
+SESSION_CONFIGS = [
+    dict(
         name='loss_consensus_game',
         display_name="集団合意形成ゲーム（損失）",
         app_sequence=['loss_consensus_game'],
-        num_demo_participants=3,
+        num_demo_participants=2,  # 2名に変更
     ), 
-   dict(
+    dict(
         name='info_sharing_lottery_3p_loss',
         display_name="３人グループ利得構造実験（損失版）",
         app_sequence=['info_sharing_lottery_3p_loss'],
         num_demo_participants=3,
     ),
     dict(
-        name='info_sharing_lottery_3p',  # フォルダ名と統一
+        name='info_sharing_lottery_3p',
         display_name="3人グループ利得構造実験（前半平均・後半メジアン）",
-        app_sequence=['info_sharing_lottery_3p'],  # 👈 実際のフォルダ名にする
+        app_sequence=['info_sharing_lottery_3p'],
         num_demo_participants=3,
     ),
     # ▼ 以前作成されたアプリ
