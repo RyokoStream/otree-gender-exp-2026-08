@@ -23,18 +23,23 @@
             <hr>
             <div class="row text-center mt-3">
                 <div class="col-md-6 mb-2">
-                    <div style="background-color: #f4fbf7; padding: 15px; border-radius: 5px; border: 1px solid #198754;">
+                    <div style="background-color: #fff5f5; padding: 15px; border-radius: 5px; border: 1px solid #dc3545;">
                         <span style="color: #198754; font-weight: bold;">【 状況 1 】</span><br>
-                        <span style="color: #dc3545; font-weight: bold;">発生する損失: <strong style="font-size: 1.4rem;">-{{ loss_result1 }} 円</strong></span><br>
-                        <span style="font-size: 1.0rem;">手元に残ったお金: {{ amount_result1 }} 円</span><br>
+                        <div class="my-2" style="color: #dc3545; font-weight: bold;">
+                            発生する損失: <span style="font-size: 1.5rem;">-{{ loss_result1 }} 円</span>
+                        </div>
+                        <span style="font-size: 0.95rem; color: #495057;">手元に残ったお金: {{ amount_result1 }} 円</span><br>
                         <small class="text-muted">((1 - P) × 2,000円)</small>
                     </div>
                 </div>
                 <div class="col-md-6 mb-2">
-                    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #6c757d;">
+                    <div style="background-color: #fff5f5; padding: 15px; border-radius: 5px; border: 1px solid #dc3545;">
                         <span style="color: #6c757d; font-weight: bold;">【 状況 2 】</span><br>
-                        <span style="color: #dc3545; font-weight: bold;">発生する損失: <strong style="font-size: 1.4rem;">-{{ loss_result2 }} 円</strong></span><br>
-                        <span style="font-size: 1.0rem;">手元に残ったお金: {{ amount_result2 }} 円</span><br>
+                        <span style="color: #dc3545; font-weight: bold;">
+                            発生する損失: <span style="font-size: 1.5rem;">-{{ loss_result2 }} 円</span>
+                        </span>
+                        <br>
+                        <span style="font-size: 0.95rem; color: #495057;">手元に残ったお金: {{ amount_result2 }} 円</span><br>
                         <small class="text-muted">(P × 2,000円)</small>
                     </div>
                 </div>
