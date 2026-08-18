@@ -108,17 +108,23 @@ class PracticeResults(Page):
         amt_res2 = round((1 - group_P) * 2000)
         loss_res2 = 2000 - amt_res2
 
+        # 練習画面の表示用（状況1の例として計算）
+        loss_amount = loss_res1
+        payoff_amount = amt_res1
+
         return {
             'my_p': my_p_int,
             'p_input': my_p_int,
             'other_p': 50,
-            'opponent_p': 50,           # HTMLテンプレート用の補正
+            'opponent_p': 50,
             'group_P': group_P,
-            'group_p': int(group_P * 100), # HTMLテンプレート用の補正（%表記用）
+            'group_p': int(group_P * 100),
             'loss_result1': loss_res1,
             'amount_result1': amt_res1,
             'loss_result2': loss_res2,
             'amount_result2': amt_res2,
+            'loss_amount': loss_amount,       # HTMLテンプレート用の補正
+            'payoff_amount': payoff_amount,   # HTMLテンプレート用の補正
         }
 
 
@@ -150,17 +156,23 @@ class PracticeResults2(Page):
         amt_res2 = round(group_P * 2000)
         loss_res2 = 2000 - amt_res2
 
+        # 練習画面の表示用（状況1の例として計算）
+        loss_amount = loss_res1
+        payoff_amount = amt_res1
+
         return {
             'my_p': my_p_int,
             'p_input': my_p_int,
             'other_p': 50,
-            'opponent_p': 50,           # HTMLテンプレート用の補正
+            'opponent_p': 50,
             'group_P': group_P,
-            'group_p': int(group_P * 100), # HTMLテンプレート用の補正（%表記用）
+            'group_p': int(group_P * 100),
             'loss_result1': loss_res1,
             'amount_result1': amt_res1,
             'loss_result2': loss_res2,
             'amount_result2': amt_res2,
+            'loss_amount': loss_amount,       # HTMLテンプレート用の補正
+            'payoff_amount': payoff_amount,   # HTMLテンプレート用の補正
         }
 
 
