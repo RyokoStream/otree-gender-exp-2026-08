@@ -1,0 +1,46 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    【練習1】結果の確認（プレイヤーA）
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-primary mb-3">
+        <strong>💡 練習1 計算結果</strong><br>
+        入力した値をもとに、ペア全体確率 P とあなたが発生する<strong>損失額</strong>を計算しました。
+    </div>
+
+    <!-- 1. 計算結果の概要 -->
+    <div class="card mb-3" style="border-left: 5px solid #0d6efd; background-color: #f8f9fa;">
+        <div class="card-body">
+            <h5 class="card-title" style="font-weight: bold;">ペア全体確率 P の計算</h5>
+            <p class="card-text" style="font-size: 1.05rem; margin-bottom: 8px;">
+                ・あなたの入力値（p_A）: <strong>{{ player.p_input }}%</strong><br>
+                ・相手の入力値（p_B）: <strong>{{ opponent_p }}%</strong><br>
+                ・平均値 P: <strong>{{ group_p }}%</strong> （決定された確率 P）
+            </p>
+        </div>
+    </div>
+
+    <!-- 2. 損失・残高の確認 -->
+    <div class="card mb-4" style="border-left: 5px solid #dc3545; background-color: #fff5f5;">
+        <div class="card-body">
+            <h5 class="card-title" style="font-weight: bold; color: #dc3545;">発生した損失と手元に残る金額</h5>
+            <p class="card-text" style="font-size: 1.05rem;">
+                ・初期手元金: <strong>2,000円</strong><br>
+                ・発生した損失額: <strong style="color: #dc3545;">-{{ loss_amount }}円</strong><br>
+                ・手元に残る金額: <strong style="font-size: 1.2rem; color: #0d6efd;">{{ payoff_amount }}円</strong>
+            </p>
+            <small class="text-muted">※練習ラウンドの結果は、実際の謝礼金には影響しません。</small>
+        </div>
+    </div>
+
+    <p class="text-center" style="font-size: 1.05rem;">
+        確認ができたら「次へ」を押して、プレイヤーBの立場で行う練習2に進んでください。
+    </p>
+
+    <div class="mt-4 text-center">
+        {% next_button %}
+    </div>
+{% endblock %}
