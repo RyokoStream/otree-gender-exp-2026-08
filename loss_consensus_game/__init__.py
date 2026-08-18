@@ -98,14 +98,13 @@ class PracticeResults(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        my_p_int = player.practice_p1
+        # 練習1で入力された値を取得（もし未入力でもエラーにならないよう安全処理）
+        my_p_int = player.practice_p1 if player.practice_p1 is not None else 0
         my_p_ratio = my_p_int / 100.0
         other_p_ratio = 0.50
         group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
 
         # プレイヤーAの計算
-        # 状況1: 損失 = (1 - P)*2000, 残金 = P*2000
-        # 状況2: 損失 = P*2000, 残金 = (1 - P)*2000
         amt_res1 = round(group_P * 2000)
         loss_res1 = 2000 - amt_res1
         amt_res2 = round((1 - group_P) * 2000)
@@ -113,6 +112,7 @@ class PracticeResults(Page):
 
         return {
             'my_p': my_p_int,
+            'p_input': my_p_int,  # HTML側で {{ player.p_input }} を呼んでしまっていてもエラーにならないよう渡しておく
             'other_p': 50,
             'group_P': group_P,
             'loss_result1': loss_res1,
@@ -140,14 +140,13 @@ class PracticeResults2(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        my_p_int = player.practice_p2
+        # 練習2で入力された値を取得
+        my_p_int = player.practice_p2 if player.practice_p2 is not None else 0
         my_p_ratio = my_p_int / 100.0
         other_p_ratio = 0.50
         group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
 
         # プレイヤーBの計算
-        # 状況1: 損失 = P*2000, 残金 = (1 - P)*2000
-        # 状況2: 損失 = (1 - P)*2000, 残金 = P*2000
         amt_res1 = round((1 - group_P) * 2000)
         loss_res1 = 2000 - amt_res1
         amt_res2 = round(group_P * 2000)
@@ -155,6 +154,7 @@ class PracticeResults2(Page):
 
         return {
             'my_p': my_p_int,
+            'p_input': my_p_int,  # HTML互換用
             'other_p': 50,
             'group_P': group_P,
             'loss_result1': loss_res1,
@@ -298,7 +298,7 @@ class FinalResults(Page):
         }
 
 
-# 正しいページシーケンス（Practice1を追加）
+# ページシーケンス
 page_sequence = [
     Demographics, 
     DemographicsWaitPage, 
