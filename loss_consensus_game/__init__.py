@@ -103,10 +103,14 @@ class PracticeResults(Page):
         other_p_ratio = 0.50
         group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
 
+        # 社会的損失および利得（A・B共通の定義）
+        # 状況1: 損失 = (1 - P) * 2000, 残額 = P * 2000
+        loss_res1 = round((1 - group_P) * 2000)
         amt_res1 = round(group_P * 2000)
-        loss_res1 = 2000 - amt_res1
+
+        # 状況2: 損失 = P * 2000, 残額 = (1 - P) * 2000
+        loss_res2 = round(group_P * 2000)
         amt_res2 = round((1 - group_P) * 2000)
-        loss_res2 = 2000 - amt_res2
 
         # 練習画面の表示用（状況1の例として計算）
         loss_amount = loss_res1
@@ -151,10 +155,14 @@ class PracticeResults2(Page):
         other_p_ratio = 0.50
         group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
 
-        amt_res1 = round((1 - group_P) * 2000)
-        loss_res1 = 2000 - amt_res1
-        amt_res2 = round(group_P * 2000)
-        loss_res2 = 2000 - amt_res2
+        # 社会的損失および利得（A・B共通の定義）
+        # 状況1: 損失 = (1 - P) * 2000, 残額 = P * 2000
+        loss_res1 = round((1 - group_P) * 2000)
+        amt_res1 = round(group_P * 2000)
+
+        # 状況2: 損失 = P * 2000, 残額 = (1 - P) * 2000
+        loss_res2 = round(group_P * 2000)
+        amt_res2 = round((1 - group_P) * 2000)
 
         # 練習画面の表示用（状況1の例として計算）
         loss_amount = loss_res1
@@ -226,14 +234,17 @@ class ResultsWaitPage(WaitPage):
 
         for p in players:
             is_player_a = (p.id_in_group == 1)
+            # 各プレイヤーに適用される状況1の発生確率
             prob_res1_threshold = prob_a_threshold if is_player_a else (1.0 - prob_a_threshold)
 
             if random.random() < prob_res1_threshold:
                 p.drawn_result = "状況 1"
-                payoff_val = (P * 2000) if is_player_a else ((1 - P) * 2000)
+                # 状況1が発生した場合、全員共通で残額 P * 2000
+                payoff_val = P * 2000
             else:
                 p.drawn_result = "状況 2"
-                payoff_val = ((1 - P) * 2000) if is_player_a else (P * 2000)
+                # 状況2が発生した場合、全員共通で残額 (1 - P) * 2000
+                payoff_val = (1 - P) * 2000
 
             p.round_payoff = round(payoff_val)
             p.payoff = p.round_payoff
@@ -273,15 +284,13 @@ class FinalResults(Page):
 
             group_P = p.group.group_P
 
-            if is_player_a:
-                amt_res1 = round(group_P * 2000)
-                amt_res2 = round((1 - group_P) * 2000)
-            else:
-                amt_res1 = round((1 - group_P) * 2000)
-                amt_res2 = round(group_P * 2000)
+            # A・B共通の社会損失・残額定義
+            amt_res1 = round(group_P * 2000)
+            loss_res1 = round((1 - group_P) * 2000)
 
-            loss_res1 = 2000 - amt_res1
-            loss_res2 = 2000 - amt_res2
+            amt_res2 = round((1 - group_P) * 2000)
+            loss_res2 = round(group_P * 2000)
+
             round_loss = 2000 - int(p.round_payoff)
 
             all_rounds_data.append({
@@ -325,4 +334,3 @@ page_sequence = [
     ResultsWaitPage, 
     FinalResults
 ]
-
