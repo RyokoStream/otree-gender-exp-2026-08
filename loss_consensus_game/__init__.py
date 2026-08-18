@@ -1,3 +1,203 @@
+import random
+from otree.api import *
+
+doc = """
+情報共有型くじ実験（両役体験練習付き・損失フレーム）
+"""
+
+
+class C(BaseConstants):
+    NAME_IN_URL = 'loss_consensus_game'
+    PLAYERS_PER_GROUP = 2
+    NUM_ROUNDS = 3
+    PROBS_A_RESULT1 = {1: 60, 2: 70, 3: 80}
+
+
+class Subsession(BaseSubsession):
+    pass
+
+
+def creating_session(subsession: Subsession):
+    # ラウンド1の時点で、グループごとに支払対象ラウンド（1〜3）を1つ確定させておく
+    if subsession.round_number == 1:
+        for group in subsession.get_groups():
+            group.session.vars[f'selected_round_group_{group.id_in_subsession}'] = random.randint(1, C.NUM_ROUNDS)
+
+
+class Group(BaseGroup):
+    group_P = models.FloatField()
+
+
+class Player(BasePlayer):
+    student_id = models.StringField(label=" もらっているID番号を入力してください。学籍番号を入力しないように:")
+    gender = models.StringField(
+        label="戸籍上の性別を選択してください:",
+        choices=['男性', '女性'],
+        widget=widgets.RadioSelect
+    )
+    practice_p1 = models.IntegerField(
+        label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
+        min=0,
+        max=100
+    )
+    practice_p2 = models.IntegerField(
+        label="【プレイヤーBとして】p の値を入力してください（0 〜 100）:",
+        min=0,
+        max=100
+    )
+    p_input = models.IntegerField(
+        label="p の値を入力してください（0 〜 100）:",
+        min=0,
+        max=100
+    )
+    drawn_result = models.StringField()
+    round_payoff = models.FloatField()
+
+
+# --- PAGES ---
+
+class Demographics(Page):
+    form_model = 'player'
+    form_fields = ['student_id', 'gender']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+
+class DemographicsWaitPage(WaitPage):
+    title_text = "待機中"
+    body_text = "ペアの相手が入力するのを待っています..."
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+
+class Instructions(Page):
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+
+class Practice1(Page):
+    """練習1（プレイヤーAの立場）"""
+    form_model = 'player'
+    form_fields = ['practice_p1']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+
+class PracticeResults(Page):
+    """練習1の結果"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        my_p_int = player.practice_p1
+        my_p_ratio = my_p_int / 100.0
+        other_p_ratio = 0.50
+        group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
+
+        # プレイヤーAの計算
+        # 状況1: 損失 = (1 - P)*2000, 残金 = P*2000
+        # 状況2: 損失 = P*2000, 残金 = (1 - P)*2000
+        amt_res1 = round(group_P * 2000)
+        loss_res1 = 2000 - amt_res1
+        amt_res2 = round((1 - group_P) * 2000)
+        loss_res2 = 2000 - amt_res2
+
+        return {
+            'my_p': my_p_int,
+            'other_p': 50,
+            'group_P': group_P,
+            'loss_result1': loss_res1,
+            'amount_result1': amt_res1,
+            'loss_result2': loss_res2,
+            'amount_result2': amt_res2,
+        }
+
+
+class Practice2(Page):
+    """練習2（プレイヤーBの立場）"""
+    form_model = 'player'
+    form_fields = ['practice_p2']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+
+class PracticeResults2(Page):
+    """練習2の結果"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        my_p_int = player.practice_p2
+        my_p_ratio = my_p_int / 100.0
+        other_p_ratio = 0.50
+        group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
+
+        # プレイヤーBの計算
+        # 状況1: 損失 = P*2000, 残金 = (1 - P)*2000
+        # 状況2: 損失 = (1 - P)*2000, 残金 = P*2000
+        amt_res1 = round((1 - group_P) * 2000)
+        loss_res1 = 2000 - amt_res1
+        amt_res2 = round(group_P * 2000)
+        loss_res2 = 2000 - amt_res2
+
+        return {
+            'my_p': my_p_int,
+            'other_p': 50,
+            'group_P': group_P,
+            'loss_result1': loss_res1,
+            'amount_result1': amt_res1,
+            'loss_result2': loss_res2,
+            'amount_result2': amt_res2,
+        }
+
+
+class Decision(Page):
+    form_model = 'player'
+    form_fields = ['p_input']
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        other_player = player.get_others_in_group()[0]
+        first_other = other_player.in_round(1)
+        
+        is_player_a = (player.id_in_group == 1)
+        r_num = player.round_number
+        
+        prob_a_res1 = C.PROBS_A_RESULT1[r_num]
+        prob_a_res2 = 100 - prob_a_res1
+
+        if is_player_a:
+            role_name = "プレイヤーA"
+            prob_result1 = prob_a_res1
+            prob_result2 = prob_a_res2
+        else:
+            role_name = "プレイヤーB"
+            prob_result1 = prob_a_res2
+            prob_result2 = prob_a_res1
+
+        return {
+            'role_name': role_name,
+            'other_id': first_other.student_id,
+            'other_gender': first_other.gender,
+            'prob_result1': prob_result1,
+            'prob_result2': prob_result2,
+            'round_num': r_num,
+        }
+
+
 class ResultsWaitPage(WaitPage):
     title_text = "集計中"
     body_text = "ペアの入力完了を待っています..."
@@ -16,20 +216,16 @@ class ResultsWaitPage(WaitPage):
             is_player_a = (p.id_in_group == 1)
             prob_res1_threshold = prob_a_threshold if is_player_a else (1.0 - prob_a_threshold)
 
-            # 状況抽選
             if random.random() < prob_res1_threshold:
                 p.drawn_result = "状況 1"
-                # 状況1が発生したときの手元残金
                 payoff_val = (P * 2000) if is_player_a else ((1 - P) * 2000)
             else:
                 p.drawn_result = "状況 2"
-                # 状況2が発生したときの手元残金
                 payoff_val = ((1 - P) * 2000) if is_player_a else (P * 2000)
 
             p.round_payoff = round(payoff_val)
             p.payoff = p.round_payoff
 
-        # 最終ラウンドで支払確定額を設定
         if group.round_number == C.NUM_ROUNDS:
             selected_round = group.session.vars.get(
                 f'selected_round_group_{group.id_in_subsession}',
@@ -65,7 +261,6 @@ class FinalResults(Page):
 
             group_P = p.group.group_P
 
-            # 役割ごとの各状況の残金額と損失額の計算
             if is_player_a:
                 amt_res1 = round(group_P * 2000)
                 amt_res2 = round((1 - group_P) * 2000)
@@ -101,3 +296,18 @@ class FinalResults(Page):
             'role_name': role_name,
             'final_payoff': int(player.participant.payoff),
         }
+
+
+# 正しいページシーケンス（Practice1を追加）
+page_sequence = [
+    Demographics, 
+    DemographicsWaitPage, 
+    Instructions,
+    Practice1, 
+    PracticeResults, 
+    Practice2, 
+    PracticeResults2, 
+    Decision, 
+    ResultsWaitPage, 
+    FinalResults
+]
