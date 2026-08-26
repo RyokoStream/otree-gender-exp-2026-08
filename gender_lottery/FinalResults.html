@@ -59,34 +59,20 @@
     </div>
     {% endfor %}
 
-    <!-- 最終確定謝礼金枠 -->
+<!-- 最終確定謝礼金枠 -->
     <div class="card mb-4" style="border: 3px solid #198754; border-radius: 8px; background-color: #f4fbf7;">
         <div class="card-body text-center p-4">
             <h4 style="color: #198754; font-weight: bold; margin-bottom: 15px;">
                 🎲 最終謝礼金の決定
             </h4>
-            <p style="font-size: 1.2rem; margin-bottom: 10px;">
-                ランダム抽出の結果、支払対象には <strong>【第 {{ selected_round }} ラウンド】</strong> が選ばれました！
+            <p style="font-size: 1.1rem; margin-bottom: 15px; color: #333;">
+                全タスク（確定等価性タスク22問 ＋ 情報共有型くじタスク3ラウンド）の中から、ランダム抽選により以下が選ばれました。
             </p>
- <!-- ↓ 追加した部分 ↓ -->
-            {% for r in all_rounds %}
-                {% if r.round_num == selected_round %}
-                    <p style="font-size: 1.1rem; margin-bottom: 10px; color: #333;">
-                        第 {{ selected_round }} ラウンドでは 
-                        <strong>
-                            {% if r.drawn_result == '状況 1' or r.drawn_result == '結果 1' %}
-                                【結果 1】
-                            {% else %}
-                                【結果 2】
-                            {% endif %}
-                        </strong> 
-                        が選ばれました。
-                    </p>
-                {% endif %}
-            {% endfor %}
-            <!-- ↑ 追加した部分 ↑ -->
-            
-            <div style="font-size: 1.8rem; font-weight: bold; color: #198754; margin-top: 10px; padding: 12px 24px; background-color: #ffffff; border: 2px dashed #198754; border-radius: 8px; display: inline-block;">
+            <div class="alert alert-success d-inline-block text-start mb-3" style="font-size: 1.1rem; border-radius: 6px; padding: 12px 20px;">
+                <strong>選ばれたタスク:</strong> {{ final_detail.title }}
+            </div>
+            <br>
+            <div style="font-size: 1.8rem; font-weight: bold; color: #198754; margin-top: 5px; padding: 12px 24px; background-color: #ffffff; border: 2px dashed #198754; border-radius: 8px; display: inline-block;">
                 あなたの確定謝礼金: {{ final_payoff }} 円
             </div>
         </div>
@@ -96,4 +82,3 @@
 
     {% next_button %}
 {% endblock %}
-
