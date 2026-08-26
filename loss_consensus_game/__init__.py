@@ -321,7 +321,6 @@ page_sequence = [
     Demographics,
     DemographicsWaitPage,
     Instructions,
-    Part1SliderRisk,     # ← Part 1 を追加
     Practice1,
     PracticeResults,
     Practice2,
