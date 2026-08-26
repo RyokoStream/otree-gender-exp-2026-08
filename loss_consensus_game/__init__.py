@@ -2,14 +2,19 @@ import random
 from otree.api import *
 
 doc = """
-情報共有型くじ実験（両役体験練習付き・損失フレーム）
+情報共有型くじ実験（両役体験練習付き・損失フレーム + Part1スライダーリスク）
 """
-
 
 class C(BaseConstants):
     NAME_IN_URL = 'loss_consensus_game'
     PLAYERS_PER_GROUP = 2
     NUM_ROUNDS = 3
+
+    # 初期所有（エンドウメント）と基準値
+    ENDOWMENT = 1000
+    BELIEF_ENDOWMENT = 100
+
+    # ラウンドごとの結果1で選択肢Aが正解となる確率（%）
     PROBS_A_RESULT1 = {1: 60, 2: 70, 3: 80}
 
 
@@ -18,10 +23,11 @@ class Subsession(BaseSubsession):
 
 
 def creating_session(subsession: Subsession):
-    # ラウンド1の時点で、グループごとに支払対象ラウンド（1〜3）を1つ確定させておく
+    # ラウンド1の時点で、全4タスク（1: Part1, 2: 本番R1, 3: 本番R2, 4: 本番R3）から1つ決定
     if subsession.round_number == 1:
         for group in subsession.get_groups():
-            group.session.vars[f'selected_round_group_{group.id_in_subsession}'] = random.randint(1, C.NUM_ROUNDS)
+            # 1: Part 1, 2: 本番Round 1, 3: 本番Round 2, 4: 本番Round 3
+            group.session.vars[f'selected_task_group_{group.id_in_subsession}'] = random.randint(1, 4)
 
 
 class Group(BaseGroup):
@@ -29,32 +35,66 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    student_id = models.StringField(label=" もらっているID番号を入力してください。学籍番号を入力しないように:")
+    student_id = models.StringField(
+        label="もらっているID番号を入力してください。学籍番号を入力しないように:"
+    )
     gender = models.StringField(
         label="戸籍上の性別を選択してください:",
         choices=['男性', '女性'],
         widget=widgets.RadioSelect
     )
-    practice_p1 = models.IntegerField(
-        label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
-        min=0,
-        max=100
+
+    # --- Part 1: Slider Risk 用 ---
+    slider_risk = models.IntegerField(
+        label="スライダーを動かして数値を選択してください（0 〜 100）:",
+        min=0, max=100
     )
-    practice_p2 = models.IntegerField(
-        label="【プレイヤーBとして】p の値を入力してください（0 〜 100）:",
-        min=0,
-        max=100
+    part1_payoff = models.FloatField(initial=0)
+
+    # --- 練習ラウンド 1 用 ---
+    practice_choice_1 = models.StringField(
+        choices=['選択肢A', '選択肢B'],
+        widget=widgets.RadioSelect,
+        label="あなたの選択:"
     )
-    p_input = models.IntegerField(
-        label="p の値を入力してください（0 〜 100）:",
-        min=0,
-        max=100
+    practice_belief_1 = models.IntegerField(
+        min=0, max=100,
+        label="相手が「選択肢A」を選ぶ確率の予想 (0~100%):"
     )
-    drawn_result = models.StringField()
+    practice_payoff_1 = models.FloatField()
+
+    # --- 練習ラウンド 2 用 ---
+    practice_choice_2 = models.StringField(
+        choices=['選択肢A', '選択肢B'],
+        widget=widgets.RadioSelect,
+        label="あなたの選択:"
+    )
+    practice_belief_2 = models.IntegerField(
+        min=0, max=100,
+        label="相手が「選択肢A」を選ぶ確率の予想 (0~100%):"
+    )
+    practice_payoff_2 = models.FloatField()
+
+    # --- 本番ラウンド用 ---
+    choice = models.StringField(
+        choices=['選択肢A', '選択肢B'],
+        widget=widgets.RadioSelect,
+        label="あなたの選択:"
+    )
+    belief = models.IntegerField(
+        min=0, max=100,
+        label="相手が「選択肢A」を選ぶ確率の予想 (0~100%):"
+    )
+
+    # 計算結果保持用
+    choice_loss = models.FloatField()
+    belief_payoff = models.FloatField()
     round_payoff = models.FloatField()
 
 
-# --- PAGES ---
+# =========================================================
+# PAGES
+# =========================================================
 
 class Demographics(Page):
     form_model = 'player'
@@ -66,9 +106,6 @@ class Demographics(Page):
 
 
 class DemographicsWaitPage(WaitPage):
-    title_text = "待機中"
-    body_text = "ペアの相手が入力するのを待っています..."
-
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1
@@ -80,10 +117,25 @@ class Instructions(Page):
         return player.round_number == 1
 
 
-class Practice1(Page):
-    """練習1（プレイヤーAの立場）"""
+# --- Part 1: Slider Risk ---
+class Part1SliderRisk(Page):
     form_model = 'player'
-    form_fields = ['practice_p1']
+    form_fields = ['slider_risk']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened):
+        # Part 1 の利得計算ロジック（例: スライダー値 × 10）
+        player.part1_payoff = player.slider_risk * 10.0
+
+
+# --- 練習 1 ---
+class Practice1(Page):
+    form_model = 'player'
+    form_fields = ['practice_choice_1', 'practice_belief_1']
 
     @staticmethod
     def is_displayed(player: Player):
@@ -91,51 +143,40 @@ class Practice1(Page):
 
 
 class PracticeResults(Page):
-    """練習1の結果"""
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1
 
     @staticmethod
     def vars_for_template(player: Player):
-        my_p_int = player.practice_p1 if player.practice_p1 is not None else 0
-        my_p_ratio = my_p_int / 100.0
-        other_p_ratio = 0.50
-        group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
+        dummy_p = 70.0
+        dummy_other_choice = '選択肢A'
+        
+        # 練習1損失計算
+        if player.practice_choice_1 == '選択肢A':
+            p_loss = 1000.0 * (1.0 - dummy_p / 100.0)
+        else:
+            p_loss = 500.0
 
-        # 社会的損失および利得（A・B共通の定義）
-        # 状況1: 損失 = (1 - P) * 2000, 残額 = P * 2000
-        loss_res1 = round((1 - group_P) * 2000)
-        amt_res1 = round(group_P * 2000)
-
-        # 状況2: 損失 = P * 2000, 残額 = (1 - P) * 2000
-        loss_res2 = round(group_P * 2000)
-        amt_res2 = round((1 - group_P) * 2000)
-
-        # 練習画面の表示用（状況1の例として計算）
-        loss_amount = loss_res1
-        payoff_amount = amt_res1
+        actual_other_a = 100.0 if dummy_other_choice == '選択肢A' else 0.0
+        b_payoff = C.BELIEF_ENDOWMENT - (actual_other_a - player.practice_belief_1) ** 2 / 100.0
+        
+        total_p_payoff = (C.ENDOWMENT - p_loss) + b_payoff
+        player.practice_payoff_1 = total_p_payoff
 
         return {
-            'my_p': my_p_int,
-            'p_input': my_p_int,
-            'other_p': 50,
-            'opponent_p': 50,
-            'group_P': group_P,
-            'group_p': int(group_P * 100),
-            'loss_result1': loss_res1,
-            'amount_result1': amt_res1,
-            'loss_result2': loss_res2,
-            'amount_result2': amt_res2,
-            'loss_amount': loss_amount,       # HTMLテンプレート用の補正
-            'payoff_amount': payoff_amount,   # HTMLテンプレート用の補正
+            'dummy_p': dummy_p,
+            'dummy_other_choice': dummy_other_choice,
+            'p_loss': p_loss,
+            'b_payoff': b_payoff,
+            'total_payoff': total_p_payoff
         }
 
 
+# --- 練習 2 ---
 class Practice2(Page):
-    """練習2（プレイヤーBの立場）"""
     form_model = 'player'
-    form_fields = ['practice_p2']
+    form_fields = ['practice_choice_2', 'practice_belief_2']
 
     @staticmethod
     def is_displayed(player: Player):
@@ -143,125 +184,107 @@ class Practice2(Page):
 
 
 class PracticeResults2(Page):
-    """練習2の結果"""
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1
 
     @staticmethod
     def vars_for_template(player: Player):
-        my_p_int = player.practice_p2 if player.practice_p2 is not None else 0
-        my_p_ratio = my_p_int / 100.0
-        other_p_ratio = 0.50
-        group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
+        dummy_p = 40.0
+        dummy_other_choice = '選択肢B'
 
-        # 社会的損失および利得（A・B共通の定義）
-        # 状況1: 損失 = (1 - P) * 2000, 残額 = P * 2000
-        loss_res1 = round((1 - group_P) * 2000)
-        amt_res1 = round(group_P * 2000)
+        # 練習2損失計算
+        if player.practice_choice_2 == '選択肢A':
+            p_loss = 1000.0 * (1.0 - dummy_p / 100.0)
+        else:
+            p_loss = 500.0
 
-        # 状況2: 損失 = P * 2000, 残額 = (1 - P) * 2000
-        loss_res2 = round(group_P * 2000)
-        amt_res2 = round((1 - group_P) * 2000)
-
-        # 練習画面の表示用（状況1の例として計算）
-        loss_amount = loss_res1
-        payoff_amount = amt_res1
+        actual_other_a = 100.0 if dummy_other_choice == '選択肢A' else 0.0
+        b_payoff = C.BELIEF_ENDOWMENT - (actual_other_a - player.practice_belief_2) ** 2 / 100.0
+        
+        total_p_payoff = (C.ENDOWMENT - p_loss) + b_payoff
+        player.practice_payoff_2 = total_p_payoff
 
         return {
-            'my_p': my_p_int,
-            'p_input': my_p_int,
-            'other_p': 50,
-            'opponent_p': 50,
-            'group_P': group_P,
-            'group_p': int(group_P * 100),
-            'loss_result1': loss_res1,
-            'amount_result1': amt_res1,
-            'loss_result2': loss_res2,
-            'amount_result2': amt_res2,
-            'loss_amount': loss_amount,       # HTMLテンプレート用の補正
-            'payoff_amount': payoff_amount,   # HTMLテンプレート用の補正
+            'dummy_p': dummy_p,
+            'dummy_other_choice': dummy_other_choice,
+            'p_loss': p_loss,
+            'b_payoff': b_payoff,
+            'total_payoff': total_p_payoff
         }
 
 
+# --- 本番意思決定 ---
 class Decision(Page):
     form_model = 'player'
-    form_fields = ['p_input']
+    form_fields = ['choice', 'belief']
 
     @staticmethod
     def vars_for_template(player: Player):
-        other_player = player.get_others_in_group()[0]
-        first_other = other_player.in_round(1)
-        
-        is_player_a = (player.id_in_group == 1)
-        r_num = player.round_number
-        
-        prob_a_res1 = C.PROBS_A_RESULT1[r_num]
-        prob_a_res2 = 100 - prob_a_res1
-
-        if is_player_a:
-            role_name = "プレイヤーA"
-            prob_result1 = prob_a_res1
-            prob_result2 = prob_a_res2
-        else:
-            role_name = "プレイヤーB"
-            prob_result1 = prob_a_res2
-            prob_result2 = prob_a_res1
-
+        round_num = player.round_number
+        prob_A_res1 = C.PROBS_A_RESULT1.get(round_num, 50)
         return {
-            'role_name': role_name,
-            'other_id': first_other.student_id,
-            'other_gender': first_other.gender,
-            'prob_result1': prob_result1,
-            'prob_result2': prob_result2,
-            'round_num': r_num,
+            'round_num': round_num,
+            'prob_A_res1': prob_A_res1,
         }
 
 
+# --- 成果集計・最終謝礼決定 ---
 class ResultsWaitPage(WaitPage):
-    title_text = "集計中"
-    body_text = "ペアの入力完了を待っています..."
-
     @staticmethod
     def after_all_players_arrive(group: Group):
         players = group.get_players()
-        avg_p_int = sum([p.p_input for p in players]) / len(players)
-        group.group_P = round(avg_p_int / 100.0, 4)
+        
+        # 1. グループの共通確率 P の決定（結果1: 確率PROBS_A_RESULT1, 結果2: 0%）
+        round_num = group.round_number
+        prob_res1 = C.PROBS_A_RESULT1.get(round_num, 50)
+        
+        # 50%の確率で結果1(P = prob_res1)、50%で結果2(P = 0)
+        if random.random() < 0.5:
+            group.group_P = float(prob_res1)
+        else:
+            group.group_P = 0.0
 
-        P = group.group_P
-        r_num = group.round_number
-        prob_a_threshold = C.PROBS_A_RESULT1[r_num] / 100.0
+        # 2. 各プレイヤーの利得計算（損失フレーム）
+        p1 = players[0]
+        p2 = players[1]
 
-        for p in players:
-            is_player_a = (p.id_in_group == 1)
-            # 各プレイヤーに適用される状況1の発生確率
-            prob_res1_threshold = prob_a_threshold if is_player_a else (1.0 - prob_a_threshold)
-
-            if random.random() < prob_res1_threshold:
-                p.drawn_result = "状況 1"
-                # 状況1が発生した場合、全員共通で残額 P * 2000
-                payoff_val = P * 2000
+        for p, other in [(p1, p2), (p2, p1)]:
+            # 意思決定の損失計算
+            if p.choice == '選択肢A':
+                p.choice_loss = 1000.0 * (1.0 - group.group_P / 100.0)
             else:
-                p.drawn_result = "状況 2"
-                # 状況2が発生した場合、全員共通で残額 (1 - P) * 2000
-                payoff_val = (1 - P) * 2000
+                p.choice_loss = 500.0
 
-            p.round_payoff = round(payoff_val)
-            p.payoff = p.round_payoff
+            # 信念当て報酬計算（相手の選択との誤差）
+            actual_other_a = 100.0 if other.choice == '選択肢A' else 0.0
+            p.belief_payoff = C.BELIEF_ENDOWMENT - ((actual_other_a - p.belief) ** 2) / 100.0
 
+            # 今ラウンドの利得 = (1000 - 損失) + 信念当て報酬
+            p.round_payoff = (C.ENDOWMENT - p.choice_loss) + p.belief_payoff
+
+        # 3. 最終ラウンド完了時に4つのタスクからランダムで1つ決定
         if group.round_number == C.NUM_ROUNDS:
-            selected_round = group.session.vars.get(
-                f'selected_round_group_{group.id_in_subsession}',
-                random.randint(1, C.NUM_ROUNDS)
+            selected_task = group.session.vars.get(
+                f'selected_task_group_{group.id_in_subsession}',
+                random.randint(1, 4)
             )
+
             for p in players:
-                p.participant.vars['selected_round'] = selected_round
-                selected_player = p.in_round(selected_round)
-                p.participant.payoff = selected_player.round_payoff
+                p.participant.vars['selected_task'] = selected_task
+                
+                if selected_task == 1:
+                    # Part 1（ラウンド1のレコードから取得）
+                    p1_player = p.in_round(1)
+                    p.participant.payoff = p1_player.part1_payoff
+                else:
+                    # 本番ラウンド（2 -> Round 1, 3 -> Round 2, 4 -> Round 3）
+                    actual_round = selected_task - 1
+                    selected_player = p.in_round(actual_round)
+                    p.participant.payoff = selected_player.round_payoff
 
 
 class FinalResults(Page):
-    """全3回終了後の最終清算画面"""
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == C.NUM_ROUNDS
@@ -269,68 +292,41 @@ class FinalResults(Page):
     @staticmethod
     def vars_for_template(player: Player):
         all_rounds_data = []
-        is_player_a = (player.id_in_group == 1)
-        role_name = "プレイヤーA" if is_player_a else "プレイヤーB"
-
-        for p in player.in_all_rounds():
-            r_num = p.round_number
-            other_p = p.get_others_in_group()[0]
-            
-            prob_a_res1 = C.PROBS_A_RESULT1[r_num]
-            prob_a_res2 = 100 - prob_a_res1
-
-            prob_result1 = prob_a_res1 if is_player_a else prob_a_res2
-            prob_result2 = prob_a_res2 if is_player_a else prob_a_res1
-
-            group_P = p.group.group_P
-
-            # A・B共通の社会損失・残額定義
-            amt_res1 = round(group_P * 2000)
-            loss_res1 = round((1 - group_P) * 2000)
-
-            amt_res2 = round((1 - group_P) * 2000)
-            loss_res2 = round(group_P * 2000)
-
-            round_loss = 2000 - int(p.round_payoff)
-
+        for r in range(1, C.NUM_ROUNDS + 1):
+            pr = player.in_round(r)
             all_rounds_data.append({
-                'round_num': r_num,
-                'my_p': p.p_input,
-                'other_p': other_p.p_input,
-                'opponent_p': other_p.p_input,
-                'group_P': group_P,
-                'group_p': int(group_P * 100),
-                'prob_result1': prob_result1,
-                'prob_result2': prob_result2,
-                'amount_result1': amt_res1,
-                'amount_result2': amt_res2,
-                'loss_result1': loss_res1,
-                'loss_result2': loss_res2,
-                'drawn_result': p.drawn_result,
-                'round_payoff': int(p.round_payoff),
-                'round_loss': round_loss,
+                'round': r,
+                'choice': pr.choice,
+                'belief': pr.belief,
+                'choice_loss': pr.choice_loss,
+                'belief_payoff': pr.belief_payoff,
+                'payoff': pr.round_payoff,
             })
 
-        selected_round = player.participant.vars.get('selected_round', 1)
+        selected_task = player.participant.vars.get('selected_task', 1)
 
         return {
             'all_rounds': all_rounds_data,
-            'selected_round': selected_round,
-            'role_name': role_name,
+            'selected_task': selected_task,  # 1ならPart1、2〜4なら本番各ラウンド
             'final_payoff': int(player.participant.payoff),
+            'part1_payoff': player.in_round(1).part1_payoff,
         }
 
 
-# ページシーケンス
+# =========================================================
+# PAGE SEQUENCE
+# =========================================================
+
 page_sequence = [
-    Demographics, 
-    DemographicsWaitPage, 
+    Demographics,
+    DemographicsWaitPage,
     Instructions,
-    Practice1, 
-    PracticeResults, 
-    Practice2, 
-    PracticeResults2, 
-    Decision, 
-    ResultsWaitPage, 
+    Part1SliderRisk,     # ← Part 1 を追加
+    Practice1,
+    PracticeResults,
+    Practice2,
+    PracticeResults2,
+    Decision,
+    ResultsWaitPage,
     FinalResults
 ]
