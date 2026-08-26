@@ -89,6 +89,7 @@ class Practice1(Page):
         return player.round_number == 1
 
 
+# --- 練習 1 結果 ---
 class PracticeResults(Page):
     @staticmethod
     def is_displayed(player: Player):
@@ -96,32 +97,25 @@ class PracticeResults(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        dummy_other_p = 50
-        p_A = player.practice_p_1 if player.practice_p_1 is not None else 50
-        calc_P = (p_A + dummy_other_p) / 200.0  # 平均のP (0.0~1.0)
+        other_p = 50
+        my_p = player.practice_p_1 if player.practice_p_1 is not None else 50
+        calc_P = (my_p + other_p) / 200.0
         
-        # 仮の状況（状況1が発生したと仮定）
-        p_loss = (1.0 - calc_P) * C.ENDOWMENT
-        total_p_payoff = C.ENDOWMENT - p_loss
-        
+        loss_res1 = int(calc_P * C.ENDOWMENT)
+        loss_res2 = int((1.0 - calc_P) * C.ENDOWMENT)
+
         return {
-            'dummy_other_p': dummy_other_p,
-            'calc_P_percent': int(calc_P * 100),
-            'p_loss': int(p_loss),
-            'total_payoff': int(total_p_payoff)
+            'my_p': my_p,                            # HTMLの {{ my_p }}
+            'other_p': other_p,                      # HTMLの {{ other_p }}
+            'group_P': f"{calc_P * 100:.1f}%",       # HTMLの {{ group_P }}
+            'loss_result1': loss_res1,
+            'amount_result1': C.ENDOWMENT - loss_res1,
+            'loss_result2': loss_res2,
+            'amount_result2': C.ENDOWMENT - loss_res2,
         }
 
 
-# --- 練習 2 ---
-class Practice2(Page):
-    form_model = 'player'
-    form_fields = ['practice_p_2']
-
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1
-
-
+# --- 練習 2 結果 ---
 class PracticeResults2(Page):
     @staticmethod
     def is_displayed(player: Player):
@@ -129,18 +123,24 @@ class PracticeResults2(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        dummy_other_p = 40
-        p_B = player.practice_p_2 if player.practice_p_2 is not None else 40
-        calc_P = (p_B + dummy_other_p) / 200.0
-        p_loss = calc_P * C.ENDOWMENT
-        total_p_payoff = C.ENDOWMENT - p_loss
+        other_p = 40
+        my_p = player.practice_p_2 if player.practice_p_2 is not None else 40
+        calc_P = (my_p + other_p) / 200.0
         
+        loss_res1 = int(calc_P * C.ENDOWMENT)
+        loss_res2 = int((1.0 - calc_P) * C.ENDOWMENT)
+
         return {
-            'dummy_other_p': dummy_other_p,
-            'calc_P_percent': int(calc_P * 100),
-            'p_loss': int(p_loss),
-            'total_payoff': int(total_p_payoff)
+            'my_p': my_p,                            # HTMLの {{ my_p }}
+            'other_p': other_p,                      # HTMLの {{ other_p }}
+            'group_P': f"{calc_P * 100:.1f}%",       # HTMLの {{ group_P }}
+            'loss_result1': loss_res1,
+            'amount_result1': C.ENDOWMENT - loss_res1,
+            'loss_result2': loss_res2,
+            'amount_result2': C.ENDOWMENT - loss_res2,
         }
+
+
 
 
 # --- 本番意思決定 ---
