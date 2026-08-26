@@ -176,7 +176,6 @@ class Decision(Page):
             'role_name': role_name,
         }
 
-
 # --- 成果集計・最終謝礼決定 ---
 class ResultsWaitPage(WaitPage):
     title_text = "集計中"
@@ -212,55 +211,53 @@ class ResultsWaitPage(WaitPage):
 
             p.round_payoff = C.ENDOWMENT - p.choice_loss
 
-        # 3. 最終ラウンド終了時の清算処理
+        # 3. 最終ラウンド終了時の清算処理（1/4 ずつの二段階抽選）
         if group.round_number == C.NUM_ROUNDS:
-            selected_round = group.session.vars.get(
-                f'selected_round_group_{group.id_in_subsession}',
-                random.randint(1, C.NUM_ROUNDS)
-            )
-
             for p in players:
-                p.participant.vars['selected_round'] = selected_round
+                # 【第1段階】4つの選択肢（合意形成 第1R, 第2R, 第3R, 確実等価性タスク）から 1/4 (25%) で選出
+                category_choice = random.choice(['consensus_r1', 'consensus_r2', 'consensus_r3', 'slider_task'])
 
-                candidates = []
+                if category_choice.startswith('consensus_r'):
+                    # --- A) 合意形成タスクの指定ラウンドが選ばれた場合 (各 1/4) ---
+                    target_round = int(category_choice.replace('consensus_r', ''))
+                    selected_player = p.in_round(target_round)
+                    
+                    p.participant.vars['selected_round'] = target_round
+                    final_choice = {
+                        'task_type': 'loss_consensus',
+                        'title': f'合意形成タスク（第{target_round}ラウンド）',
+                        'payoff': selected_player.round_payoff,
+                    }
+                    p.participant.vars['final_choice_detail'] = final_choice
+                    p.participant.payoff = final_choice['payoff']
 
-                # A) part1_slider_risk の全22問を追加
-                slider_answers = p.participant.vars.get('slider_answers', {})
-                sure_payoffs = p.participant.vars.get('slider_sure_payoffs', [])
-                slider_high = p.participant.vars.get('slider_lottery_high', 2000)
-                slider_low = p.participant.vars.get('slider_lottery_low', 0)
+                else:
+                    # --- B) 確実等価性タスク（CE）が選ばれた場合 (1/4) ---
+                    # 【第2段階】22問の中から1問をランダム選出 (1/22)
+                    q_num = random.randint(1, 22)
 
-                for q_num, chosen_lottery in slider_answers.items():
-                    candidates.append({
+                    slider_answers = p.participant.vars.get('slider_answers', {})
+                    sure_payoffs = p.participant.vars.get('slider_sure_payoffs', [])
+                    slider_high = p.participant.vars.get('slider_lottery_high', 2000)
+                    slider_low = p.participant.vars.get('slider_lottery_low', 0)
+
+                    chosen_lottery = slider_answers.get(q_num, True)
+
+                    final_choice = {
                         'task_type': 'slider',
                         'title': f'確実等価性タスク（第{q_num}問）',
                         'is_lottery': chosen_lottery,
                         'sure_payoff': sure_payoffs[q_num - 1] if q_num - 1 < len(sure_payoffs) else 0,
                         'high': slider_high,
                         'low': slider_low,
-                    })
-
-                # B) 本タスク（合意形成タスク）から選ばれた1ラウンド分を追加
-                selected_player = p.in_round(selected_round)
-                candidates.append({
-                    'task_type': 'loss_consensus',
-                    'title': f'合意形成タスク（第{selected_round}ラウンド）',
-                    'payoff': selected_player.round_payoff,
-                })
-
-                # C) 全件からランダムで1つ選出
-                if candidates:
-                    final_choice = random.choice(candidates)
+                    }
                     p.participant.vars['final_choice_detail'] = final_choice
 
-                    if final_choice['task_type'] == 'loss_consensus':
-                        p.participant.payoff = final_choice['payoff']
+                    if final_choice['is_lottery']:
+                        won = random.random() < 0.5
+                        p.participant.payoff = final_choice['high'] if won else final_choice['low']
                     else:
-                        if final_choice['is_lottery']:
-                            won = random.random() < 0.5
-                            p.participant.payoff = final_choice['high'] if won else final_choice['low']
-                        else:
-                            p.participant.payoff = final_choice['sure_payoff']
+                        p.participant.payoff = final_choice['sure_payoff']
 
 
 class FinalResults(Page):
