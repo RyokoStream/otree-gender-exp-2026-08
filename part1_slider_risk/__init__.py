@@ -81,7 +81,7 @@ class Decision(Page):
             answers[i] = getattr(player, f'q{i}')
         
         player.participant.vars['slider_answers'] = answers
-        player.participant.vars['slider_sure_payoffs'] = Constants.SURE_PAYOFFS
+        player.participant.vars['slider_sure_payoffs'] = Constants.SURE_PAYOFFS.copy()
         player.participant.vars['slider_lottery_high'] = Constants.LOTTERY_HIGH
         player.participant.vars['slider_lottery_low'] = Constants.LOTTERY_LOW
 
