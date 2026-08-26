@@ -275,10 +275,44 @@ class FinalResults(Page):
         final_detail = player.participant.vars.get('final_choice_detail', {})
         selected_round = player.participant.vars.get('selected_round', 1)
 
+        # 全3ラウンド分の記録を取得・計算
+        all_rounds = []
+        for r in player.in_all_rounds():
+            other_p = r.get_others_in_group()[0].p_value if r.get_others_in_group()[0].p_value is not None else 50
+            my_p = r.p_value if r.p_value is not None else 50
+            calc_P = (my_p + other_p) / 200.0
+
+            loss_res1 = int(calc_P * C.ENDOWMENT)
+            loss_res2 = int((1.0 - calc_P) * C.ENDOWMENT)
+
+            prob_res1 = C.PROBS_RESULT1.get(r.round_number, 50)
+            prob_res2 = 100 - prob_res1
+
+            # 状況1か状況2かの判定
+            actual_loss = r.choice_loss if r.choice_loss is not None else 0
+            if actual_loss == loss_res1:
+                drawn_result = "状況 1"
+            else:
+                drawn_result = "状況 2"
+
+            all_rounds.append({
+                'round_num': r.round_number,
+                'my_p': my_p,
+                'other_p': other_p,
+                'group_P': f"{calc_P * 100:.1f}%",
+                'prob_result1': prob_res1,
+                'prob_result2': prob_res2,
+                'amount_result1': C.ENDOWMENT - loss_res1,
+                'amount_result2': C.ENDOWMENT - loss_res2,
+                'drawn_result': drawn_result,
+                'round_payoff': int(r.round_payoff if r.round_payoff is not None else 0),
+            })
+
         return {
             'selected_round': selected_round,
             'final_detail': final_detail,
             'final_payoff': int(player.participant.payoff),
+            'all_rounds': all_rounds,
         }
 
 
