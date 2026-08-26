@@ -4,7 +4,7 @@ SESSION_CONFIGS = [
    dict(
         name='gender_exp',
         display_name="実験タスク",
-        app_sequence=['part1_slider', 'gender_lottery'],
+        app_sequence=['part1_slider_risk', 'gender_lottery'],
         num_demo_participants=1,
     ),
     dict(
