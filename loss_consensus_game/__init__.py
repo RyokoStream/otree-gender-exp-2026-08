@@ -101,7 +101,6 @@ class PracticeResults(Page):
         my_p = player.practice_p_1 if player.practice_p_1 is not None else 50
         calc_P = (my_p + other_p) / 200.0
         
-        # プレイヤー自身の役割に合わせて計算（練習では仮にプレイヤーAと同じ扱い）
         loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
         loss_res2 = int(calc_P * C.ENDOWMENT)
 
@@ -306,6 +305,10 @@ class FinalResults(Page):
                 'group_P': f"{calc_P * 100:.1f}%",
                 'prob_result1': prob_res1,
                 'prob_result2': prob_res2,
+                'loss_res1': loss_res1,
+                'loss_res2': loss_res2,
+                'loss_res1_amount': loss_res1,
+                'loss_res2_amount': loss_res2,
                 'amount_result1': C.ENDOWMENT - loss_res1,
                 'amount_result2': C.ENDOWMENT - loss_res2,
                 'drawn_result': drawn_result,
