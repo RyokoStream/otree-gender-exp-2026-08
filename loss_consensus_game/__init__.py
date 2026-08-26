@@ -10,16 +10,21 @@ class C(BaseConstants):
     NAME_IN_URL = 'loss_consensus_game'
     PLAYERS_PER_GROUP = 2
     NUM_ROUNDS = 3
-
     # 初期手元金（円）
     ENDOWMENT = 2000
-
     # ラウンドごとの【状況1】が発生する確率（%）
     PROBS_RESULT1 = {1: 60, 2: 70, 3: 80}
 
 
 class Subsession(BaseSubsession):
     pass
+
+
+def creating_session(subsession: Subsession):
+    # ラウンド1の時点で、グループごとに支払対象ラウンド（1〜3）を1つ確定させておく
+    if subsession.round_number == 1:
+        for group in subsession.get_groups():
+            group.session.vars[f'selected_round_group_{group.id_in_subsession}'] = random.randint(1, C.NUM_ROUNDS)
 
 
 class Group(BaseGroup):
@@ -29,8 +34,11 @@ class Group(BaseGroup):
 
 class Player(BasePlayer):
     student_id = models.StringField(label="もらっているID番号を入力してください。学籍番号を入力しないように:")
-    gender = models.StringField(label="戸籍上の性別を選択してください:", choices=['男性', '女性'], widget=widgets.RadioSelect)
-
+    gender = models.StringField(
+        label="戸籍上の性別を選択してください:",
+        choices=['男性', '女性'],
+        widget=widgets.RadioSelect
+    )
     # --- 練習ラウンド用 p の値 (0 〜 100) ---
     practice_p_1 = models.IntegerField(min=0, max=100, label="練習1: あなたにとって望ましい p の値 (0〜100)")
     practice_p_2 = models.IntegerField(min=0, max=100, label="練習2: あなたにとって望ましい p の値 (0〜100)")
@@ -57,6 +65,9 @@ class Demographics(Page):
 
 
 class DemographicsWaitPage(WaitPage):
+    title_text = "待機中"
+    body_text = "ペアの相手が入力するのを待っています..."
+
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1
@@ -92,7 +103,7 @@ class PracticeResults(Page):
         # 仮の状況（状況1が発生したと仮定）
         p_loss = (1.0 - calc_P) * C.ENDOWMENT
         total_p_payoff = C.ENDOWMENT - p_loss
-
+        
         return {
             'dummy_other_p': dummy_other_p,
             'calc_P_percent': int(calc_P * 100),
@@ -121,10 +132,9 @@ class PracticeResults2(Page):
         dummy_other_p = 40
         p_B = player.practice_p_2 if player.practice_p_2 is not None else 40
         calc_P = (p_B + dummy_other_p) / 200.0
-        
         p_loss = calc_P * C.ENDOWMENT
         total_p_payoff = C.ENDOWMENT - p_loss
-
+        
         return {
             'dummy_other_p': dummy_other_p,
             'calc_P_percent': int(calc_P * 100),
@@ -140,13 +150,14 @@ class Decision(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
+        # 1. 相手プレイヤーのインスタンスを取得
+        other_player = player.get_others_in_group()[0]
+        # 2. gender_lottery と同様、第1ラウンドで入力された相手情報を取得
+        first_other = other_player.in_round(1)
+
         round_num = player.round_number
         prob_res1 = C.PROBS_RESULT1.get(round_num, 50)
         prob_res2 = 100 - prob_res1
-
-        # ペア相手の性別取得
-        other_player = player.get_others_in_group()[0]
-        other_gender = other_player.gender if other_player.gender else "未回答"
 
         role_name = "プレイヤーA" if player.id_in_group == 1 else "プレイヤーB"
 
@@ -154,13 +165,17 @@ class Decision(Page):
             'round_num': round_num,
             'prob_result1': prob_res1,
             'prob_result2': prob_res2,
-            'other_gender': other_gender,
+            'other_id': first_other.student_id,
+            'other_gender': first_other.gender,
             'role_name': role_name,
         }
 
 
 # --- 成果集計・最終謝礼決定 ---
 class ResultsWaitPage(WaitPage):
+    title_text = "集計中"
+    body_text = "ペアの入力完了を待っています..."
+
     @staticmethod
     def after_all_players_arrive(group: Group):
         players = group.get_players()
@@ -191,9 +206,16 @@ class ResultsWaitPage(WaitPage):
 
             p.round_payoff = C.ENDOWMENT - p.choice_loss
 
-        # 3. 最終ラウンド終了時の清算処理
+        # 3. 最終ラウンド終了時の清算処理（gender_lottery のロジックに完全準拠）
         if group.round_number == C.NUM_ROUNDS:
+            selected_round = group.session.vars.get(
+                f'selected_round_group_{group.id_in_subsession}',
+                random.randint(1, C.NUM_ROUNDS)
+            )
+
             for p in players:
+                p.participant.vars['selected_round'] = selected_round
+
                 candidates = []
 
                 # A) part1_slider_risk の全22問を追加
@@ -212,16 +234,15 @@ class ResultsWaitPage(WaitPage):
                         'low': slider_low,
                     })
 
-                # B) loss_consensus_game の3ラウンドを追加
-                for r_num in range(1, C.NUM_ROUNDS + 1):
-                    p_in_r = p.in_round(r_num)
-                    candidates.append({
-                        'task_type': 'loss_consensus',
-                        'title': f'合意形成タスク（第{r_num}ラウンド）',
-                        'payoff': p_in_r.round_payoff,
-                    })
+                # B) 本タスク（合意形成タスク）から選ばれた1ラウンド分を追加
+                selected_player = p.in_round(selected_round)
+                candidates.append({
+                    'task_type': 'loss_consensus',
+                    'title': f'合意形成タスク（第{selected_round}ラウンド）',
+                    'payoff': selected_player.round_payoff,
+                })
 
-                # C) 全25問（22+3）からランダムで1つ選出
+                # C) 全件からランダムで1つ選出
                 if candidates:
                     final_choice = random.choice(candidates)
                     p.participant.vars['final_choice_detail'] = final_choice
@@ -244,7 +265,10 @@ class FinalResults(Page):
     @staticmethod
     def vars_for_template(player: Player):
         final_detail = player.participant.vars.get('final_choice_detail', {})
+        selected_round = player.participant.vars.get('selected_round', 1)
+
         return {
+            'selected_round': selected_round,
             'final_detail': final_detail,
             'final_payoff': int(player.participant.payoff),
         }
