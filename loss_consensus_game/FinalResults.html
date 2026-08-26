@@ -1,77 +1,42 @@
-{% extends "global/Page.html" %}
-{% load otree static %}
+{{ block title }}
+    最終結果・謝礼確定
+{{ endblock }}
 
-{% block title %}
-    実験結果・最終結果
-{% endblock %}
-
-{% block content %}
-    <p style="font-size: 1.1rem;">
-        すべての意思決定が完了しました。Part 1 および本番全3ラウンドの結果は以下の通りです。
-    </p>
-
-    <!-- Part 1 の結果カード -->
-    <div class="card mb-4" style="border: 2px solid {% if selected_task == 1 %}#dc3545{% else %}#dee2e6{% endif %}; border-radius: 8px; overflow: hidden;">
-        <div class="card-header font-weight-bold d-flex justify-content-between align-items-center" style="background-color: {% if selected_task == 1 %}#f8d7da{% else %}#f8f9fa{% endif %}; font-size: 1.1rem;">
-            <span>Part 1 (リスク選好測定) の記録</span>
-            {% if selected_task == 1 %}
-                <span class="badge bg-danger" style="font-size: 0.9rem; padding: 6px 10px;">★ 支払対象タスク</span>
-            {% endif %}
-        </div>
-        <div class="card-body">
-            <p style="font-size: 1.05rem; margin-bottom: 5px;">
-                獲得利得: <strong>{{ part1_payoff }} ポイント</strong>
-            </p>
-        </div>
+{{ block content }}
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-primary text-white font-weight-bold">
+        🎉 実験終了・獲得謝礼のお知らせ
     </div>
+    <div class="card-body">
+        <p class="lead">すべてのタスクが終了しました。お疲れ様でした！</p>
+        
+        <div class="alert alert-success border-success">
+            <h4 class="alert-heading font-weight-bold">今回選ばれた判定内容</h4>
+            <p class="mb-1"><strong>選ばれた対象:</strong> {{ final_detail.title }}</p>
 
-    <!-- 全3ラウンド分の記録を表示 -->
-    {% for r in all_rounds %}
-    <div class="card mb-4" style="border: 2px solid {% if selected_task == r.round|add:1 %}#dc3545{% else %}#dee2e6{% endif %}; border-radius: 8px; overflow: hidden;">
-        <div class="card-header font-weight-bold d-flex justify-content-between align-items-center" style="background-color: {% if selected_task == r.round|add:1 %}#f8d7da{% else %}#f8f9fa{% endif %}; font-size: 1.1rem;">
-            <span>本番第 {{ r.round }} ラウンドの記録</span>
-            {% if selected_task == r.round|add:1 %}
-                <span class="badge bg-danger" style="font-size: 0.9rem; padding: 6px 10px;">★ 支払対象タスク</span>
-            {% endif %}
-        </div>
-        <div class="card-body">
-            <p style="margin-bottom: 5px;">あなたの選択: <strong>{{ r.choice }}</strong></p>
-            <p style="margin-bottom: 5px;">相手の選択予想 (信念): <strong>{{ r.belief }}%</strong></p>
-            <p style="margin-bottom: 5px;">意思決定による発生損失: <strong style="color: #dc3545;">-{{ r.choice_loss }} ポイント</strong></p>
-            <p style="margin-bottom: 15px;">信念当て報酬: <strong>+{{ r.belief_payoff }} ポイント</strong></p>
-
-            <div class="alert alert-secondary text-center m-0" style="padding: 10px;">
-                このラウンドの獲得利得: <strong style="font-size: 1.1rem;">{{ r.payoff }} ポイント</strong>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-
-    <!-- 最終確定謝礼金枠 -->
-    <div class="card mb-4" style="border: 3px solid #0d6efd; border-radius: 8px; background-color: #f8f9fa;">
-        <div class="card-body text-center p-4">
-            <h4 style="color: #0d6efd; font-weight: bold; margin-bottom: 15px;">
-                🎲 最終謝礼金の決定
-            </h4>
-            <p style="font-size: 1.2rem; margin-bottom: 10px;">
-                ランダム抽出（Part 1 および本番3ラウンドの全4つの中から選択）の結果、支払対象には
-                <strong>
-                    {% if selected_task == 1 %}
-                        【Part 1】
+            {% if final_detail.task_type == 'slider' %}
+                <p class="mb-0">
+                    {% if final_detail.is_lottery %}
+                        くじ（高額 {{ final_detail.high }}円 / 低額 {{ final_detail.low }}円）を選択されたため、ランダム抽選が行われました。
                     {% else %}
-                        【本番第 {{ selected_task|add:-1 }} ラウンド】
+                        確定値（{{ final_detail.sure_payoff }}円）を選択されたため、その金額が適用されました。
                     {% endif %}
-                </strong>
-                が選ばれました！
-            </p>
+                </p>
+            {% else %}
+                <p class="mb-0">合意形成タスクの第{{ selected_round }}ラウンドの結果が獲得金額として決定されました。</p>
+            {% endif %}
+        </div>
 
-            <div style="font-size: 1.8rem; font-weight: bold; color: #0d6efd; margin-top: 10px; padding: 12px 24px; background-color: #ffffff; border: 2px dashed #0d6efd; border-radius: 8px; display: inline-block;">
-                あなたの確定謝礼金: {{ final_payoff }} ポイント
+        <div class="text-center my-4 p-3 bg-light rounded border">
+            <h3 class="mb-1">あなたの最終獲得謝礼金額</h3>
+            <div class="display-4 text-danger font-weight-bold">
+                {{ final_payoff }} 円
             </div>
         </div>
+
+        <p class="text-muted small">
+            ※画面の指示に従ってログアウトまたは退室を行ってください。
+        </p>
     </div>
-
-    <p style="font-size: 1.05rem;">ご参加ありがとうございました。</p>
-
-    {% next_button %}
-{% endblock %}
+</div>
+{{ endblock }}
