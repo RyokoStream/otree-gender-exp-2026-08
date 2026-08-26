@@ -1,6 +1,12 @@
 from os import environ
 
 SESSION_CONFIGS = [
+   dict(
+        name='gender_exp',
+        display_name="実験タスク",
+        app_sequence=['part1_slider', 'gender_lottery'],
+        num_demo_participants=1,
+    ),
     dict(
         name='loss_consensus_game',
         display_name="集団合意形成ゲーム（損失）",
