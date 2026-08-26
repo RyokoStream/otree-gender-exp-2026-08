@@ -115,6 +115,16 @@ class PracticeResults(Page):
         }
 
 
+# --- 練習 2 ---
+class Practice2(Page):
+    form_model = 'player'
+    form_fields = ['practice_p_2']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+
 # --- 練習 2 結果 ---
 class PracticeResults2(Page):
     @staticmethod
@@ -141,8 +151,6 @@ class PracticeResults2(Page):
         }
 
 
-
-
 # --- 本番意思決定 ---
 class Decision(Page):
     form_model = 'player'
@@ -152,7 +160,7 @@ class Decision(Page):
     def vars_for_template(player: Player):
         # 1. 相手プレイヤーのインスタンスを取得
         other_player = player.get_others_in_group()[0]
-        # 2. gender_lottery と同様、第1ラウンドで入力された相手情報を取得
+        # 2. 第1ラウンドで入力された相手情報を取得
         first_other = other_player.in_round(1)
 
         round_num = player.round_number
@@ -206,7 +214,7 @@ class ResultsWaitPage(WaitPage):
 
             p.round_payoff = C.ENDOWMENT - p.choice_loss
 
-        # 3. 最終ラウンド終了時の清算処理（gender_lottery のロジックに完全準拠）
+        # 3. 最終ラウンド終了時の清算処理
         if group.round_number == C.NUM_ROUNDS:
             selected_round = group.session.vars.get(
                 f'selected_round_group_{group.id_in_subsession}',
