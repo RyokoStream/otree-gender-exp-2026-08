@@ -101,6 +101,7 @@ class PracticeResults(Page):
         my_p = player.practice_p_1 if player.practice_p_1 is not None else 50
         calc_P = (my_p + other_p) / 200.0
         
+        # プレイヤー自身の役割に合わせて計算（練習では仮にプレイヤーAと同じ扱い）
         loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
         loss_res2 = int(calc_P * C.ENDOWMENT)
 
@@ -280,14 +281,19 @@ class FinalResults(Page):
             my_p = r.p_value if r.p_value is not None else 50
             calc_P = (my_p + other_p) / 200.0
 
-            loss_res1 = int(calc_P * C.ENDOWMENT)
-            loss_res2 = int((1.0 - calc_P) * C.ENDOWMENT)
+            # プレイヤーの役割（A/B）に応じた正確な損失計算
+            if player.id_in_group == 1:  # プレイヤーA
+                loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
+                loss_res2 = int(calc_P * C.ENDOWMENT)
+            else:  # プレイヤーB
+                loss_res1 = int(calc_P * C.ENDOWMENT)
+                loss_res2 = int((1.0 - calc_P) * C.ENDOWMENT)
 
             prob_res1 = C.PROBS_RESULT1.get(r.round_number, 50)
             prob_res2 = 100 - prob_res1
 
-            # 状況1か状況2かの判定
-            actual_loss = r.choice_loss if r.choice_loss is not None else 0
+            # 実際の損失額(choice_loss)と一致する状況を特定
+            actual_loss = int(r.choice_loss) if r.choice_loss is not None else 0
             if actual_loss == loss_res1:
                 drawn_result = "状況 1"
             else:
