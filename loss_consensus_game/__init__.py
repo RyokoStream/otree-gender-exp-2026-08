@@ -88,7 +88,6 @@ class Practice1(Page):
     def is_displayed(player: Player):
         return player.round_number == 1
 
-
 # --- 練習 1 結果 ---
 class PracticeResults(Page):
     @staticmethod
@@ -101,18 +100,20 @@ class PracticeResults(Page):
         my_p = player.practice_p_1 if player.practice_p_1 is not None else 50
         calc_P = (my_p + other_p) / 200.0
         
-        loss_res1 = int(calc_P * C.ENDOWMENT)
-        loss_res2 = int((1.0 - calc_P) * C.ENDOWMENT)
+        # 修正: 状況1の損失は (1 - P)*2000、状況2の損失は P*2000
+        loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
+        loss_res2 = int(calc_P * C.ENDOWMENT)
 
         return {
-            'my_p': my_p,                            # HTMLの {{ my_p }}
-            'other_p': other_p,                      # HTMLの {{ other_p }}
-            'group_P': f"{calc_P * 100:.1f}%",       # HTMLの {{ group_P }}
+            'my_p': my_p,                            
+            'other_p': other_p,                      
+            'group_P': f"{calc_P * 100:.1f}%",       
             'loss_result1': loss_res1,
-            'amount_result1': C.ENDOWMENT - loss_res1,
+            'amount_result1': C.ENDOWMENT - loss_res1,  # 状況1での残額 (= calc_P * 2000)
             'loss_result2': loss_res2,
-            'amount_result2': C.ENDOWMENT - loss_res2,
+            'amount_result2': C.ENDOWMENT - loss_res2,  # 状況2での残額 (= (1 - calc_P) * 2000)
         }
+
 
 
 # --- 練習 2 ---
@@ -123,7 +124,6 @@ class Practice2(Page):
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1
-
 
 # --- 練習 2 結果 ---
 class PracticeResults2(Page):
@@ -137,17 +137,18 @@ class PracticeResults2(Page):
         my_p = player.practice_p_2 if player.practice_p_2 is not None else 40
         calc_P = (my_p + other_p) / 200.0
         
-        loss_res1 = int(calc_P * C.ENDOWMENT)
-        loss_res2 = int((1.0 - calc_P) * C.ENDOWMENT)
+        # 修正: 状況1の損失は (1 - P)*2000、状況2の損失は P*2000
+        loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
+        loss_res2 = int(calc_P * C.ENDOWMENT)
 
         return {
-            'my_p': my_p,                            # HTMLの {{ my_p }}
-            'other_p': other_p,                      # HTMLの {{ other_p }}
-            'group_P': f"{calc_P * 100:.1f}%",       # HTMLの {{ group_P }}
+            'my_p': my_p,                            
+            'other_p': other_p,                      
+            'group_P': f"{calc_P * 100:.1f}%",       
             'loss_result1': loss_res1,
-            'amount_result1': C.ENDOWMENT - loss_res1,
+            'amount_result1': C.ENDOWMENT - loss_res1,  # 状況1での残額 (= calc_P * 2000)
             'loss_result2': loss_res2,
-            'amount_result2': C.ENDOWMENT - loss_res2,
+            'amount_result2': C.ENDOWMENT - loss_res2,  # 状況2での残額 (= (1 - calc_P) * 2000)
         }
 
 
