@@ -88,6 +88,7 @@ class Practice1(Page):
     def is_displayed(player: Player):
         return player.round_number == 1
 
+
 # --- 練習 1 結果 ---
 class PracticeResults(Page):
     @staticmethod
@@ -100,7 +101,6 @@ class PracticeResults(Page):
         my_p = player.practice_p_1 if player.practice_p_1 is not None else 50
         calc_P = (my_p + other_p) / 200.0
         
-        # 修正: 状況1の損失は (1 - P)*2000、状況2の損失は P*2000
         loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
         loss_res2 = int(calc_P * C.ENDOWMENT)
 
@@ -109,11 +109,10 @@ class PracticeResults(Page):
             'other_p': other_p,                      
             'group_P': f"{calc_P * 100:.1f}%",       
             'loss_result1': loss_res1,
-            'amount_result1': C.ENDOWMENT - loss_res1,  # 状況1での残額 (= calc_P * 2000)
+            'amount_result1': C.ENDOWMENT - loss_res1,
             'loss_result2': loss_res2,
-            'amount_result2': C.ENDOWMENT - loss_res2,  # 状況2での残額 (= (1 - calc_P) * 2000)
+            'amount_result2': C.ENDOWMENT - loss_res2,
         }
-
 
 
 # --- 練習 2 ---
@@ -124,6 +123,7 @@ class Practice2(Page):
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1
+
 
 # --- 練習 2 結果 ---
 class PracticeResults2(Page):
@@ -137,7 +137,6 @@ class PracticeResults2(Page):
         my_p = player.practice_p_2 if player.practice_p_2 is not None else 40
         calc_P = (my_p + other_p) / 200.0
         
-        # 修正: 状況1の損失は (1 - P)*2000、状況2の損失は P*2000
         loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
         loss_res2 = int(calc_P * C.ENDOWMENT)
 
@@ -146,9 +145,9 @@ class PracticeResults2(Page):
             'other_p': other_p,                      
             'group_P': f"{calc_P * 100:.1f}%",       
             'loss_result1': loss_res1,
-            'amount_result1': C.ENDOWMENT - loss_res1,  # 状況1での残額 (= calc_P * 2000)
+            'amount_result1': C.ENDOWMENT - loss_res1,
             'loss_result2': loss_res2,
-            'amount_result2': C.ENDOWMENT - loss_res2,  # 状況2での残額 (= (1 - calc_P) * 2000)
+            'amount_result2': C.ENDOWMENT - loss_res2,
         }
 
 
@@ -159,9 +158,7 @@ class Decision(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        # 1. 相手プレイヤーのインスタンスを取得
         other_player = player.get_others_in_group()[0]
-        # 2. 第1ラウンドで入力された相手情報を取得
         first_other = other_player.in_round(1)
 
         round_num = player.round_number
@@ -227,7 +224,7 @@ class ResultsWaitPage(WaitPage):
 
                 candidates = []
 
-　　　　　　　　# A) part1_slider_risk の全22問を追加
+                # A) part1_slider_risk の全22問を追加
                 slider_answers = p.participant.vars.get('slider_answers', {})
                 sure_payoffs = p.participant.vars.get('slider_sure_payoffs', [])
                 slider_high = p.participant.vars.get('slider_lottery_high', 2000)
@@ -236,14 +233,14 @@ class ResultsWaitPage(WaitPage):
                 for q_num, chosen_lottery in slider_answers.items():
                     candidates.append({
                         'task_type': 'slider',
-                        'title': f'確実等価性タスク（第{q_num}問）', # 「確定」を「確実」に修正
+                        'title': f'確実等価性タスク（第{q_num}問）',
                         'is_lottery': chosen_lottery,
                         'sure_payoff': sure_payoffs[q_num - 1] if q_num - 1 < len(sure_payoffs) else 0,
                         'high': slider_high,
                         'low': slider_low,
                     })
-                
-          　    # B) 本タスク（合意形成タスク）から選ばれた1ラウンド分を追加
+
+                # B) 本タスク（合意形成タスク）から選ばれた1ラウンド分を追加
                 selected_player = p.in_round(selected_round)
                 candidates.append({
                     'task_type': 'loss_consensus',
