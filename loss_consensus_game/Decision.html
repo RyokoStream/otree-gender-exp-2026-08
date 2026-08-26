@@ -2,29 +2,15 @@
 {% load otree %}
 
 {% block title %}
-    第 {{ player.round_number }} ラウンド：意思決定
+    第 {{ round_num }} ラウンド：意思決定
 {% endblock %}
 
 {% block content %}
-    <!-- 1. 共有情報 -->
-    <div class="card mb-3" style="border: 3px solid #0d6efd; background-color: #f8f9fa;">
-        <div class="card-body" style="padding: 20px;">
-            <h5 class="card-title font-weight-bold" style="color: #0d6efd; font-size: 1.4rem;">共有情報</h5>
-            <p class="card-text" style="font-size: 1.35rem; line-height: 1.8; margin-bottom: 12px;">
-                あなたの役割: <strong>{{ role_name }}</strong><br>
-                ペア相手の性別: <span class="badge bg-primary" style="font-size: 1.35rem; padding: 8px 14px;">{{ other_gender }}</span>
-            </p>
-            <hr style="margin: 14px 0;">
-            <p class="card-text" style="font-size: 1.2rem; margin: 0; color: #0d6efd; font-weight: bold;">
-                💡 集計された確率 P は、あなたとペア相手が入力した p の平均値となります。
-            </p>
-        </div>
-    </div>
 
-    <!-- 2. くじの構成 -->
+    <!-- 1. くじの構成 -->
     <div class="card mb-4" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
         <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.25rem;">
-            あなた（{{ role_name }}）のくじの構成（手元金：2000円）
+            あなたのくじの構成（手元金：2000円）
         </div>
         <div class="card-body" style="padding: 20px;">
             <table class="table table-bordered text-center align-middle mb-0" style="font-size: 1.15rem;">
@@ -39,13 +25,13 @@
                 <tbody>
                     <tr>
                         <td style="font-weight: bold; color: #198754;">状況 1</td>
-                        <td>P %</td>
+                        <td>{{ prob_result1 }} %</td>
                         <td>(1 - P) × 2000</td>
                         <td style="font-weight: bold; color: #198754;">P × 2000 円</td>
                     </tr>
                     <tr>
                         <td style="font-weight: bold; color: #6c757d;">状況 2</td>
-                        <td>(100 - P) %</td>
+                        <td>{{ prob_result2 }} %</td>
                         <td>P × 2000</td>
                         <td style="font-weight: bold; color: #6c757d;">(1 - P) × 2000 円</td>
                     </tr>
@@ -54,22 +40,36 @@
         </div>
     </div>
 
-    <!-- 3. 入力フォーム -->
-    <div class="card mb-4" style="border: 2px solid #198754; background-color: #f4fbf7;">
+    <!-- 2. ペア相手の情報 -->
+    <div class="card mb-3" style="border: 2px solid #0d6efd; background-color: #f8f9fa;">
         <div class="card-body" style="padding: 20px;">
-            <p class="card-text font-weight-bold text-danger mb-2" style="font-size: 1.3rem; line-height: 1.6;">
-                相手が宣言してくる p を予想して、自分にとって望ましい p を宣言してください。
+            <h5 class="card-title font-weight-bold" style="color: #0d6efd; font-size: 1.25rem;">対戦相手の情報</h5>
+            <p class="card-text" style="font-size: 1.15rem; line-height: 1.8; margin-bottom: 0;">
+                ペア相手のID番号: <strong>{{ other_id }}</strong><br>
+                ペア相手の性別: <strong>{{ other_gender }}</strong>
             </p>
-            <p style="font-size: 1.15rem;" class="mb-3">
-                あなたにとって望ましい p の値を <strong>0 〜 100 の整数</strong> で宣言してください。
+        </div>
+    </div>
+
+    <!-- 3. 入力フォーム -->
+    <div class="card mb-3" style="border: 2px solid #198754; background-color: #f4fbf7;">
+        <div class="card-body" style="padding: 20px;">
+            <p style="font-size: 1.25rem; line-height: 1.6;" class="mb-3">
+                <strong>相手がどんな p を宣言してくるのかを予想しながら</strong>、あなたにとって望ましい p の値を <strong>0 〜 100 の整数</strong> で宣言してください。
             </p>
-            <div style="font-size: 1.25rem;">
+            <div style="font-size: 1.3rem;">
                 {{ formfields }}
             </div>
         </div>
     </div>
 
-    <!-- 4. 次へボタン -->
-    {% next_button %}
-{% endblock %}
+    <!-- 4. ボタン文言 -->
+    <div class="mt-4 text-center">
+        {% if round_num < 3 %}
+            <button class="otree-btn-next btn btn-primary btn-lg" style="font-size: 1.2rem; padding: 10px 24px;">次の選択に進んでください</button>
+        {% else %}
+            <button class="otree-btn-next btn btn-primary btn-lg" style="font-size: 1.2rem; padding: 10px 24px;">集計へ進む</button>
+        {% endif %}
+    </div>
 
+{% endblock %}
