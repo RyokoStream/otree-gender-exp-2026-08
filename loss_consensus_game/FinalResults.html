@@ -31,29 +31,41 @@
                     <tr>
                         <th style="width: 25%;">発生した状況</th>
                         <th style="width: 25%;">確率</th>
-                        <th style="width: 25%;">計算式</th>
-                        <th style="width: 25%;">対応金額</th>
+                        <th style="width: 25%;">損失額の計算式</th>
+                        <th style="width: 25%;">損失額</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td style="font-weight: bold; color: #198754;">状況 1</td>
                         <td>{{ r.prob_result1 }}%</td>
-                        <td>{{ r.group_P }} × 2000</td>
-                        <td>{{ r.amount_result1 }} 円</td>
+                        <td>
+                            {% if player.id_in_group == 1 %}
+                                (1 - {{ r.group_P }}) × 2000円
+                            {% else %}
+                                {{ r.group_P }} × 2000円
+                            {% endif %}
+                        </td>
+                        <td style="color: #dc3545; font-weight: bold;">{{ r.loss_res1_amount }} 円</td>
                     </tr>
                     <tr>
                         <td style="font-weight: bold; color: #6c757d;">状況 2</td>
                         <td>{{ r.prob_result2 }}%</td>
-                        <td>(1 - {{ r.group_P }}) × 2000</td>
-                        <td>{{ r.amount_result2 }} 円</td>
+                        <td>
+                            {% if player.id_in_group == 1 %}
+                                {{ r.group_P }} × 2000円
+                            {% else %}
+                                (1 - {{ r.group_P }}) × 2000円
+                            {% endif %}
+                        </td>
+                        <td style="color: #dc3545; font-weight: bold;">{{ r.loss_res2_amount }} 円</td>
                     </tr>
                 </tbody>
             </table>
 
             <!-- ラウンドごとの抽選結果 -->
             <div class="alert alert-secondary text-center m-0" style="padding: 10px;">
-                このラウンドの自動抽選結果: <strong>【{{ r.drawn_result }}】</strong> （獲得額: {{ r.round_payoff }} 円）
+                このラウンドの自動抽選結果: <strong>【{{ r.drawn_result }}】</strong> （このラウンドでの残額: {{ r.round_payoff }} 円）
             </div>
         </div>
     </div>
