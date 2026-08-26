@@ -2,7 +2,7 @@
 {% load otree %}
 
 {% block title %}
-    第 {{ round_num }} ラウンド：意思決定
+    第 {{ player.round_number }} ラウンド：意思決定
 {% endblock %}
 
 {% block content %}
@@ -55,7 +55,7 @@
     </div>
 
     <!-- 3. 入力フォーム -->
-    <div class="card mb-3" style="border: 2px solid #198754; background-color: #f4fbf7;">
+    <div class="card mb-4" style="border: 2px solid #198754; background-color: #f4fbf7;">
         <div class="card-body" style="padding: 20px;">
             <p class="card-text font-weight-bold text-danger mb-2" style="font-size: 1.3rem; line-height: 1.6;">
                 相手が宣言してくる p を予想して、自分にとって望ましい p を宣言してください。
@@ -69,12 +69,7 @@
         </div>
     </div>
 
-    <!-- 4. ボタン文言 -->
-    <div class="mt-4 text-center">
-        {% if round_num < 3 %}
-            <button class="otree-btn-next btn btn-primary btn-lg" style="font-size: 1.25rem; padding: 10px 24px;">次の選択に進んでください</button>
-        {% else %}
-            <button class="otree-btn-next btn btn-primary btn-lg" style="font-size: 1.25rem; padding: 10px 24px;">送信して実験を終了する</button>
-        {% endif %}
-    </div>
+    <!-- 4. 次へボタン -->
+    {% next_button %}
 {% endblock %}
+
