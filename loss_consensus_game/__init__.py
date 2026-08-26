@@ -227,7 +227,7 @@ class ResultsWaitPage(WaitPage):
 
                 candidates = []
 
-                # A) part1_slider_risk の全22問を追加
+　　　　　　　　# A) part1_slider_risk の全22問を追加
                 slider_answers = p.participant.vars.get('slider_answers', {})
                 sure_payoffs = p.participant.vars.get('slider_sure_payoffs', [])
                 slider_high = p.participant.vars.get('slider_lottery_high', 2000)
@@ -236,14 +236,14 @@ class ResultsWaitPage(WaitPage):
                 for q_num, chosen_lottery in slider_answers.items():
                     candidates.append({
                         'task_type': 'slider',
-                        'title': f'確定等価性タスク（第{q_num}問）',
+                        'title': f'確実等価性タスク（第{q_num}問）', # 「確定」を「確実」に修正
                         'is_lottery': chosen_lottery,
                         'sure_payoff': sure_payoffs[q_num - 1] if q_num - 1 < len(sure_payoffs) else 0,
                         'high': slider_high,
                         'low': slider_low,
                     })
-
-                # B) 本タスク（合意形成タスク）から選ばれた1ラウンド分を追加
+                
+          　    # B) 本タスク（合意形成タスク）から選ばれた1ラウンド分を追加
                 selected_player = p.in_round(selected_round)
                 candidates.append({
                     'task_type': 'loss_consensus',
