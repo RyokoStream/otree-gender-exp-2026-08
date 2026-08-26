@@ -177,7 +177,6 @@ class Decision(Page):
             'round_num': r_num,
         }
 
-
 class ResultsWaitPage(WaitPage):
     title_text = "集計中"
     body_text = "ペアの入力完了を待っています..."
@@ -185,10 +184,8 @@ class ResultsWaitPage(WaitPage):
     @staticmethod
     def after_all_players_arrive(group: Group):
         players = group.get_players()
-        # 0〜100 の入力値の平均を取り、100 で割って 0.0〜1.0 の確率 P に変換
         avg_p_int = sum([p.p_input for p in players]) / len(players)
         group.group_P = round(avg_p_int / 100.0, 4)
-
         P = group.group_P
         r_num = group.round_number
         prob_a_threshold = C.PROBS_A_RESULT1[r_num] / 100.0
@@ -196,7 +193,7 @@ class ResultsWaitPage(WaitPage):
         for p in players:
             is_player_a = (p.id_in_group == 1)
             prob_res1_threshold = prob_a_threshold if is_player_a else (1.0 - prob_a_threshold)
-
+            
             if random.random() < prob_res1_threshold:
                 p.drawn_result = "状況 1"
                 p.round_payoff = round(P * 2000)
@@ -204,18 +201,55 @@ class ResultsWaitPage(WaitPage):
                 p.drawn_result = "状況 2"
                 p.round_payoff = round((1 - P) * 2000)
 
-            p.payoff = p.round_payoff
-
-        # 最終第3ラウンド終了時に、グループ共通の決定済ラウンドから支払額を確定させる
+        # 最終ラウンド（ラウンド3）到達時に全体抽選を実施
         if group.round_number == C.NUM_ROUNDS:
             selected_round = group.session.vars.get(
-                f'selected_round_group_{group.id_in_subsession}',
+                f'selected_round_group_{group.id_in_subsession}', 
                 random.randint(1, C.NUM_ROUNDS)
             )
+
             for p in players:
                 p.participant.vars['selected_round'] = selected_round
+                
+                # --- 抽選候補プール（全23個）を作成 ---
+                candidates = []
+
+                # A) part1_slider_risk の全22問
+                slider_answers = p.participant.vars.get('slider_answers', {})
+                sure_payoffs = p.participant.vars.get('slider_sure_payoffs', [])
+                slider_high = p.participant.vars.get('slider_lottery_high', 2000)
+                slider_low = p.participant.vars.get('slider_lottery_low', 0)
+
+                for q_num, chosen_lottery in slider_answers.items():
+                    candidates.append({
+                        'task_type': 'slider',
+                        'title': f'確定等価性タスク（第{q_num}問）',
+                        'is_lottery': chosen_lottery,
+                        'sure_payoff': sure_payoffs[q_num - 1] if q_num - 1 < len(sure_payoffs) else 0,
+                        'high': slider_high,
+                        'low': slider_low,
+                    })
+
+                # B) gender_lottery の当選ラウンド（1問分）
                 selected_player = p.in_round(selected_round)
-                p.participant.payoff = selected_player.round_payoff
+                candidates.append({
+                    'task_type': 'gender',
+                    'title': f'情報共有型くじタスク（第{selected_round}ラウンド）',
+                    'payoff': selected_player.round_payoff,
+                })
+
+                # --- 全体から1つをランダム決定 ---
+                final_choice = random.choice(candidates)
+                p.participant.vars['final_choice_detail'] = final_choice
+
+                if final_choice['task_type'] == 'gender':
+                    p.participant.payoff = final_choice['payoff']
+                else:
+                    if final_choice['is_lottery']:
+                        won = random.random() < 0.5
+                        p.participant.payoff = final_choice['high'] if won else final_choice['low']
+                    else:
+                        p.participant.payoff = final_choice['sure_payoff']
 
 
 class FinalResults(Page):
@@ -233,13 +267,10 @@ class FinalResults(Page):
         for p in player.in_all_rounds():
             r_num = p.round_number
             other_p = p.get_others_in_group()[0]
-            
             prob_a_res1 = C.PROBS_A_RESULT1[r_num]
             prob_a_res2 = 100 - prob_a_res1
-
             prob_result1 = prob_a_res1 if is_player_a else prob_a_res2
             prob_result2 = prob_a_res2 if is_player_a else prob_a_res1
-
             group_P = p.group.group_P
 
             all_rounds_data.append({
@@ -256,15 +287,15 @@ class FinalResults(Page):
             })
 
         selected_round = player.participant.vars.get('selected_round', 1)
+        final_detail = player.participant.vars.get('final_choice_detail', {})
 
         return {
             'all_rounds': all_rounds_data,
             'selected_round': selected_round,
             'role_name': role_name,
+            'final_detail': final_detail,
             'final_payoff': int(player.participant.payoff),
         }
-
-
 page_sequence = [
     Demographics, 
     DemographicsWaitPage, 
