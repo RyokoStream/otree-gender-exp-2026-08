@@ -1,0 +1,111 @@
+{{ block title }}
+    意思決定タスク
+{{ endblock }}
+
+{{ block content }}
+
+    <!-- 報酬決定および注意点の説明文 -->
+    <div class="card bg-light mb-4">
+        <div class="card-body">
+            <h5 class="card-title">【報酬決定について】</h5>
+            <p class="card-text mb-2">
+                本タスク終了後、全22問の中から<b>ランダムに1つの質問が自動的に選ばれます</b>。<br>
+                その質問であなたが選択した内容に応じて、以下の通り報酬が決定します。
+            </p>
+            <ul class="mb-3">
+                <li><b>「確実な金額を選ぶ」を選択していた場合：</b> 提示された確定額（50円〜1,100円）がそのまま獲得報酬となります。</li>
+                <li><b>「くじを選ぶ」を選択していた場合：</b> 50%の確率で 2,000円、50%の確率で 0円 が獲得報酬となります。</li>
+            </ul>
+
+            <div class="alert alert-info mb-0 text-dark" role="alert">
+    <strong class="d-block mb-2 fs-5">💡 【最も損をしない回答の仕方】</strong>
+    
+    <p class="mb-2 fs-6 fw-bold">
+        本タスクでは、「ご自身の本当の価値判断（評価）」通りに切り替え点を設定することが、あなたにとって損をしない構造になっています。
+    </p>
+
+    <ul class="mb-2 fs-6 ps-3">
+        <li>ご自身の本当の感覚よりも高め・低めに偽ってスライドの位置を設定すると、ランダムに選ばれた質問の回答によって、以下のような<strong>損な選択肢が適用されてしまう可能性</strong>があります。
+            <ul class="mt-1 ps-3 small text-secondary">
+                <li>くじの価値に対して低すぎる確実な金額をもらうことになってしまう</li>
+                <li>リスクのあるくじより魅力的な確実な金額がもらえる場面で、くじしか選べなくなる</li>
+            </ul>
+        </li>
+    </ul>
+
+    <p class="mb-0 fs-6 fw-bold text-danger">
+        👉 どのような抽選結果になっても後悔しないよう、直感に従って正直にお選びください。
+    </p>
+</div>
+          
+
+    <!-- スライダー入力エリア -->
+    <div class="card mb-4 border-primary">
+        <div class="card-body text-center">
+            <label for="switching_point" class="form-label fw-bold fs-5">
+                「くじ」から「確実な金額」へ切り替える場所をスライダーで選択してください
+            </label>
+            <input type="range" class="form-range" id="switching_point" name="switching_point" 
+                   min="0" max="{{ num_questions }}" value="0" oninput="updateTable(this.value)">
+            <div class="mt-2 fs-6 text-muted">
+                選択状況: 第 <span id="switch_val" class="fw-bold text-primary">0</span> 問目まで「くじを選び」、それ以降は「確実な金額を選ぶ」
+            </div>
+        </div>
+    </div>
+
+    <!-- 質問テーブル -->
+    <table class="table table-bordered text-center align-middle">
+        <thead class="table-secondary">
+            <tr>
+                <th>問題</th>
+                <th>くじ（50%で2,000円 / 50%で0円）</th>
+                <th>確実な金額</th>
+                <th>あなたの選択</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ for q in questions }}
+            <tr>
+                <td>第 {{ q.num }} 問</td>
+                <td>2,000円 (50%) または 0円 (50%)</td>
+                <td>{{ q.sure_payoff }} 円</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="q{{ q.num }}" id="q{{ q.num }}_lottery" value="True" autocomplete="off" required>
+                        <label class="btn btn-outline-primary" for="q{{ q.num }}_lottery">くじを選ぶ</label>
+
+                        <input type="radio" class="btn-check" name="q{{ q.num }}" id="q{{ q.num }}_sure" value="False" autocomplete="off" required>
+                        <label class="btn btn-outline-success" for="q{{ q.num }}_sure">確実な金額を選ぶ</label>
+                    </div>
+                </td>
+            </tr>
+            {{ endfor }}
+        </tbody>
+    </table>
+
+    <div class="text-end mt-4">
+    <button class="otree-btn-next btn btn-primary">この選択で正しければ次へ</button>
+　　</div>
+    
+       <!-- スライダーとラジオボタンを連動させるJavaScript -->
+    <script>
+        function updateTable(val) {
+            document.getElementById('switch_val').innerText = val;
+            let numQuestions = {{ num_questions }};
+            for (let i = 1; i <= numQuestions; i++) {
+                if (i <= val) {
+                    document.getElementById('q' + i + '_lottery').checked = true;
+                } else {
+                    document.getElementById('q' + i + '_sure').checked = true;
+                }
+            }
+        }
+
+        // 初期表示時の連動（デフレクト設定）
+        window.onload = function() {
+            let slider = document.getElementById('switching_point');
+            updateTable(slider.value);
+        };
+    </script>
+
+{{ endblock }}
