@@ -1,1 +1,55 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
 
+{% block title %}
+研究参加に関する説明・同意書
+{% endblock %}
+
+{% block content %}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <p>本実験にご参加いただきありがとうございます。同意できる場合は、<b>「同意する」を選択して</b>お進みください。</p>
+
+        <hr>
+
+        <h5 class="font-weight-bold text-primary mb-3">【実験の説明事項】</h5>
+
+        <div class="mb-4 p-3 border rounded bg-light">
+            <strong>1. 個人情報の取り扱いと匿名化</strong>
+            <p class="mb-2">お預かりした個人情報（氏名やID等）は、実験結果の適切な分析・解釈のために使用します。<b>謝礼金の支払いが完了した段階で、データから氏名等の個人識別情報は速やかに削除（匿名化）されます。</b></p>
+            {% formfield 'consent_1' %}
+        </div>
+
+        <div class="mb-4 p-3 border rounded bg-light">
+            <strong>2. 収集したデータの利用方法</strong>
+            <p class="mb-2">本実験で収集された属性情報（性別等）や意思決定データは、<b>全体で約400名規模のデータセットの一部として統合され、統計的な学術分析のみに使用されます。</b>個人の選択が単独で公表されることはありません。</p>
+            {% formfield 'consent_2' %}
+        </div>
+
+        <div class="mb-4 p-3 border rounded bg-light">
+            <strong>3. 謝礼金と決定プロセス</strong>
+            <p class="mb-2">本実験では、<b>説明を注意深く読み、内容を正しく理解した上で真剣に回答を行うことが、より多くの謝礼金を得る可能性を高めます。</b>ただし、一部のタスクには確率（運）の要素が作用します。</p>
+            {% formfield 'consent_3' %}
+        </div>
+
+        <div class="mb-4 p-3 border rounded bg-light">
+            <strong>4. 謝礼金受け取りに必要な手続き（学生証コピーの提出）</strong>
+            <p class="mb-2">謝礼金を受け取るためには、<b>学生証の両面コピーを提出していただく必要があります。</b>提出されたコピーは<b>京都大学経済研究所の会計規程に基づき適切に保管され、7年経過後に確実に破棄されます。</b></p>
+            {% formfield 'consent_4' %}
+        </div>
+
+<div class="alert alert-danger mb-0 p-4" role="alert">
+            <h5 class="font-weight-bold text-danger mb-2" style="font-size: 1.3rem;">【重要事項・不同意の場合について】</h5>
+            <p class="mb-0 font-weight-bold" style="font-size: 1.15rem; line-height: 1.6;">
+                一つでも「同意しない」を選ばれた場合には実験には参加することができず、謝礼金は一切お支払いできません。あらかじめご了承ください。
+            </p>
+        </div>
+     </div>
+</div>
+
+<div class="text-center mb-4">
+    {% next_button %}
+</div>
+
+{% endblock %}
