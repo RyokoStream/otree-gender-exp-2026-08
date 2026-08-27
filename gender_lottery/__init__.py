@@ -1,6 +1,5 @@
 import random
 from otree.api import *
-from otree.api import field_maybe_none
 
 doc = """
 情報共有型くじ実験（両役体験練習付き）
@@ -104,13 +103,29 @@ class PartnerRefusal(Page):
         if not others:
             return False
         partner = others[0]
+        class PartnerRefusal(Page):
+    """ペアの相手が同意しなかった場合に表示するページ"""
+    @staticmethod
+    def is_displayed(player: Player):
+        others = player.get_others_in_group()
+        if not others:
+            return False
+        partner = others[0]
+        class PartnerRefusal(Page):
+    """ペアの相手が同意しなかった場合に表示するページ"""
+    @staticmethod
+    def is_displayed(player: Player):
+        others = player.get_others_in_group()
+        if not others:
+            return False
+        partner = others[0]
         return player.round_number == 1 and (
-            field_maybe_none(partner, 'consent_1') == '同意しない' or
-            field_maybe_none(partner, 'consent_2') == '同意しない' or
-            field_maybe_none(partner, 'consent_3') == '同意しない' or
-            field_maybe_none(partner, 'consent_4') == '同意しない'
+            partner.consent_1 == '同意しない' or
+            partner.consent_2 == '同意しない' or
+            partner.consent_3 == '同意しない' or
+            partner.consent_4 == '同意しない'
         )
-
+        
 class Demographics(Page):
     form_model = 'player'
     form_fields = ['student_id', 'gender']
