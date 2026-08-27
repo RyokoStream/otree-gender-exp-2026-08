@@ -1,0 +1,25 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+実験参加辞退のおしらせ
+{% endblock %}
+
+{% block content %}
+
+<div class="card border-warning mb-4">
+    <div class="card-body text-center p-5">
+        <h4 class="card-title text-danger mb-4">実験への参加が辞退されました</h4>
+        <p class="card-text lead mb-4">
+            同意事項にご同意いただけなかったため、本実験を開始することはできません。<br>
+            また、実験に参加されないため謝礼金のお支払いも行われません。
+        </p>
+        <hr>
+        <p class="text-muted mb-0">
+            この画面をもって手続きは終了となります。ブラウザを閉じて終了してください。<br>
+            ご協力ありがとうございました。
+        </p>
+    </div>
+</div>
+
+{% endblock %}
