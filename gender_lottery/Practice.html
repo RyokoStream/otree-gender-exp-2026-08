@@ -108,16 +108,17 @@
         <img src="{% static 'playerA_06_point.png' %}" style="max-width: 100%; height: auto;" alt="プレイヤーAのポイント">
     </div>
 
-    <!-- 4. 入力フォーム（整数案内へ修正） -->
-    <div class="card mb-3" style="border: 2px solid #ffc107;">
-        <div class="card-body">
-            <p style="font-size: 1.05rem;" class="mb-2">
-                仮に、<strong>相手（プレイヤーp_B = 0.50 (50%) を入力してきたと想定</strong>します。<br>
-                あなたにとって望ましい p_A の 値を <strong>0 〜 100 の整数</strong> で入力してください。（例：55 と入力すれば　P_A = 0.55 ） 
-            </p>
-            {% formfields %}
-        </div>
+<!-- 4. 入力フォーム（整数案内へ修正） -->
+<div class="card mb-3" style="border: 2px solid #ffc107;">
+    <div class="card-body">
+        <p style="font-size: 1.05rem;" class="mb-2">
+            仮に、<strong>相手（プレイヤーB）が p_B = 50 (50%) を入力してきたと想定</strong>します。<br>
+            あなたにとって望ましい p_A の値を <strong>0 〜 100 の整数</strong> で入力してください。（例：55 と入力すれば P_A = 0.55）
+        </p>
+        {% formfields %}
     </div>
+</div>
+ 
 
     <!-- 5. ボタン -->
     <div class="mt-4 text-center">
