@@ -95,6 +95,7 @@ class Refusal(Page):
             player.consent_4 == '同意しない'
         )
 
+from otree.api import field_maybe_none  # ※ファイルの先頭（2行目付近）でインポート
 
 class PartnerRefusal(Page):
     """ペアの相手が同意しなかった場合に表示するページ"""
@@ -105,12 +106,11 @@ class PartnerRefusal(Page):
             return False
         partner = others[0]
         return player.round_number == 1 and (
-            partner.consent_1 == '同意しない' or
-            partner.consent_2 == '同意しない' or
-            partner.consent_3 == '同意しない' or
-            partner.consent_4 == '同意しない'
+            field_maybe_none(partner, 'consent_1') == '同意しない' or
+            field_maybe_none(partner, 'consent_2') == '同意しない' or
+            field_maybe_none(partner, 'consent_3') == '同意しない' or
+            field_maybe_none(partner, 'consent_4') == '同意しない'
         )
-
 
 class Demographics(Page):
     form_model = 'player'
