@@ -3,6 +3,7 @@ from otree.api import *
 
 doc = """
 情報共有型くじ実験（両役体験練習付き）
+同意手続きは consent アプリで済ませてある前提。
 """
 
 
@@ -37,23 +38,6 @@ class Player(BasePlayer):
         choices=['男性', '女性'],
         widget=widgets.RadioSelect
     )
-    # 4つの同意項目（同意する / 同意しない のラジオボタン）
-    consent_1 = models.StringField(
-        choices=['同意する', '同意しない'],
-        widget=widgets.RadioSelect
-    )
-    consent_2 = models.StringField(
-        choices=['同意する', '同意しない'],
-        widget=widgets.RadioSelect
-    )
-    consent_3 = models.StringField(
-        choices=['同意する', '同意しない'],
-        widget=widgets.RadioSelect
-    )
-    consent_4 = models.StringField(
-        choices=['同意する', '同意しない'],
-        widget=widgets.RadioSelect
-    )
 
     practice_p1 = models.IntegerField(
         label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
@@ -71,79 +55,15 @@ class Player(BasePlayer):
     choice_payoff = models.FloatField()
     round_payoff = models.FloatField()
 
-    @property
-    def consented(self):
-        """4項目すべてに『同意する』を選んだ場合のみ True。未入力(None)は False。"""
-        return all([
-            self.consent_1 == '同意する',
-            self.consent_2 == '同意する',
-            self.consent_3 == '同意する',
-            self.consent_4 == '同意する',
-        ])
-
 
 # --- ヘルパー ---
 
-def partner_in_round1(player: Player):
-    """ペア相手のラウンド1の記録を返す。相手がいなければ None。"""
-    me = player.in_round(1)
-    others = me.get_others_in_group()
-    return others[0] if others else None
-
-
 def pair_consented(player: Player):
-    """自分と相手の両方が同意している場合のみ True。実験本編を表示する条件。"""
-    if not player.in_round(1).consented:
-        return False
-    partner = partner_in_round1(player)
-    if partner is None:
-        return False
-    return partner.consented
+    """consent アプリで両者が同意した場合のみ True。本編を表示する条件。"""
+    return player.participant.vars.get('pair_consented', False)
 
 
 # --- PAGES ---
-
-class Consent(Page):
-    """一番最初に表示する同意書"""
-    form_model = 'player'
-    form_fields = ['consent_1', 'consent_2', 'consent_3', 'consent_4']
-
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1
-
-
-class ConsentWaitPage(WaitPage):
-    """
-    相手の同意状況を判定する前に、必ず両者の入力完了を待つ。
-    これが無いと、相手の consent_* が None のまま判定されてすり抜ける。
-    """
-    title_text = "待機中"
-    body_text = "ペアの相手の手続きを待っています..."
-
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1
-
-
-class Refusal(Page):
-    """自分が『同意しない』を選んだ場合に表示"""
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1 and not player.consented
-
-
-class PartnerRefusal(Page):
-    """自分は同意したが、ペアの相手が同意しなかった場合に表示"""
-    @staticmethod
-    def is_displayed(player: Player):
-        if player.round_number != 1 or not player.consented:
-            return False
-        partner = partner_in_round1(player)
-        if partner is None:
-            return False
-        return not partner.consented
-
 
 class Demographics(Page):
     form_model = 'player'
@@ -405,10 +325,6 @@ class FinalResults(Page):
 
 
 page_sequence = [
-    Consent,              # 1. 一番最初に同意
-    ConsentWaitPage,      # 2. 両者の同意入力を待つ（相手の判定に必須）
-    Refusal,              # 3. 自分が同意しなかった場合の画面
-    PartnerRefusal,       # 4. ペア相手が同意しなかった場合の画面
     Demographics,
     DemographicsWaitPage,
     PaymentInstruction,   # 報酬ルールの説明
