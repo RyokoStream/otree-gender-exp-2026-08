@@ -29,10 +29,13 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    student_id = models.StringField(label="学生番号")
+    student_id = models.StringField(
+        label="もらっているID番号を入力してください。学籍番号を入力しないように:"
+    )
     gender = models.StringField(
-        choices=['男性', '女性', 'その他・回答しない'],
-        label="性別"
+        label="戸籍上の性別を選択してください。（※戸籍上の性別が自覚する性別と違っている場合も、研究の記録上、戸籍上の性別が必要なので、お願いします。）:",
+        choices=['男性', '女性'],
+        widget=widgets.RadioSelect
     )
 
     # 4つの同意チェックボックス用フィールド
