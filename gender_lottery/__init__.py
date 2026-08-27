@@ -56,6 +56,20 @@ class Player(BasePlayer):
 
 # --- PAGES ---
 
+class Consent(Page):
+    """一番最初に表示する同意書"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+class Demographics(Page):
+    form_model = 'player'
+    form_fields = ['student_id', 'gender']
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+
 class Demographics(Page):
     form_model = 'player'
     form_fields = ['student_id', 'gender']
@@ -301,8 +315,10 @@ class FinalResults(Page):
 
 
 page_sequence = [
+    Consent,              # 1. 一番最初に同意
     Demographics,
     DemographicsWaitPage,
+    PaymentInstruction,   # 3. 報酬ルールの説明
     Instructions,
     Practice,
     PracticeResults,
