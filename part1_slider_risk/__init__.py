@@ -57,8 +57,12 @@ class Player(BasePlayer):
 
 
 class Decision(Page):
+    def is_displayed(player: Player):
+        return player.participant.vars.get('pair_consented', False)
+
     form_model = 'player'
     form_fields = ['switching_point'] + [f'q{i}' for i in range(1, 23)]
+
 
     def vars_for_template(player: Player):
         questions = []
