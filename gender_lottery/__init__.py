@@ -95,16 +95,16 @@ class Refusal(Page):
         )
 
 class PartnerRefusal(Page):
-98      """ペアの相手が同意しなかった場合に表示するページ"""
-99      @staticmethod
-100     def is_displayed(player: Player):
-101         partner = player.get_partner()
-102         return player.round_number == 1 and partner and (
-103             partner.consent_1 == '同意しない' or
-104             partner.consent_2 == '同意しない' or
-105             partner.consent_3 == '同意しない' or
-106             partner.consent_4 == '同意しない'
-107         )
+      """ペアの相手が同意しなかった場合に表示するページ"""
+      @staticmethod
+     def is_displayed(player: Player):
+         partner = player.get_partner()
+         return player.round_number == 1 and partner and (
+             partner.consent_1 == '同意しない' or
+             partner.consent_2 == '同意しない' or
+             partner.consent_3 == '同意しない' or
+             partner.consent_4 == '同意しない'
+         )
 
 class Demographics(Page):
     form_model = 'player'
@@ -360,6 +360,7 @@ class FinalResults(Page):
 page_sequence = [
     Consent,              # 1. 一番最初に同意
     Refusal,              # 2. 同意しなかった場合の画面
+    PartnerRefusal,
     Demographics,
     DemographicsWaitPage,
     PaymentInstruction,   # 3. 報酬ルールの説明
