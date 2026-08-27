@@ -27,46 +27,86 @@
         </div>
     </div>
 
-    <!-- 2. くじの構成（練習用固定数値・損失フレーム） -->
-    <div class="card mb-4" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
-        <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.1rem;">
-            🎲 あなた（プレイヤーA）のくじの構成（初期手元金: 2,000円）
-        </div>
-        <div class="card-body p-0">
-            <table style="width: 100%; text-align: center; border-collapse: collapse;">
-                <tr>
-                    <td style="width: 50%; padding: 20px; border-right: 2px solid #dee2e6; background-color: #fff5f5;">
-                        <div style="color: #dc3545; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
-                            【 状況 1 】
-                        </div>
-                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
-                            確率 <strong style="color: #dc3545; font-size: 1.5rem;">60%</strong>
-                        </div>
-                        <div style="font-size: 1.1rem; font-weight: bold; color: #dc3545; margin-bottom: 4px;">
-                            損失額: (1 - P) × 2,000円
-                        </div>
-                        <div style="font-size: 0.95rem; color: #6c757d;">
-                            (手元に残る金額: 2,000円 - 損失額)
-                        </div>
-                    </td>
-                    <td style="width: 50%; padding: 20px; background-color: #f8f9fa;">
-                        <div style="color: #6c757d; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
-                            【 状況 2 】
-                        </div>
-                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
-                            確率 <strong style="color: #6c757d; font-size: 1.5rem;">40%</strong>
-                        </div>
-                        <div style="font-size: 1.1rem; font-weight: bold; color: #dc3545; margin-bottom: 4px;">
-                            損失額: P × 2,000円
-                        </div>
-                        <div style="font-size: 0.95rem; color: #6c757d;">
-                            (手元に残る金額: 2,000円 - 損失額)
-                        </div>
-                    </td>
-                </tr>
-            </table>
+<!-- 2. くじの構成（練習用固定数値・損失フレーム） -->
+<div class="row mb-4">
+    <!-- あなた（プレイヤーA）のくじ -->
+    <div class="col-md-6 mb-3 mb-md-0">
+        <div class="card h-100" style="border: 2px solid #0d6efd; border-radius: 8px; overflow: hidden;">
+            <div class="card-header text-white font-weight-bold" style="background-color: #0d6efd; font-size: 1.1rem;">
+                🎲 あなた（プレイヤーA）のくじ（初期手元金: 2,000円）
+            </div>
+            <div class="card-body p-0">
+                <table style="width: 100%; text-align: center; border-collapse: collapse; height: 100%;">
+                    <tr>
+                        <td style="width: 50%; padding: 15px; border-right: 1px solid #dee2e6; background-color: #fff5f5;">
+                            <div style="color: #dc3545; font-weight: bold; font-size: 1rem; margin-bottom: 4px;">【 状況 1 】</div>
+                            <div style="font-size: 0.9rem; color: #6c757d;">発生確率</div>
+                            <div style="color: #dc3545; font-size: 2.2rem; font-weight: bold; line-height: 1.2; margin: 4px 0;">
+                                60%
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: bold; color: #dc3545; margin-top: 8px;">
+                                損失額<br>(1 - P) × 2,000円
+                            </div>
+                            <div style="font-size: 0.8rem; color: #6c757d; margin-top: 2px;">(手元残金: 2000円 - 損失)</div>
+                        </td>
+                        <td style="width: 50%; padding: 15px; background-color: #f8f9fa;">
+                            <div style="color: #6c757d; font-weight: bold; font-size: 1rem; margin-bottom: 4px;">【 状況 2 】</div>
+                            <div style="font-size: 0.9rem; color: #6c757d;">発生確率</div>
+                            <div style="color: #6c757d; font-size: 2.2rem; font-weight: bold; line-height: 1.2; margin: 4px 0;">
+                                40%
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: bold; color: #dc3545; margin-top: 8px;">
+                                損失額<br>P × 2,000円
+                            </div>
+                            <div style="font-size: 0.8rem; color: #6c757d; margin-top: 2px;">(手元残金: 2000円 - 損失)</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
+
+    <!-- ペア相手（プレイヤーB）のくじ（確率が反転） -->
+    <div class="col-md-6">
+        <div class="card h-100" style="border: 2px solid #6c757d; border-radius: 8px; overflow: hidden;">
+            <div class="card-header text-white font-weight-bold" style="background-color: #6c757d; font-size: 1.1rem;">
+                🎲 ペア相手（プレイヤーB）のくじ（初期手元金: 2,000円）
+            </div>
+            <div class="card-body p-0">
+                <table style="width: 100%; text-align: center; border-collapse: collapse; height: 100%;">
+                    <tr>
+                        <td style="width: 50%; padding: 15px; border-right: 1px solid #dee2e6; background-color: #fff5f5;">
+                            <div style="color: #dc3545; font-weight: bold; font-size: 1rem; margin-bottom: 4px;">【 状況 1 】</div>
+                            <div style="font-size: 0.9rem; color: #6c757d;">発生確率</div>
+                            <!-- プレイヤーAと逆の確率（40%） -->
+                            <div style="color: #dc3545; font-size: 2.2rem; font-weight: bold; line-height: 1.2; margin: 4px 0;">
+                                40%
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: bold; color: #dc3545; margin-top: 8px;">
+                                損失額<br>(1 - P) × 2,000円
+                            </div>
+                            <div style="font-size: 0.8rem; color: #6c757d; margin-top: 2px;">(手元残金: 2000円 - 損失)</div>
+                        </td>
+                        <td style="width: 50%; padding: 15px; background-color: #f8f9fa;">
+                            <div style="color: #6c757d; font-weight: bold; font-size: 1rem; margin-bottom: 4px;">【 状況 2 】</div>
+                            <div style="font-size: 0.9rem; color: #6c757d;">発生確率</div>
+                            <!-- プレイヤーAと逆の確率（60%） -->
+                            <div style="color: #6c757d; font-size: 2.2rem; font-weight: bold; line-height: 1.2; margin: 4px 0;">
+                                60%
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: bold; color: #dc3545; margin-top: 8px;">
+                                損失額<br>P × 2,000円
+                            </div>
+                            <div style="font-size: 0.8rem; color: #6c757d; margin-top: 2px;">(手元残金: 2000円 - 損失)</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+  
 
     <!-- 3. 解説図（playerA_06_loss.png）の埋め込み -->
     <div class="card mb-4 text-center" style="border: 1px solid #dee2e6; padding: 15px;">
