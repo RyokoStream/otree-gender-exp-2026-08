@@ -60,25 +60,51 @@
     {% endfor %}
 
 <!-- 最終確定謝礼金枠 -->
-    <div class="card mb-4" style="border: 3px solid #198754; border-radius: 8px; background-color: #f4fbf7;">
-        <div class="card-body text-center p-4">
-            <h4 style="color: #198754; font-weight: bold; margin-bottom: 15px;">
-                🎲 最終謝礼金の決定
-            </h4>
-            <p style="font-size: 1.1rem; margin-bottom: 15px; color: #333;">
-                全タスク（確定等価性タスク22問 ＋ 情報共有型くじタスク3ラウンド）の中から、ランダム抽選により以下が選ばれました。
-            </p>
-            <div class="alert alert-success d-inline-block text-start mb-3" style="font-size: 1.1rem; border-radius: 6px; padding: 12px 20px;">
-                <strong>選ばれたタスク:</strong> {{ final_detail.title }}
+<div class="card mb-4" style="border: 3px solid #198754; border-radius: 8px; background-color: #f4fbf7;">
+    <div class="card-body text-center p-4">
+        <h4 style="color: #198754; font-weight: bold; margin-bottom: 15px;">
+            🎲 最終謝礼金の決定
+        </h4>
+        <p style="font-size: 1.1rem; margin-bottom: 15px; color: #333;">
+            全タスク（確定等価性タスク22問 ＋ 情報共有型くじタスク3ラウンド）の中から、ランダム抽選により以下が選ばれました。
+        </p>
+        <div class="alert alert-success d-inline-block text-start mb-3" style="font-size: 1.1rem; border-radius: 6px; padding: 12px 20px;">
+            <strong>選ばれたタスク:</strong> {{ final_detail.title }}
+        </div>
+
+        {% if final_detail.task_type == 'slider' %}
+            <div class="text-start mx-auto mb-3" style="max-width: 600px; font-size: 1.05rem; background-color: #ffffff; padding: 15px; border-radius: 6px; border: 1px solid #ced4da;">
+                <p class="mb-2">
+                    そのときのあなたの選択は
+                    {% if final_detail.is_lottery %}
+                        「<strong>くじ</strong>」
+                    {% else %}
+                        「<strong>確実な現金の {{ final_detail.sure_payoff }} 円の受け取り</strong>」
+                    {% endif %}
+                    でした。
+                </p>
+                {% if final_detail.is_lottery %}
+                    <p class="mb-0">
+                        2分の1の確率で2000円、2分の1の確率で0円となるくじの結果、<strong>{{ final_payoff }}円</strong> となりました。
+                    </p>
+                {% endif %}
             </div>
-            <br>
-            <div style="font-size: 1.8rem; font-weight: bold; color: #198754; margin-top: 5px; padding: 12px 24px; background-color: #ffffff; border: 2px dashed #198754; border-radius: 8px; display: inline-block;">
-                あなたの確定謝礼金: {{ final_payoff }} 円
-            </div>
+        {% endif %}
+
+        <br>
+        <div style="font-size: 1.8rem; font-weight: bold; color: #198754; margin-top: 5px; padding: 12px 24px; background-color: #ffffff; border: 2px dashed #198754; border-radius: 8px; display: inline-block;">
+            あなたの確定謝礼金: {{ final_payoff }} 円
         </div>
     </div>
+</div>
 
-    <p style="font-size: 1.05rem;">ご参加ありがとうございました。</p>
+<hr class="my-4">
+
+<p class="text-center fw-bold fs-5" style="margin-top: 20px;">
+    参加お疲れ様でした。期待に沿えなかったかもしれませんが、参加への謝礼金300円を受け取ってください。
+</p>
+
+
 
     {% next_button %}
 {% endblock %}
