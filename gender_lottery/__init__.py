@@ -1,5 +1,7 @@
 import random
 from otree.api import *
+from otree.api import *
+from otree.api import field_maybe_none
 
 doc = """
 情報共有型くじ実験（両役体験練習付き）
@@ -94,8 +96,6 @@ class Refusal(Page):
             player.consent_3 == '同意しない' or
             player.consent_4 == '同意しない'
         )
-
-from otree.api import field_maybe_none  # ※ファイルの先頭（2行目付近）でインポート
 
 class PartnerRefusal(Page):
     """ペアの相手が同意しなかった場合に表示するページ"""
