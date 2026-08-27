@@ -4,18 +4,14 @@ from otree.api import *
 doc = """
 情報共有型くじ実験（両役体験練習付き）
 """
-
-
 class C(BaseConstants):
     NAME_IN_URL = 'gender_lottery'
     PLAYERS_PER_GROUP = 2
     NUM_ROUNDS = 3
     PROBS_A_RESULT1 = {1: 60, 2: 70, 3: 80}
 
-
 class Subsession(BaseSubsession):
     pass
-
 
 def creating_session(subsession: Subsession):
     # ラウンド1の時点で、グループごとに支払対象ラウンド（1〜3）を1つ確定させておく
@@ -95,23 +91,6 @@ class Refusal(Page):
             player.consent_4 == '同意しない'
         )
 
-class PartnerRefusal(Page):
-    """ペアの相手が同意しなかった場合に表示するページ"""
-    @staticmethod
-    def is_displayed(player: Player):
-        others = player.get_others_in_group()
-        if not others:
-            return False
-        partner = others[0]
-        class PartnerRefusal(Page):
-    """ペアの相手が同意しなかった場合に表示するページ"""
-    @staticmethod
-    def is_displayed(player: Player):
-        others = player.get_others_in_group()
-        if not others:
-            return False
-        partner = others[0]
-        class PartnerRefusal(Page):
     """ペアの相手が同意しなかった場合に表示するページ"""
     @staticmethod
     def is_displayed(player: Player):
