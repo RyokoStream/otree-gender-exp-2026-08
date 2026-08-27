@@ -37,25 +37,24 @@ class Player(BasePlayer):
         choices=['男性', '女性'],
         widget=widgets.RadioSelect
     )
-
-    # 4つの同意チェックボックス用フィールド
-    consent_1 = models.BooleanField(
-        label="上記の説明を理解し、同意します",
-        widget=widgets.CheckboxInput
+# 4つの同意項目（同意する / 同意しない のラジオボタン）
+    consent_1 = models.StringField(
+        choices=['同意する', '同意しない'],
+        widget=widgets.RadioSelect
     )
-    consent_2 = models.BooleanField(
-        label="上記の説明を理解し、同意します",
-        widget=widgets.CheckboxInput
+    consent_2 = models.StringField(
+        choices=['同意する', '同意しない'],
+        widget=widgets.RadioSelect
     )
-    consent_3 = models.BooleanField(
-        label="上記の説明を理解し、同意します",
-        widget=widgets.CheckboxInput
+    consent_3 = models.StringField(
+        choices=['同意する', '同意しない'],
+        widget=widgets.RadioSelect
     )
-    consent_4 = models.BooleanField(
-        label="上記の説明を理解し、同意します",
-        widget=widgets.CheckboxInput
+    consent_4 = models.StringField(
+        choices=['同意する', '同意しない'],
+        widget=widgets.RadioSelect
     )
-
+   
     practice_p1 = models.IntegerField(
         label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
         min=0, max=100
@@ -84,14 +83,17 @@ class Consent(Page):
     def is_displayed(player: Player):
         return player.round_number == 1
 
-
 class Refusal(Page):
-    """同意しなかった場合に表示する画面"""
+    """どれか1つでも『同意しない』を選んだ場合に表示"""
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1 and not (
-            player.consent_1 and player.consent_2 and player.consent_3 and player.consent_4
+        return player.round_number == 1 and (
+            player.consent_1 == '同意しない' or
+            player.consent_2 == '同意しない' or
+            player.consent_3 == '同意しない' or
+            player.consent_4 == '同意しない'
         )
+
 
 
 class Demographics(Page):
