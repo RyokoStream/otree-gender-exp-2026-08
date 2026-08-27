@@ -84,6 +84,14 @@ class Consent(Page):
     def is_displayed(player: Player):
         return player.round_number == 1
 
+class Refusal(Page):
+    """同意しなかった場合に表示する画面"""
+    @staticmethod
+    def is_displayed(player: Player):
+        # 4つの同意チェックボックスのうち、1つでも False があれば表示
+        return player.round_number == 1 and not (
+            player.consent_1 and player.consent_2 and player.consent_3 and player.consent_4
+        )
 
 class Demographics(Page):
     form_model = 'player'
