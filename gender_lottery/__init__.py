@@ -37,7 +37,7 @@ class Player(BasePlayer):
         choices=['男性', '女性'],
         widget=widgets.RadioSelect
     )
-# 4つの同意項目（同意する / 同意しない のラジオボタン）
+    # 4つの同意項目（同意する / 同意しない のラジオボタン）
     consent_1 = models.StringField(
         choices=['同意する', '同意しない'],
         widget=widgets.RadioSelect
@@ -54,7 +54,7 @@ class Player(BasePlayer):
         choices=['同意する', '同意しない'],
         widget=widgets.RadioSelect
     )
-   
+
     practice_p1 = models.IntegerField(
         label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
         min=0, max=100
@@ -83,6 +83,7 @@ class Consent(Page):
     def is_displayed(player: Player):
         return player.round_number == 1
 
+
 class Refusal(Page):
     """どれか1つでも『同意しない』を選んだ場合に表示"""
     @staticmethod
@@ -94,17 +95,22 @@ class Refusal(Page):
             player.consent_4 == '同意しない'
         )
 
+
 class PartnerRefusal(Page):
-      """ペアの相手が同意しなかった場合に表示するページ"""
-      @staticmethod
-     def is_displayed(player: Player):
-         partner = player.get_partner()
-         return player.round_number == 1 and partner and (
-             partner.consent_1 == '同意しない' or
-             partner.consent_2 == '同意しない' or
-             partner.consent_3 == '同意しない' or
-             partner.consent_4 == '同意しない'
-         )
+    """ペアの相手が同意しなかった場合に表示するページ"""
+    @staticmethod
+    def is_displayed(player: Player):
+        others = player.get_others_in_group()
+        if not others:
+            return False
+        partner = others[0]
+        return player.round_number == 1 and (
+            partner.consent_1 == '同意しない' or
+            partner.consent_2 == '同意しない' or
+            partner.consent_3 == '同意しない' or
+            partner.consent_4 == '同意しない'
+        )
+
 
 class Demographics(Page):
     form_model = 'player'
@@ -359,11 +365,11 @@ class FinalResults(Page):
 
 page_sequence = [
     Consent,              # 1. 一番最初に同意
-    Refusal,              # 2. 同意しなかった場合の画面
-    PartnerRefusal,
+    Refusal,              # 2. 自分が同意しなかった場合の画面
+    PartnerRefusal,       # 3. ペア相手が同意しなかった場合の画面
     Demographics,
     DemographicsWaitPage,
-    PaymentInstruction,   # 3. 報酬ルールの説明
+    PaymentInstruction,   # 報酬ルールの説明
     Instructions,
     Practice,
     PracticeResults,
