@@ -29,19 +29,30 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    student_id = models.StringField(
-        label="もらっているID番号を入力してください。学籍番号を入力しないように:"
-    )
+    student_id = models.StringField(label="学生番号")
     gender = models.StringField(
-        label="戸籍上の性別を選択してください:",
-        choices=['男性', '女性'],
-        widget=widgets.RadioSelect
+        choices=['男性', '女性', 'その他・回答しない'],
+        label="性別"
     )
-    consent = models.BooleanField(
-        label="上記の説明事項（個人情報の扱い、データの利用、謝礼金ルール、学生証コピー提出）をすべて理解し、同意して実験に参加します。",
-        widget=widgets.CheckboxInput,
-        initial=False
+
+    # 4つの同意チェックボックス用フィールド
+    consent_1 = models.BooleanField(
+        label="上記の説明を理解し、同意します",
+        widget=widgets.CheckboxInput
     )
+    consent_2 = models.BooleanField(
+        label="上記の説明を理解し、同意します",
+        widget=widgets.CheckboxInput
+    )
+    consent_3 = models.BooleanField(
+        label="上記の説明を理解し、同意します",
+        widget=widgets.CheckboxInput
+    )
+    consent_4 = models.BooleanField(
+        label="上記の説明を理解し、同意します",
+        widget=widgets.CheckboxInput
+    )
+
     practice_p1 = models.IntegerField(
         label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
         min=0, max=100
@@ -64,7 +75,7 @@ class Player(BasePlayer):
 class Consent(Page):
     """一番最初に表示する同意書"""
     form_model = 'player'
-    form_fields = ['consent']
+    form_fields = ['consent_1', 'consent_2', 'consent_3', 'consent_4']
 
     @staticmethod
     def is_displayed(player: Player):
@@ -336,4 +347,3 @@ page_sequence = [
     ResultsWaitPage,
     FinalResults
 ]
-
