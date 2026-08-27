@@ -3,25 +3,25 @@ from os import environ
 SESSION_CONFIGS = [
    dict(
         name='gender_exp',
-        display_name="実験タスク",
+        display_name="集団合意形成ゲーム（２人）",
         app_sequence=['part1_slider_risk', 'gender_lottery'],
         num_demo_participants=2,
     ),
     dict(
         name='loss_consensus_game',
-        display_name="集団合意形成ゲーム（損失）",
+        display_name="集団合意形成ゲーム（２人・損失）",
         app_sequence=['part1_slider_risk','loss_consensus_game'],
         num_demo_participants=2,  # 2名に変更
     ), 
     dict(
         name='info_sharing_lottery_3p_loss',
-        display_name="３人グループ利得構造実験（損失版）",
+        display_name="集団合意形成ゲーム（３人・損失版）",
         app_sequence=['info_sharing_lottery_3p_loss'],
         num_demo_participants=3,
     ),
     dict(
         name='info_sharing_lottery_3p',
-        display_name="3人グループ利得構造実験（前半平均・後半メジアン）",
+        display_name="集団合意形成ゲーム（３人・前半平均・後半メジアン）",
         app_sequence=['info_sharing_lottery_3p'],
         num_demo_participants=3,
     ),
