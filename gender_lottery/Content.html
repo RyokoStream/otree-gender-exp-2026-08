@@ -9,35 +9,35 @@
 
 <div class="card mb-4">
     <div class="card-body">
-        <p>本実験にご参加いただきありがとうございます。以下の内容をよくお読みいただき、すべてにご同意いただける場合のみ「同意して実験に参加する」にチェックを入れてお進みください。</p>
+        <p>本実験にご参加いただきありがとうございます。以下の各項目をお読みいただき、<b>すべての項目にチェックを入れて</b>お進みください。</p>
 
         <hr>
 
         <h5 class="font-weight-bold text-primary mb-3">【実験の説明事項】</h5>
 
-        <ol class="pl-3">
-            <li class="mb-3">
-                <strong>個人情報の取り扱いと匿名化</strong><br>
-                お預かりした個人情報（氏名やID等）は、実験結果の適切な分析・解釈のために使用します。<b>謝礼金の支払いが完了した段階で、データから氏名等の個人識別情報は速やかに削除（匿名化）されます。</b>
-            </li>
-            
-            <li class="mb-3">
-                <strong>収集したデータの利用方法</strong><br>
-                本実験で収集された属性情報（性別等）や意思決定データは、<b>全体で約400名規模のデータセットの一部として統合され、統計的な学術分析のみに使用されます。</b>個人の選択が単独で公表されることはありません。
-            </li>
+        <div class="mb-4 p-3 border rounded bg-light">
+            <strong>1. 個人情報の取り扱いと匿名化</strong>
+            <p class="mb-2">お預かりした個人情報（氏名やID等）は、実験結果の適切な分析・解釈のために使用します。<b>謝礼金の支払いが完了した段階で、データから氏名等の個人識別情報は速やかに削除（匿名化）されます。</b></p>
+            {% formfield 'consent_1' %}
+        </div>
 
-            <li class="mb-3">
-                <strong>謝礼金と決定プロセス</strong><br>
-                本実験では、<b>説明を注意深く読み、内容を正しく理解した上で真剣に回答を行うことが、より多くの謝礼金を得る可能性を高めます。</b>ただし、一部のタスクには確率（運）の要素が作用します。
-            </li>
+        <div class="mb-4 p-3 border rounded bg-light">
+            <strong>2. 収集したデータの利用方法</strong>
+            <p class="mb-2">本実験で収集された属性情報（性別等）や意思決定データは、<b>全体で約400名規模のデータセットの一部として統合され、統計的な学術分析のみに使用されます。</b>個人の選択が単独で公表されることはありません。</p>
+            {% formfield 'consent_2' %}
+        </div>
 
-            <li class="mb-3">
-                <strong>謝礼金受け取りに必要な手続き（学生証コピーの提出）</strong><br>
-                謝礼金を受け取るためには、<b>学生証の両面コピーを提出していただく必要があります。</b>提出されたコピーは<b>京都大学経済研究所の会計規程に基づき適切に保管され、7年経過後に確実に破棄されます。</b>
-            </li>
-        </ol>
+        <div class="mb-4 p-3 border rounded bg-light">
+            <strong>3. 謝礼金と決定プロセス</strong>
+            <p class="mb-2">本実験では、<b>説明を注意深く読み、内容を正しく理解した上で真剣に回答を行うことが、より多くの謝礼金を得る可能性を高めます。</b>ただし、一部のタスクには確率（運）の要素が作用します。</p>
+            {% formfield 'consent_3' %}
+        </div>
 
-        <hr>
+        <div class="mb-4 p-3 border rounded bg-light">
+            <strong>4. 謝礼金受け取りに必要な手続き（学生証コピーの提出）</strong>
+            <p class="mb-2">謝礼金を受け取るためには、<b>学生証の両面コピーを提出していただく必要があります。</b>提出されたコピーは<b>京都大学経済研究所の会計規程に基づき適切に保管され、7年経過後に確実に破棄されます。</b></p>
+            {% formfield 'consent_4' %}
+        </div>
 
         <div class="alert alert-danger mb-0" role="alert">
             <strong>【重要事項・不同意の場合について】</strong><br>
@@ -46,18 +46,9 @@
     </div>
 </div>
 
-<div class="card border-primary mb-4">
-    <div class="card-body bg-light">
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="consent_check" required style="transform: scale(1.3); margin-top: 0.3rem;">
-            <label class="form-check-label font-weight-bold pl-2" for="consent_check" style="font-size: 1.05rem;">
-                上記の説明事項（個人情報の扱い、データの利用、謝礼金ルール、学生証コピー提出）をすべて理解し、同意して実験に参加します。
-            </label>
-        </div>
-        <div class="text-center mt-3">
-            {% next_button %}
-        </div>
-    </div>
+<div class="text-center mb-4">
+    {% next_button %}
 </div>
 
 {% endblock %}
+
