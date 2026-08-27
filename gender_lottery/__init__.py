@@ -29,7 +29,9 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    student_id = models.StringField(label=" もらっているID番号を入力してください。学籍番号を入力しないように:")
+    student_id = models.StringField(
+        label="もらっているID番号を入力してください。学籍番号を入力しないように:"
+    )
     gender = models.StringField(
         label="戸籍上の性別を選択してください:",
         choices=['男性', '女性'],
@@ -37,20 +39,18 @@ class Player(BasePlayer):
     )
     practice_p1 = models.IntegerField(
         label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
-        min=0,
-        max=100
+        min=0, max=100
     )
     practice_p2 = models.IntegerField(
         label="【プレイヤーBとして】p の値を入力してください（0 〜 100）:",
-        min=0,
-        max=100
+        min=0, max=100
     )
     p_input = models.IntegerField(
         label="p の値を入力してください（0 〜 100）:",
-        min=0,
-        max=100
+        min=0, max=100
     )
     drawn_result = models.StringField()
+    choice_payoff = models.FloatField()
     round_payoff = models.FloatField()
 
 
@@ -102,7 +102,6 @@ class PracticeResults(Page):
         my_p_ratio = my_p_int / 100.0
         other_p_ratio = 0.50
         group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
-
         return {
             'my_p': my_p_int,
             'other_p': 50,
@@ -134,7 +133,6 @@ class PracticeResults2(Page):
         my_p_ratio = my_p_int / 100.0
         other_p_ratio = 0.50
         group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
-
         return {
             'my_p': my_p_int,
             'other_p': 50,
@@ -152,10 +150,8 @@ class Decision(Page):
     def vars_for_template(player: Player):
         other_player = player.get_others_in_group()[0]
         first_other = other_player.in_round(1)
-        
         is_player_a = (player.id_in_group == 1)
         r_num = player.round_number
-        
         prob_a_res1 = C.PROBS_A_RESULT1[r_num]
         prob_a_res2 = 100 - prob_a_res1
 
@@ -177,6 +173,7 @@ class Decision(Page):
             'round_num': r_num,
         }
 
+
 # --- 成果集計・最終謝礼決定 ---
 class ResultsWaitPage(WaitPage):
     title_text = "集計中"
@@ -189,16 +186,18 @@ class ResultsWaitPage(WaitPage):
         p2 = players[1]
 
         # 1. 宣言された p の平均値から P を計算 (0.0 〜 1.0)
-        p1_val = p1.p_value if p1.p_value is not None else 50
-        p2_val = p2.p_value if p2.p_value is not None else 50
+        p1_val = p1.p_input if p1.p_input is not None else 50
+        p2_val = p2.p_input if p2.p_input is not None else 50
         group.group_P = (p1_val + p2_val) / 200.0
 
         # 2. ラウンドごとの得られる金額決定（利得フレーム）
         round_num = group.round_number
-        prob_res1 = C.PROBS_RESULT1.get(round_num, 50) / 100.0
+        prob_res1 = C.PROBS_A_RESULT1.get(round_num, 50) / 100.0
         is_result1 = random.random() < prob_res1
 
         for p in players:
+            p.drawn_result = "状況1" if is_result1 else "状況2"
+
             if p.id_in_group == 1:  # プレイヤーA
                 if is_result1:
                     p.choice_payoff = group.group_P * 2000  # 利得: P × 2000円
@@ -255,7 +254,6 @@ class ResultsWaitPage(WaitPage):
                         p.participant.payoff = final_choice['sure_payoff']
 
 
-
 class FinalResults(Page):
     """全3回終了後の最終清算画面"""
     @staticmethod
@@ -300,15 +298,17 @@ class FinalResults(Page):
             'final_detail': final_detail,
             'final_payoff': int(player.participant.payoff),
         }
+
+
 page_sequence = [
-    Demographics, 
-    DemographicsWaitPage, 
+    Demographics,
+    DemographicsWaitPage,
     Instructions,
-    Practice, 
-    PracticeResults, 
-    Practice2, 
-    PracticeResults2, 
-    Decision, 
-    ResultsWaitPage, 
+    Practice,
+    PracticeResults,
+    Practice2,
+    PracticeResults2,
+    Decision,
+    ResultsWaitPage,
     FinalResults
 ]
