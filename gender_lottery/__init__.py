@@ -4,14 +4,18 @@ from otree.api import *
 doc = """
 情報共有型くじ実験（両役体験練習付き）
 """
+
+
 class C(BaseConstants):
     NAME_IN_URL = 'gender_lottery'
     PLAYERS_PER_GROUP = 2
     NUM_ROUNDS = 3
     PROBS_A_RESULT1 = {1: 60, 2: 70, 3: 80}
 
+
 class Subsession(BaseSubsession):
     pass
+
 
 def creating_session(subsession: Subsession):
     # ラウンド1の時点で、グループごとに支払対象ラウンド（1〜3）を1つ確定させておく
@@ -67,6 +71,35 @@ class Player(BasePlayer):
     choice_payoff = models.FloatField()
     round_payoff = models.FloatField()
 
+    @property
+    def consented(self):
+        """4項目すべてに『同意する』を選んだ場合のみ True。未入力(None)は False。"""
+        return all([
+            self.consent_1 == '同意する',
+            self.consent_2 == '同意する',
+            self.consent_3 == '同意する',
+            self.consent_4 == '同意する',
+        ])
+
+
+# --- ヘルパー ---
+
+def partner_in_round1(player: Player):
+    """ペア相手のラウンド1の記録を返す。相手がいなければ None。"""
+    me = player.in_round(1)
+    others = me.get_others_in_group()
+    return others[0] if others else None
+
+
+def pair_consented(player: Player):
+    """自分と相手の両方が同意している場合のみ True。実験本編を表示する条件。"""
+    if not player.in_round(1).consented:
+        return False
+    partner = partner_in_round1(player)
+    if partner is None:
+        return False
+    return partner.consented
+
 
 # --- PAGES ---
 
@@ -80,38 +113,45 @@ class Consent(Page):
         return player.round_number == 1
 
 
-class Refusal(Page):
-    """どれか1つでも『同意しない』を選んだ場合に表示"""
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1 and (
-            player.consent_1 == '同意しない' or
-            player.consent_2 == '同意しない' or
-            player.consent_3 == '同意しない' or
-            player.consent_4 == '同意しない'
-        )
+class ConsentWaitPage(WaitPage):
+    """
+    相手の同意状況を判定する前に、必ず両者の入力完了を待つ。
+    これが無いと、相手の consent_* が None のまま判定されてすり抜ける。
+    """
+    title_text = "待機中"
+    body_text = "ペアの相手の手続きを待っています..."
 
-    """ペアの相手が同意しなかった場合に表示するページ"""
     @staticmethod
     def is_displayed(player: Player):
-        others = player.get_others_in_group()
-        if not others:
+        return player.round_number == 1
+
+
+class Refusal(Page):
+    """自分が『同意しない』を選んだ場合に表示"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1 and not player.consented
+
+
+class PartnerRefusal(Page):
+    """自分は同意したが、ペアの相手が同意しなかった場合に表示"""
+    @staticmethod
+    def is_displayed(player: Player):
+        if player.round_number != 1 or not player.consented:
             return False
-        partner = others[0]
-        return player.round_number == 1 and (
-            partner.consent_1 == '同意しない' or
-            partner.consent_2 == '同意しない' or
-            partner.consent_3 == '同意しない' or
-            partner.consent_4 == '同意しない'
-        )
-        
+        partner = partner_in_round1(player)
+        if partner is None:
+            return False
+        return not partner.consented
+
+
 class Demographics(Page):
     form_model = 'player'
     form_fields = ['student_id', 'gender']
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
 
 class DemographicsWaitPage(WaitPage):
@@ -120,20 +160,20 @@ class DemographicsWaitPage(WaitPage):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
 
 class PaymentInstruction(Page):
     """報酬ルールの説明"""
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
 
 class Instructions(Page):
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
 
 class Practice(Page):
@@ -143,14 +183,14 @@ class Practice(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
 
 class PracticeResults(Page):
     """練習1の結果"""
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -174,14 +214,14 @@ class Practice2(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
 
 class PracticeResults2(Page):
     """練習2の結果"""
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -201,6 +241,10 @@ class PracticeResults2(Page):
 class Decision(Page):
     form_model = 'player'
     form_fields = ['p_input']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return pair_consented(player)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -234,6 +278,10 @@ class Decision(Page):
 class ResultsWaitPage(WaitPage):
     title_text = "集計中"
     body_text = "ペアの入力完了を待っています..."
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return pair_consented(player)
 
     @staticmethod
     def after_all_players_arrive(group: Group):
@@ -314,7 +362,7 @@ class FinalResults(Page):
     """全3回終了後の最終清算画面"""
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == C.NUM_ROUNDS
+        return player.round_number == C.NUM_ROUNDS and pair_consented(player)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -358,8 +406,9 @@ class FinalResults(Page):
 
 page_sequence = [
     Consent,              # 1. 一番最初に同意
-    Refusal,              # 2. 自分が同意しなかった場合の画面
-    PartnerRefusal,       # 3. ペア相手が同意しなかった場合の画面
+    ConsentWaitPage,      # 2. 両者の同意入力を待つ（相手の判定に必須）
+    Refusal,              # 3. 自分が同意しなかった場合の画面
+    PartnerRefusal,       # 4. ペア相手が同意しなかった場合の画面
     Demographics,
     DemographicsWaitPage,
     PaymentInstruction,   # 報酬ルールの説明
