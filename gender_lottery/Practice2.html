@@ -27,40 +27,79 @@
         </div>
     </div>
 
-    <!-- 2. くじの構成（練習用固定数値） -->
-    <div class="card mb-4" style="border: 2px solid #17a2b8; border-radius: 8px; overflow: hidden;">
-        <div class="card-header text-white font-weight-bold" style="background-color: #17a2b8; font-size: 1.1rem;">
-            🎲 あなた（プレイヤーB）のくじの構成
-        </div>
-        <div class="card-body p-0">
-            <table style="width: 100%; text-align: center; border-collapse: collapse;">
-                <tr>
-                    <td style="width: 50%; padding: 20px; border-right: 2px solid #dee2e6; background-color: #f4fbf7;">
-                        <div style="color: #198754; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
-                            【 状況 1 】
-                        </div>
-                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
-                            確率 <strong style="color: #198754; font-size: 1.5rem;">40%</strong>
-                        </div>
-                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
-                            得られる金額: P × 2000円
-                        </div>
-                    </td>
-                    <td style="width: 50%; padding: 20px; background-color: #f8f9fa;">
-                        <div style="color: #6c757d; font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">
-                            【 状況 2 】
-                        </div>
-                        <div style="font-size: 1.1rem; margin-bottom: 6px;">
-                            確率 <strong style="color: #6c757d; font-size: 1.5rem;">60%</strong>
-                        </div>
-                        <div style="font-size: 1.15rem; font-weight: bold; color: #212529;">
-                            得られる金額: (1 - P) × 2000円
-                        </div>
-                    </td>
-                </tr>
-            </table>
+<!-- 2. くじの構成（練習用固定数値） -->
+<div class="row mb-4">
+    <!-- あなた（プレイヤーB）のくじ -->
+    <div class="col-md-6 mb-3 mb-md-0">
+        <div class="card h-100" style="border: 2px solid #17a2b8; border-radius: 8px; overflow: hidden;">
+            <div class="card-header text-white font-weight-bold" style="background-color: #17a2b8; font-size: 1.1rem;">
+                🎲 あなた（プレイヤーB）のくじ
+            </div>
+            <div class="card-body p-0">
+                <table style="width: 100%; text-align: center; border-collapse: collapse; height: 100%;">
+                    <tr>
+                        <td style="width: 50%; padding: 15px; border-right: 1px solid #dee2e6; background-color: #f4fbf7;">
+                            <div style="color: #198754; font-weight: bold; font-size: 1rem; margin-bottom: 4px;">【 状況 1 】</div>
+                            <div style="font-size: 0.9rem; color: #6c757d;">発生確率</div>
+                            <div style="color: #198754; font-size: 2.2rem; font-weight: bold; line-height: 1.2; margin: 4px 0;">
+                                40%
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: bold; color: #212529; margin-top: 8px;">
+                                得られる金額<br><span style="color: #17a2b8;">P × 2000円</span>
+                            </div>
+                        </td>
+                        <td style="width: 50%; padding: 15px; background-color: #f8f9fa;">
+                            <div style="color: #6c757d; font-weight: bold; font-size: 1rem; margin-bottom: 4px;">【 状況 2 】</div>
+                            <div style="font-size: 0.9rem; color: #6c757d;">発生確率</div>
+                            <div style="color: #6c757d; font-size: 2.2rem; font-weight: bold; line-height: 1.2; margin: 4px 0;">
+                                60%
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: bold; color: #212529; margin-top: 8px;">
+                                得られる金額<br><span style="color: #17a2b8;">(1 - P) × 2000円</span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
+
+    <!-- ペア相手（プレイヤーA）のくじ（確率が反転） -->
+    <div class="col-md-6">
+        <div class="card h-100" style="border: 2px solid #6c757d; border-radius: 8px; overflow: hidden;">
+            <div class="card-header text-white font-weight-bold" style="background-color: #6c757d; font-size: 1.1rem;">
+                🎲 ペア相手（プレイヤーA）のくじ
+            </div>
+            <div class="card-body p-0">
+                <table style="width: 100%; text-align: center; border-collapse: collapse; height: 100%;">
+                    <tr>
+                        <td style="width: 50%; padding: 15px; border-right: 1px solid #dee2e6; background-color: #f4fbf7;">
+                            <div style="color: #198754; font-weight: bold; font-size: 1rem; margin-bottom: 4px;">【 状況 1 】</div>
+                            <div style="font-size: 0.9rem; color: #6c757d;">発生確率</div>
+                            <div style="color: #198754; font-size: 2.2rem; font-weight: bold; line-height: 1.2; margin: 4px 0;">
+                                60%
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: bold; color: #212529; margin-top: 8px;">
+                                得られる金額<br><span style="color: #17a2b8;">P × 2000円</span>
+                            </div>
+                        </td>
+                        <td style="width: 50%; padding: 15px; background-color: #f8f9fa;">
+                            <div style="color: #6c757d; font-weight: bold; font-size: 1rem; margin-bottom: 4px;">【 状況 2 】</div>
+                            <div style="font-size: 0.9rem; color: #6c757d;">発生確率</div>
+                            <div style="color: #6c757d; font-size: 2.2rem; font-weight: bold; line-height: 1.2; margin: 4px 0;">
+                                40%
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: bold; color: #212529; margin-top: 8px;">
+                                得られる金額<br><span style="color: #17a2b8;">(1 - P) × 2000円</span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+  
 
     <!-- 3. 解説図（playerB_point.png）の埋め込み -->
     <div class="card mb-4 text-center" style="border: 1px solid #dee2e6; padding: 15px;">
