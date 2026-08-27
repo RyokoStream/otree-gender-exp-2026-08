@@ -37,13 +37,11 @@ class Player(BasePlayer):
         choices=['男性', '女性'],
         widget=widgets.RadioSelect
     )
-
     consent = models.BooleanField(
         label="上記の説明事項（個人情報の扱い、データの利用、謝礼金ルール、学生証コピー提出）をすべて理解し、同意して実験に参加します。",
         widget=widgets.CheckboxInput,
         initial=False
     )
-    
     practice_p1 = models.IntegerField(
         label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
         min=0, max=100
@@ -65,13 +63,9 @@ class Player(BasePlayer):
 
 class Consent(Page):
     """一番最初に表示する同意書"""
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1
-
-class Demographics(Page):
     form_model = 'player'
-    form_fields = ['student_id', 'gender']
+    form_fields = ['consent']
+
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1
@@ -90,6 +84,13 @@ class DemographicsWaitPage(WaitPage):
     title_text = "待機中"
     body_text = "ペアの相手が入力するのを待っています..."
 
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1
+
+
+class PaymentInstruction(Page):
+    """報酬ルールの説明"""
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1
