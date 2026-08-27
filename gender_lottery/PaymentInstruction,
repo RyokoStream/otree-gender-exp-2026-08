@@ -1,0 +1,44 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+報酬の決定方法について
+{% endblock %}
+
+{% block content %}
+
+<div class="card mb-4 border-primary">
+    <div class="card-body">
+        <h5 class="card-title text-primary font-weight-bold">謝礼金決定ルール</h5>
+        <p>本実験での獲得謝礼金は、以下の抽選ルールに従って最終的に**1通りの結果**が選ばれ決定します。</p>
+
+        <hr>
+
+        <h6 class="font-weight-bold text-dark">【ステップ1】4つのタスク区分から 1/4 (25%) の確率で抽選</h6>
+        <p class="mb-2">以下の <b>4つの区分のうち、いずれか1つ</b> が等しい確率（25%ずつ）でランダムに選ばれます。</p>
+        
+        <ul class="mb-3">
+            <li>合意形成タスク：<b>第1ラウンド</b></li>
+            <li>合意形成タスク：<b>第2ラウンド</b></li>
+            <li>合意形成タスク：<b>第3ラウンド</b></li>
+            <li><b>確実性（CE）タスク</b>（全22問）</li>
+        </ul>
+
+        <h6 class="font-weight-bold text-dark">【ステップ2】確実性タスクが選ばれた場合のみ</h6>
+        <p class="mb-0">
+            ステップ1で「確実性タスク」が選ばれた場合は、全22問の中から<b>さらに1問がランダム（1/22）に選ばれ</b>、その問題でのあなたの選択（確実な金額 or くじの抽選結果）に応じて謝礼金が決定します。<br>
+            <small class="text-muted">※合意形成タスク（第1〜3ラウンドのいずれか）が選ばれた場合は、そのラウンドでの獲得金額がそのまま謝礼金となります。</small>
+        </p>
+    </div>
+</div>
+
+<div class="alert alert-warning" role="alert">
+    <strong>ポイント：</strong><br>
+    どのタスク・問題が選ばれてもおかしくないため、<b>すべての質問・ラウンドにおいて真剣に決定を行ってください。</b>
+</div>
+
+<div class="text-center mt-4">
+    {% next_button %}
+</div>
+
+{% endblock %}
