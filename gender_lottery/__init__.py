@@ -177,6 +177,7 @@ class Decision(Page):
             'round_num': r_num,
         }
 
+# --- 成果集計・最終謝礼決定 ---
 class ResultsWaitPage(WaitPage):
     title_text = "集計中"
     body_text = "ペアの入力完了を待っています..."
@@ -184,72 +185,75 @@ class ResultsWaitPage(WaitPage):
     @staticmethod
     def after_all_players_arrive(group: Group):
         players = group.get_players()
-        avg_p_int = sum([p.p_input for p in players]) / len(players)
-        group.group_P = round(avg_p_int / 100.0, 4)
-        P = group.group_P
-        r_num = group.round_number
-        prob_a_threshold = C.PROBS_A_RESULT1[r_num] / 100.0
+        p1 = players[0]
+        p2 = players[1]
+
+        # 1. 宣言された p の平均値から P を計算 (0.0 〜 1.0)
+        p1_val = p1.p_value if p1.p_value is not None else 50
+        p2_val = p2.p_value if p2.p_value is not None else 50
+        group.group_P = (p1_val + p2_val) / 200.0
+
+        # 2. ラウンドごとの得られる金額決定（利得フレーム）
+        round_num = group.round_number
+        prob_res1 = C.PROBS_RESULT1.get(round_num, 50) / 100.0
+        is_result1 = random.random() < prob_res1
 
         for p in players:
-            is_player_a = (p.id_in_group == 1)
-            prob_res1_threshold = prob_a_threshold if is_player_a else (1.0 - prob_a_threshold)
-            
-            if random.random() < prob_res1_threshold:
-                p.drawn_result = "状況 1"
-                p.round_payoff = round(P * 2000)
-            else:
-                p.drawn_result = "状況 2"
-                p.round_payoff = round((1 - P) * 2000)
+            if p.id_in_group == 1:  # プレイヤーA
+                if is_result1:
+                    p.choice_payoff = group.group_P * 2000  # 利得: P × 2000円
+                else:
+                    p.choice_payoff = (1.0 - group.group_P) * 2000  # 利得: (1 - P) × 2000円
+            else:  # プレイヤーB
+                if is_result1:
+                    p.choice_payoff = (1.0 - group.group_P) * 2000  # 利得: (1 - P) × 2000円
+                else:
+                    p.choice_payoff = group.group_P * 2000  # 利得: P × 2000円
 
-        # 最終ラウンド（ラウンド3）到達時に全体抽選を実施
+            p.round_payoff = p.choice_payoff
+
+        # 3. 最終ラウンド終了時の清算処理（1/4 ずつの二段階抽選）
         if group.round_number == C.NUM_ROUNDS:
-            selected_round = group.session.vars.get(
-                f'selected_round_group_{group.id_in_subsession}', 
-                random.randint(1, C.NUM_ROUNDS)
-            )
-
             for p in players:
-                p.participant.vars['selected_round'] = selected_round
-                
-                # --- 抽選候補プール（全23個）を作成 ---
-                candidates = []
+                # 【第1段階】4つの選択肢から 1/4 (25%) で選出
+                category_choice = random.choice(['consensus_r1', 'consensus_r2', 'consensus_r3', 'slider_task'])
 
-                # A) part1_slider_risk の全22問
-                slider_answers = p.participant.vars.get('slider_answers', {})
-                sure_payoffs = p.participant.vars.get('slider_sure_payoffs', [])
-                slider_high = p.participant.vars.get('slider_lottery_high', 2000)
-                slider_low = p.participant.vars.get('slider_lottery_low', 0)
+                if category_choice.startswith('consensus_r'):
+                    target_round = int(category_choice.replace('consensus_r', ''))
+                    selected_player = p.in_round(target_round)
+                    p.participant.vars['selected_round'] = target_round
+                    final_choice = {
+                        'task_type': 'gender_lottery',
+                        'title': f'合意形成タスク（第{target_round}ラウンド）',
+                        'payoff': selected_player.round_payoff,
+                    }
+                    p.participant.vars['final_choice_detail'] = final_choice
+                    p.participant.payoff = final_choice['payoff']
+                else:
+                    # 【第2段階】確実等価性タスク（CE）
+                    q_num = random.randint(1, 22)
+                    slider_answers = p.participant.vars.get('slider_answers', {})
+                    sure_payoffs = p.participant.vars.get('slider_sure_payoffs', [])
+                    slider_high = p.participant.vars.get('slider_lottery_high', 2000)
+                    slider_low = p.participant.vars.get('slider_lottery_low', 0)
 
-                for q_num, chosen_lottery in slider_answers.items():
-                    candidates.append({
+                    chosen_lottery = slider_answers.get(q_num, True)
+                    final_choice = {
                         'task_type': 'slider',
-                        'title': f'確定等価性タスク（第{q_num}問）',
+                        'title': f'確実等価性タスク（第{q_num}問）',
                         'is_lottery': chosen_lottery,
                         'sure_payoff': sure_payoffs[q_num - 1] if q_num - 1 < len(sure_payoffs) else 0,
                         'high': slider_high,
                         'low': slider_low,
-                    })
+                    }
+                    p.participant.vars['final_choice_detail'] = final_choice
 
-                # B) gender_lottery の当選ラウンド（1問分）
-                selected_player = p.in_round(selected_round)
-                candidates.append({
-                    'task_type': 'gender',
-                    'title': f'情報共有型くじタスク（第{selected_round}ラウンド）',
-                    'payoff': selected_player.round_payoff,
-                })
-
-                # --- 全体から1つをランダム決定 ---
-                final_choice = random.choice(candidates)
-                p.participant.vars['final_choice_detail'] = final_choice
-
-                if final_choice['task_type'] == 'gender':
-                    p.participant.payoff = final_choice['payoff']
-                else:
                     if final_choice['is_lottery']:
                         won = random.random() < 0.5
                         p.participant.payoff = final_choice['high'] if won else final_choice['low']
                     else:
                         p.participant.payoff = final_choice['sure_payoff']
+
 
 
 class FinalResults(Page):
