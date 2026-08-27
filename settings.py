@@ -4,13 +4,13 @@ SESSION_CONFIGS = [
    dict(
         name='gender_exp',
         display_name="集団合意形成ゲーム（２人）",
-        app_sequence=['gender_lottery','part1_slider_risk'],
+        app_sequence=['part1_slider_risk','gender_lottery'],
         num_demo_participants=2,
     ),
     dict(
         name='loss_consensus_game',
         display_name="集団合意形成ゲーム（２人・損失）",
-        app_sequence=['loss_consensus_game','part1_slider_risk'],
+        app_sequence=['part1_slider_risk','loss_consensus_game'],
         num_demo_participants=2,  # 2名に変更
     ), 
     dict(
