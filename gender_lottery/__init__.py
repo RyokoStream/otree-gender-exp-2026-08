@@ -1,6 +1,5 @@
 import random
 from otree.api import *
-from otree.api import *
 from otree.api import field_maybe_none
 
 doc = """
