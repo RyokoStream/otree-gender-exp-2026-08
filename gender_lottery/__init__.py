@@ -3,7 +3,7 @@ from otree.api import *
 
 doc = """
 情報共有型くじ実験（両役体験練習付き）
-同意手続きは consent アプリで済ませてある前提。
+同意手続きと属性入力（ID・性別）は consent アプリで済ませてある前提。
 """
 
 
@@ -30,15 +30,6 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    student_id = models.StringField(
-        label="もらっているID番号を入力してください。学籍番号を入力しないように:"
-    )
-    gender = models.StringField(
-        label="戸籍上の性別を選択してください。（※戸籍上の性別が自覚する性別と違っている場合も、研究の記録上、戸籍上の性別が必要なので、お願いします。）:",
-        choices=['男性', '女性'],
-        widget=widgets.RadioSelect
-    )
-
     practice_p1 = models.IntegerField(
         label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
         min=0, max=100
@@ -64,24 +55,6 @@ def pair_consented(player: Player):
 
 
 # --- PAGES ---
-
-class Demographics(Page):
-    form_model = 'player'
-    form_fields = ['student_id', 'gender']
-
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1 and pair_consented(player)
-
-
-class DemographicsWaitPage(WaitPage):
-    title_text = "待機中"
-    body_text = "ペアの相手が入力するのを待っています..."
-
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1 and pair_consented(player)
-
 
 class PaymentInstruction(Page):
     """報酬ルールの説明"""
@@ -169,7 +142,8 @@ class Decision(Page):
     @staticmethod
     def vars_for_template(player: Player):
         other_player = player.get_others_in_group()[0]
-        first_other = other_player.in_round(1)
+        # ID・性別は consent アプリで入力され、participant.vars に控えてある
+        other_vars = other_player.participant.vars
         is_player_a = (player.id_in_group == 1)
         r_num = player.round_number
         prob_a_res1 = C.PROBS_A_RESULT1[r_num]
@@ -186,8 +160,8 @@ class Decision(Page):
 
         return {
             'role_name': role_name,
-            'other_id': first_other.student_id,
-            'other_gender': first_other.gender,
+            'other_id': other_vars.get('student_id', ''),
+            'other_gender': other_vars.get('gender', ''),
             'prob_result1': prob_result1,
             'prob_result2': prob_result2,
             'round_num': r_num,
@@ -325,8 +299,6 @@ class FinalResults(Page):
 
 
 page_sequence = [
-    Demographics,
-    DemographicsWaitPage,
     PaymentInstruction,   # 報酬ルールの説明
     Instructions,
     Practice,
