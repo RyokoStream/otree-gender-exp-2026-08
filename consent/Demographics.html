@@ -1,0 +1,14 @@
+{{ block title }}
+    基本情報の入力
+{{ endblock }}
+
+{{ block content }}
+    <div class="card mb-3">
+        <div class="card-body">
+            <p>実験を開始する前に、以下の基本情報を入力してください。</p>
+            {{ formfields }}
+        </div>
+    </div>
+
+    {{ next_button }}
+{{ endblock }}
