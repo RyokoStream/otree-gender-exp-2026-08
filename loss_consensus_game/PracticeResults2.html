@@ -1,23 +1,20 @@
 {% extends "global/Page.html" %}
 {% load otree %}
-
 {% block title %}
-    【練習2の結果】プレイヤーB の計算結果
+    【練習1の結果】プレイヤーA の計算結果
 {% endblock %}
-
 {% block content %}
     <div class="alert alert-success mb-3">
-        <strong>💡 練習2の結果計算</strong><br>
+        <strong>💡 練習1の結果計算</strong><br>
         入力された数値をもとに計算した結果です。（謝礼金には影響しません）
     </div>
-
     <!-- 結果カード -->
     <div class="card mb-4" style="border: 2px solid #0d6efd;">
         <div class="card-body">
-            <h5 class="card-title font-weight-bold" style="color: #0d6efd;">📊 練習2 の集計結果</h5>
+            <h5 class="card-title font-weight-bold" style="color: #0d6efd;">📊 練習1 の集計結果</h5>
             <ul style="font-size: 1.1rem; line-height: 1.8;">
-                <li>あなたの入力（p_B）: <strong>{{ my_p }} %</strong></li>
-                <li>相手の想定入力（p_A）: <strong>{{ other_p }} %</strong></li>
+                <li>あなたの入力（p_A）: <strong>{{ my_p }} %</strong></li>
+                <li>相手の想定入力（p_B）: <strong>{{ other_p }} %</strong></li>
                 <li>集計された確率 P: <strong>{{ group_P }}</strong> （({{ my_p }} + {{ other_p }}) ÷ 2 ÷ 100）</li>
             </ul>
             <hr>
@@ -28,34 +25,31 @@
                         <div class="my-2" style="color: #dc3545; font-weight: bold;">
                             発生する損失: <span style="font-size: 1.5rem;">-{{ loss_result1 }} 円</span>
                         </div>
-                        <span style="font-size: 0.95rem; color: #495057;">手元に残ったお金: {{ amount_result1 }} 円</span><br>
-                        <small class="text-muted">((1 - P) × 2,000円)</small>
+                        <small class="text-muted d-block mb-2">損失額 = (1 - P) × 2,000円</small>
+                        <span style="font-size: 0.95rem; color: #495057;">手元に残ったお金: {{ amount_result1 }} 円</span>
                     </div>
                 </div>
                 <div class="col-md-6 mb-2">
                     <div style="background-color: #fff5f5; padding: 15px; border-radius: 5px; border: 1px solid #dc3545;">
                         <span style="color: #6c757d; font-weight: bold;">【 状況 2 】</span><br>
-                        <span style="color: #dc3545; font-weight: bold;">
+                        <div class="my-2" style="color: #dc3545; font-weight: bold;">
                             発生する損失: <span style="font-size: 1.5rem;">-{{ loss_result2 }} 円</span>
-                        </span>
-                        <br>
-                        <span style="font-size: 0.95rem; color: #495057;">手元に残ったお金: {{ amount_result2 }} 円</span><br>
-                        <small class="text-muted">(P × 2,000円)</small>
+                        </div>
+                        <small class="text-muted d-block mb-2">損失額 = P × 2,000円</small>
+                        <span style="font-size: 0.95rem; color: #495057;">手元に残ったお金: {{ amount_result2 }} 円</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- 補足説明メッセージ -->
     <div class="alert alert-info border-info mb-4" style="background-color: #e7f5ff; color: #1864ab; border-radius: 8px; padding: 15px;">
         <p class="m-0" style="font-size: 1.05rem; line-height: 1.6;">
             💡 <strong>理解のポイント:</strong><br>
-            この例では、状況 1 は 0.4 の確率で、状況 2 は 0.6 の確率で発生します。この両方の結果が同時に起きてくるわけではないため、<strong>どちらか一方の利得を得る可能性がある</strong>ということを理解してください。
+            この例では、状況 1 は 0.6 の確率で、状況 2 は 0.4 の確率で発生します。この両方が同時に起きることはないため、<strong>どちらか一方の損失だけが実際に発生する</strong>ということを理解してください。
         </p>
     </div>
-
     <div class="mt-4 text-center">
-        <button class="otree-btn-next btn btn-primary btn-lg">本番に進む</button>
+        <button class="otree-btn-next btn btn-primary btn-lg">次の練習（プレイヤーBの体験）に進む</button>
     </div>
 {% endblock %}
