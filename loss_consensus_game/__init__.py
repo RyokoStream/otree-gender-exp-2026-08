@@ -3,6 +3,7 @@ from otree.api import *
 
 doc = """
 情報共有型くじ実験（集団合意形成ゲーム・損失フレーム）
+同意手続きと属性入力（ID・性別）は consent アプリで済ませてある前提。
 """
 
 
@@ -33,12 +34,6 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    student_id = models.StringField(label="もらっているID番号を入力してください。学籍番号を入力しないように:")
-    gender = models.StringField(
-        label="戸籍上の性別を選択してください:",
-        choices=['男性', '女性'],
-        widget=widgets.RadioSelect
-    )
     # --- 練習ラウンド用 p の値 (0 〜 100) ---
     practice_p_1 = models.IntegerField(min=0, max=100, label="練習1: あなたにとって望ましい p の値 (0〜100)")
     practice_p_2 = models.IntegerField(min=0, max=100, label="練習2: あなたにとって望ましい p の値 (0〜100)")
@@ -51,32 +46,21 @@ class Player(BasePlayer):
     round_payoff = models.FloatField()
 
 
+# --- ヘルパー ---
+
+def pair_consented(player: Player):
+    """consent アプリで両者が同意した場合のみ True。本編を表示する条件。"""
+    return player.participant.vars.get('pair_consented', False)
+
+
 # =========================================================
 # PAGES
 # =========================================================
 
-class Demographics(Page):
-    form_model = 'player'
-    form_fields = ['student_id', 'gender']
-
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1
-
-
-class DemographicsWaitPage(WaitPage):
-    title_text = "待機中"
-    body_text = "ペアの相手が入力するのを待っています..."
-
-    @staticmethod
-    def is_displayed(player: Player):
-        return player.round_number == 1
-
-
 class Instructions(Page):
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
 
 # --- 練習 1 ---
@@ -86,28 +70,28 @@ class Practice1(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
 
 # --- 練習 1 結果 ---
 class PracticeResults(Page):
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
     @staticmethod
     def vars_for_template(player: Player):
         other_p = 50
         my_p = player.practice_p_1 if player.practice_p_1 is not None else 50
         calc_P = (my_p + other_p) / 200.0
-        
+
         loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
         loss_res2 = int(calc_P * C.ENDOWMENT)
 
         return {
-            'my_p': my_p,                            
-            'other_p': other_p,                      
-            'group_P': f"{calc_P * 100:.1f}%",       
+            'my_p': my_p,
+            'other_p': other_p,
+            'group_P': f"{calc_P * 100:.1f}%",
             'loss_result1': loss_res1,
             'amount_result1': C.ENDOWMENT - loss_res1,
             'loss_result2': loss_res2,
@@ -122,28 +106,28 @@ class Practice2(Page):
 
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
 
 # --- 練習 2 結果 ---
 class PracticeResults2(Page):
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == 1
+        return player.round_number == 1 and pair_consented(player)
 
     @staticmethod
     def vars_for_template(player: Player):
         other_p = 40
         my_p = player.practice_p_2 if player.practice_p_2 is not None else 40
         calc_P = (my_p + other_p) / 200.0
-        
+
         loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
         loss_res2 = int(calc_P * C.ENDOWMENT)
 
         return {
-            'my_p': my_p,                            
-            'other_p': other_p,                      
-            'group_P': f"{calc_P * 100:.1f}%",       
+            'my_p': my_p,
+            'other_p': other_p,
+            'group_P': f"{calc_P * 100:.1f}%",
             'loss_result1': loss_res1,
             'amount_result1': C.ENDOWMENT - loss_res1,
             'loss_result2': loss_res2,
@@ -157,9 +141,14 @@ class Decision(Page):
     form_fields = ['p_value']
 
     @staticmethod
+    def is_displayed(player: Player):
+        return pair_consented(player)
+
+    @staticmethod
     def vars_for_template(player: Player):
         other_player = player.get_others_in_group()[0]
-        first_other = other_player.in_round(1)
+        # ID・性別は consent アプリで入力され、participant.vars に控えてある
+        other_vars = other_player.participant.vars
 
         round_num = player.round_number
         prob_res1 = C.PROBS_RESULT1.get(round_num, 50)
@@ -171,15 +160,20 @@ class Decision(Page):
             'round_num': round_num,
             'prob_result1': prob_res1,
             'prob_result2': prob_res2,
-            'other_id': first_other.student_id,
-            'other_gender': first_other.gender,
+            'other_id': other_vars.get('student_id', ''),
+            'other_gender': other_vars.get('gender', ''),
             'role_name': role_name,
         }
+
 
 # --- 成果集計・最終謝礼決定 ---
 class ResultsWaitPage(WaitPage):
     title_text = "集計中"
     body_text = "ペアの入力完了を待っています..."
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return pair_consented(player)
 
     @staticmethod
     def after_all_players_arrive(group: Group):
@@ -221,7 +215,7 @@ class ResultsWaitPage(WaitPage):
                     # --- A) 合意形成タスクの指定ラウンドが選ばれた場合 (各 1/4) ---
                     target_round = int(category_choice.replace('consensus_r', ''))
                     selected_player = p.in_round(target_round)
-                    
+
                     p.participant.vars['selected_round'] = target_round
                     final_choice = {
                         'task_type': 'loss_consensus',
@@ -263,7 +257,7 @@ class ResultsWaitPage(WaitPage):
 class FinalResults(Page):
     @staticmethod
     def is_displayed(player: Player):
-        return player.round_number == C.NUM_ROUNDS
+        return player.round_number == C.NUM_ROUNDS and pair_consented(player)
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -325,8 +319,6 @@ class FinalResults(Page):
 # =========================================================
 
 page_sequence = [
-    Demographics,
-    DemographicsWaitPage,
     Instructions,
     Practice1,
     PracticeResults,
