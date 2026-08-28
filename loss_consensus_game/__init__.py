@@ -2,19 +2,16 @@ import random
 from otree.api import *
 
 doc = """
-情報共有型くじ実験（集団合意形成ゲーム・損失フレーム）
+情報共有型くじ実験（両役体験練習付き）
 同意手続きと属性入力（ID・性別）は consent アプリで済ませてある前提。
 """
 
 
 class C(BaseConstants):
-    NAME_IN_URL = 'loss_consensus_game'
+    NAME_IN_URL = 'gender_lottery'
     PLAYERS_PER_GROUP = 2
     NUM_ROUNDS = 3
-    # 初期手元金（円）
-    ENDOWMENT = 2000
-    # ラウンドごとの【状況1】が発生する確率（%）
-    PROBS_RESULT1 = {1: 60, 2: 70, 3: 80}
+    PROBS_A_RESULT1 = {1: 60, 2: 70, 3: 80}
 
 
 class Subsession(BaseSubsession):
@@ -29,20 +26,24 @@ def creating_session(subsession: Subsession):
 
 
 class Group(BaseGroup):
-    # 二人が入力した p の平均値 (0.00 ~ 1.00)
     group_P = models.FloatField()
 
 
 class Player(BasePlayer):
-    # --- 練習ラウンド用 p の値 (0 〜 100) ---
-    practice_p_1 = models.IntegerField(min=0, max=100, label="練習1: あなたにとって望ましい p の値 (0〜100)")
-    practice_p_2 = models.IntegerField(min=0, max=100, label="練習2: あなたにとって望ましい p の値 (0〜100)")
-
-    # --- 本番ラウンド用 p の値 (0 〜 100) ---
-    p_value = models.IntegerField(min=0, max=100, label="あなたにとって望ましい p の値 (0〜100)")
-
-    # 利得・損失計算保持用
-    choice_loss = models.FloatField()
+    practice_p1 = models.IntegerField(
+        label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
+        min=0, max=100
+    )
+    practice_p2 = models.IntegerField(
+        label="【プレイヤーBとして】p の値を入力してください（0 〜 100）:",
+        min=0, max=100
+    )
+    p_input = models.IntegerField(
+        label="p の値を入力してください（0 〜 100）:",
+        min=0, max=100
+    )
+    drawn_result = models.StringField()
+    choice_payoff = models.FloatField()
     round_payoff = models.FloatField()
 
 
@@ -53,9 +54,14 @@ def pair_consented(player: Player):
     return player.participant.vars.get('pair_consented', False)
 
 
-# =========================================================
-# PAGES
-# =========================================================
+# --- PAGES ---
+
+class PaymentInstruction(Page):
+    """報酬ルールの説明"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1 and pair_consented(player)
+
 
 class Instructions(Page):
     @staticmethod
@@ -63,82 +69,71 @@ class Instructions(Page):
         return player.round_number == 1 and pair_consented(player)
 
 
-# --- 練習 1 ---
-class Practice1(Page):
+class Practice(Page):
+    """練習1（プレイヤーAの立場）"""
     form_model = 'player'
-    form_fields = ['practice_p_1']
+    form_fields = ['practice_p1']
 
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1 and pair_consented(player)
 
 
-# --- 練習 1 結果 ---
 class PracticeResults(Page):
+    """練習1の結果"""
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1 and pair_consented(player)
 
     @staticmethod
     def vars_for_template(player: Player):
-        other_p = 50
-        my_p = player.practice_p_1 if player.practice_p_1 is not None else 50
-        calc_P = (my_p + other_p) / 200.0
-
-        loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
-        loss_res2 = int(calc_P * C.ENDOWMENT)
-
+        my_p_int = player.practice_p1
+        my_p_ratio = my_p_int / 100.0
+        other_p_ratio = 0.50
+        group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
         return {
-            'my_p': my_p,
-            'other_p': other_p,
-            'group_P': f"{calc_P * 100:.1f}%",
-            'loss_result1': loss_res1,
-            'amount_result1': C.ENDOWMENT - loss_res1,
-            'loss_result2': loss_res2,
-            'amount_result2': C.ENDOWMENT - loss_res2,
+            'my_p': my_p_int,
+            'other_p': 50,
+            'group_P': group_P,
+            'amount_result1': round(group_P * 2000),
+            'amount_result2': round((1 - group_P) * 2000),
         }
 
 
-# --- 練習 2 ---
 class Practice2(Page):
+    """練習2（プレイヤーBの立場）"""
     form_model = 'player'
-    form_fields = ['practice_p_2']
+    form_fields = ['practice_p2']
 
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1 and pair_consented(player)
 
 
-# --- 練習 2 結果 ---
 class PracticeResults2(Page):
+    """練習2の結果"""
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == 1 and pair_consented(player)
 
     @staticmethod
     def vars_for_template(player: Player):
-        other_p = 50
-        my_p = player.practice_p_2 if player.practice_p_2 is not None else 50
-        calc_P = (my_p + other_p) / 200.0
-
-        loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
-        loss_res2 = int(calc_P * C.ENDOWMENT)
-
+        my_p_int = player.practice_p2
+        my_p_ratio = my_p_int / 100.0
+        other_p_ratio = 0.50
+        group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
         return {
-            'my_p': my_p,
-            'other_p': other_p,
-            'group_P': f"{calc_P * 100:.1f}%",
-            'loss_result1': loss_res1,
-            'amount_result1': C.ENDOWMENT - loss_res1,
-            'loss_result2': loss_res2,
-            'amount_result2': C.ENDOWMENT - loss_res2,
+            'my_p': my_p_int,
+            'other_p': 50,
+            'group_P': group_P,
+            'amount_result1': round(group_P * 2000),
+            'amount_result2': round((1 - group_P) * 2000),
         }
 
 
-# --- 本番意思決定 ---
 class Decision(Page):
     form_model = 'player'
-    form_fields = ['p_value']
+    form_fields = ['p_input']
 
     @staticmethod
     def is_displayed(player: Player):
@@ -149,23 +144,27 @@ class Decision(Page):
         other_player = player.get_others_in_group()[0]
         # ID・性別は consent アプリで入力され、participant.vars に控えてある
         other_vars = other_player.participant.vars
-
-        round_num = player.round_number
-        # 状況1の確率は役割で鏡像になる（Aから見た確率とBから見た確率は逆）
-        prob_a_res1 = C.PROBS_RESULT1.get(round_num, 50)
         is_player_a = (player.id_in_group == 1)
-        prob_res1 = prob_a_res1 if is_player_a else 100 - prob_a_res1
-        prob_res2 = 100 - prob_res1
+        r_num = player.round_number
+        prob_a_res1 = C.PROBS_A_RESULT1[r_num]
+        prob_a_res2 = 100 - prob_a_res1
 
-        role_name = "プレイヤーA" if is_player_a else "プレイヤーB"
+        if is_player_a:
+            role_name = "プレイヤーA"
+            prob_result1 = prob_a_res1
+            prob_result2 = prob_a_res2
+        else:
+            role_name = "プレイヤーB"
+            prob_result1 = prob_a_res2
+            prob_result2 = prob_a_res1
 
         return {
-            'round_num': round_num,
-            'prob_result1': prob_res1,
-            'prob_result2': prob_res2,
+            'role_name': role_name,
             'other_id': other_vars.get('student_id', ''),
             'other_gender': other_vars.get('gender', ''),
-            'role_name': role_name,
+            'prob_result1': prob_result1,
+            'prob_result2': prob_result2,
+            'round_num': r_num,
         }
 
 
@@ -185,61 +184,57 @@ class ResultsWaitPage(WaitPage):
         p2 = players[1]
 
         # 1. 宣言された p の平均値から P を計算 (0.0 〜 1.0)
-        p1_val = p1.p_value if p1.p_value is not None else 50
-        p2_val = p2.p_value if p2.p_value is not None else 50
+        p1_val = p1.p_input if p1.p_input is not None else 50
+        p2_val = p2.p_input if p2.p_input is not None else 50
         group.group_P = (p1_val + p2_val) / 200.0
 
-        # 2. ラウンドごとの損失決定（状況1 か 状況2 かをランダム決定）
+        # 2. ラウンドごとの得られる金額決定（利得フレーム）
         round_num = group.round_number
-        prob_res1 = C.PROBS_RESULT1.get(round_num, 50) / 100.0
+        prob_res1 = C.PROBS_A_RESULT1.get(round_num, 50) / 100.0
         is_result1 = random.random() < prob_res1
 
         for p in players:
+            p.drawn_result = "状況1" if is_result1 else "状況2"
+
             if p.id_in_group == 1:  # プレイヤーA
                 if is_result1:
-                    p.choice_loss = (1.0 - group.group_P) * C.ENDOWMENT
+                    p.choice_payoff = group.group_P * 2000  # 利得: P × 2000円
                 else:
-                    p.choice_loss = group.group_P * C.ENDOWMENT
+                    p.choice_payoff = (1.0 - group.group_P) * 2000  # 利得: (1 - P) × 2000円
             else:  # プレイヤーB
                 if is_result1:
-                    p.choice_loss = group.group_P * C.ENDOWMENT
+                    p.choice_payoff = (1.0 - group.group_P) * 2000  # 利得: (1 - P) × 2000円
                 else:
-                    p.choice_loss = (1.0 - group.group_P) * C.ENDOWMENT
+                    p.choice_payoff = group.group_P * 2000  # 利得: P × 2000円
 
-            p.round_payoff = C.ENDOWMENT - p.choice_loss
+            p.round_payoff = p.choice_payoff
 
         # 3. 最終ラウンド終了時の清算処理（1/4 ずつの二段階抽選）
         if group.round_number == C.NUM_ROUNDS:
             for p in players:
-                # 【第1段階】4つの選択肢（合意形成 第1R, 第2R, 第3R, 確実等価性タスク）から 1/4 (25%) で選出
+                # 【第1段階】4つの選択肢から 1/4 (25%) で選出
                 category_choice = random.choice(['consensus_r1', 'consensus_r2', 'consensus_r3', 'slider_task'])
 
                 if category_choice.startswith('consensus_r'):
-                    # --- A) 合意形成タスクの指定ラウンドが選ばれた場合 (各 1/4) ---
                     target_round = int(category_choice.replace('consensus_r', ''))
                     selected_player = p.in_round(target_round)
-
                     p.participant.vars['selected_round'] = target_round
                     final_choice = {
-                        'task_type': 'loss_consensus',
+                        'task_type': 'gender_lottery',
                         'title': f'合意形成タスク（第{target_round}ラウンド）',
                         'payoff': selected_player.round_payoff,
                     }
                     p.participant.vars['final_choice_detail'] = final_choice
                     p.participant.payoff = final_choice['payoff']
-
                 else:
-                    # --- B) 確実等価性タスク（CE）が選ばれた場合 (1/4) ---
-                    # 【第2段階】22問の中から1問をランダム選出 (1/22)
+                    # 【第2段階】確実等価性タスク（CE）
                     q_num = random.randint(1, 22)
-
                     slider_answers = p.participant.vars.get('slider_answers', {})
                     sure_payoffs = p.participant.vars.get('slider_sure_payoffs', [])
                     slider_high = p.participant.vars.get('slider_lottery_high', 2000)
                     slider_low = p.participant.vars.get('slider_lottery_low', 0)
 
                     chosen_lottery = slider_answers.get(q_num, True)
-
                     final_choice = {
                         'task_type': 'slider',
                         'title': f'確実等価性タスク（第{q_num}問）',
@@ -258,74 +253,55 @@ class ResultsWaitPage(WaitPage):
 
 
 class FinalResults(Page):
+    """全3回終了後の最終清算画面"""
     @staticmethod
     def is_displayed(player: Player):
         return player.round_number == C.NUM_ROUNDS and pair_consented(player)
 
     @staticmethod
     def vars_for_template(player: Player):
-        final_detail = player.participant.vars.get('final_choice_detail', {})
-        selected_round = player.participant.vars.get('selected_round', 1)
+        all_rounds_data = []
+        is_player_a = (player.id_in_group == 1)
+        role_name = "プレイヤーA" if is_player_a else "プレイヤーB"
 
-        # 全3ラウンド分の記録を取得・計算
-        all_rounds = []
-        for r in player.in_all_rounds():
-            other_p = r.get_others_in_group()[0].p_value if r.get_others_in_group()[0].p_value is not None else 50
-            my_p = r.p_value if r.p_value is not None else 50
-            calc_P = (my_p + other_p) / 200.0
+        for p in player.in_all_rounds():
+            r_num = p.round_number
+            other_p = p.get_others_in_group()[0]
+            prob_a_res1 = C.PROBS_A_RESULT1[r_num]
+            prob_a_res2 = 100 - prob_a_res1
+            prob_result1 = prob_a_res1 if is_player_a else prob_a_res2
+            prob_result2 = prob_a_res2 if is_player_a else prob_a_res1
+            group_P = p.group.group_P
 
-            # プレイヤーの役割（A/B）に応じた正確な損失計算
-            if player.id_in_group == 1:  # プレイヤーA
-                loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
-                loss_res2 = int(calc_P * C.ENDOWMENT)
-            else:  # プレイヤーB
-                loss_res1 = int(calc_P * C.ENDOWMENT)
-                loss_res2 = int((1.0 - calc_P) * C.ENDOWMENT)
-
-            # 状況1の確率は役割で鏡像になる
-            prob_a_res1 = C.PROBS_RESULT1.get(r.round_number, 50)
-            prob_res1 = prob_a_res1 if player.id_in_group == 1 else 100 - prob_a_res1
-            prob_res2 = 100 - prob_res1
-
-            # 実際の損失額(choice_loss)と一致する状況を特定
-            actual_loss = int(r.choice_loss) if r.choice_loss is not None else 0
-            if actual_loss == loss_res1:
-                drawn_result = "状況 1"
-            else:
-                drawn_result = "状況 2"
-
-            all_rounds.append({
-                'round_num': r.round_number,
-                'my_p': my_p,
-                'other_p': other_p,
-                'group_P': f"{calc_P * 100:.1f}%",
-                'prob_result1': prob_res1,
-                'prob_result2': prob_res2,
-                'loss_res1': loss_res1,
-                'loss_res2': loss_res2,
-                'loss_res1_amount': loss_res1,
-                'loss_res2_amount': loss_res2,
-                'amount_result1': C.ENDOWMENT - loss_res1,
-                'amount_result2': C.ENDOWMENT - loss_res2,
-                'drawn_result': drawn_result,
-                'round_payoff': int(r.round_payoff if r.round_payoff is not None else 0),
+            all_rounds_data.append({
+                'round_num': r_num,
+                'my_p': p.p_input,
+                'other_p': other_p.p_input,
+                'group_P': group_P,
+                'prob_result1': prob_result1,
+                'prob_result2': prob_result2,
+                'amount_result1': round(group_P * 2000),
+                'amount_result2': round((1 - group_P) * 2000),
+                'drawn_result': p.drawn_result,
+                'round_payoff': int(p.round_payoff),
             })
 
+        selected_round = player.participant.vars.get('selected_round')
+        final_detail = player.participant.vars.get('final_choice_detail', {})
+
         return {
+            'all_rounds': all_rounds_data,
             'selected_round': selected_round,
+            'role_name': role_name,
             'final_detail': final_detail,
             'final_payoff': int(player.participant.payoff),
-            'all_rounds': all_rounds,
         }
 
 
-# =========================================================
-# PAGE SEQUENCE
-# =========================================================
-
 page_sequence = [
+    PaymentInstruction,   # 報酬ルールの説明
     Instructions,
-    Practice1,
+    Practice,
     PracticeResults,
     Practice2,
     PracticeResults2,
@@ -333,6 +309,3 @@ page_sequence = [
     ResultsWaitPage,
     FinalResults
 ]
-
-   
-    
