@@ -286,7 +286,7 @@ class FinalResults(Page):
                 'round_payoff': int(p.round_payoff),
             })
 
-        selected_round = player.participant.vars.get('selected_round', 1)
+        selected_round = player.participant.vars.get('selected_round')
         final_detail = player.participant.vars.get('final_choice_detail', {})
 
         return {
