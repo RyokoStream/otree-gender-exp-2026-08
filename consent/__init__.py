@@ -1,7 +1,7 @@
 from otree.api import *
 
 doc = """
-研究参加への同意取得（ペア単位の判定つき）。
+研究参加への同意取得（ペア単位の判定つき）＋ 属性入力。
 app_sequence の先頭に置くこと。以降の全アプリは
 participant.vars['pair_consented'] を見て表示可否を決める。
 """
@@ -36,6 +36,15 @@ class Player(BasePlayer):
     )
     consent_4 = models.StringField(
         choices=['同意する', '同意しない'],
+        widget=widgets.RadioSelect
+    )
+
+    student_id = models.StringField(
+        label="もらっているID番号を入力してください。学籍番号を入力しないように:"
+    )
+    gender = models.StringField(
+        label="戸籍上の性別を選択してください。（※戸籍上の性別が自覚する性別と違っている場合も、研究の記録上、戸籍上の性別が必要なので、お願いします。）:",
+        choices=['男性', '女性'],
         widget=widgets.RadioSelect
     )
 
@@ -95,9 +104,40 @@ class PartnerRefusal(Page):
         return not others[0].consented
 
 
+class Demographics(Page):
+    """ID番号と性別の入力。同意が成立したペアにのみ表示する。"""
+    form_model = 'player'
+    form_fields = ['student_id', 'gender']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.participant.vars.get('pair_consented', False)
+
+
+class DemographicsWaitPage(WaitPage):
+    """
+    両者の入力を待ち、ID・性別を participant.vars に控える。
+    gender_lottery の Decision ページが相手の情報を表示するのに使う。
+    """
+    title_text = "待機中"
+    body_text = "ペアの相手が入力するのを待っています..."
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.participant.vars.get('pair_consented', False)
+
+    @staticmethod
+    def after_all_players_arrive(group: Group):
+        for p in group.get_players():
+            p.participant.vars['student_id'] = p.student_id
+            p.participant.vars['gender'] = p.gender
+
+
 page_sequence = [
     Consent,
     ConsentWaitPage,
     Refusal,
     PartnerRefusal,
+    Demographics,
+    DemographicsWaitPage,
 ]
