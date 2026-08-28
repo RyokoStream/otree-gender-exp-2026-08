@@ -117,8 +117,8 @@ class PracticeResults2(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        other_p = 40
-        my_p = player.practice_p_2 if player.practice_p_2 is not None else 40
+        other_p = 50
+        my_p = player.practice_p_2 if player.practice_p_2 is not None else 50
         calc_P = (my_p + other_p) / 200.0
 
         loss_res1 = int((1.0 - calc_P) * C.ENDOWMENT)
