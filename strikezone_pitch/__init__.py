@@ -25,7 +25,7 @@ class C(BaseConstants):
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 1
 
-    NUM_PRACTICE_PITCHES = 10
+    NUM_PRACTICE_PITCHES = 7
     # バッターの弱点ゾーン（観察ラウンドでプレイヤーが探る対象。キャッチャーの主張とは無相関）
     BATTER_WEAK_ZONE = 0.65
     # 弱点ゾーンとの距離がこの値に達すると三振確率が0になる
