@@ -23,7 +23,7 @@ class PlayerBot(Bot):
 
         yield Submission(Transition, {})
 
-        yield Submission(FinalStep1, {'ideal_zone': 0.35})
+        yield Submission(FinalStep1, {'ideal_zone': 0.65})
 
         yield Submission(FinalStep2, {'sign_q': 0.2})
 
