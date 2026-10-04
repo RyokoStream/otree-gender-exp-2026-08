@@ -29,7 +29,7 @@ class C(BaseConstants):
     # バッターの弱点ゾーン（観察ラウンドでプレイヤーが探る対象。キャッチャーの主張とは無相関）
     BATTER_WEAK_ZONE = 0.65
     # 弱点ゾーンとの距離がこの値に達すると三振確率が0になる
-    STRIKE_PROB_SPREAD = 0.80
+    STRIKE_PROB_SPREAD = 0.32
     # キャッチャーが主張するゾーン（弱点ゾーンとは独立）
     CATCHER_ZONE = 0.0
     # 報酬計算のベース額（円）
