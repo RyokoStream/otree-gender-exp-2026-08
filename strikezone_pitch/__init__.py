@@ -1,4 +1,5 @@
 import json
+import random
 from otree.api import *
 
 doc = """
@@ -9,6 +10,9 @@ doc = """
 キャッチャーの主張（ゾーン0）を踏まえて実際にキャッチャーへ伝えるサイン q を決定する。
 実際の投球ゾーンは q / 2 となり、三振なら 2000 × (1 + q) / 2、
 ホームランなら 2000 × (1 - q) / 2 の報酬が得られる、チープトーク型の意思決定ゲーム。
+
+三振/ホームランの判定は確率的で、投球ゾーンがバッターの弱点ゾーンに近いほど
+三振の確率が高くなる（STRIKE_PROB_SPREAD の距離でちょうど確率0になる）。
 """
 
 
@@ -19,9 +23,9 @@ class C(BaseConstants):
 
     NUM_PRACTICE_PITCHES = 10
     # バッターの弱点ゾーン（観察ラウンドでプレイヤーが探る対象）
-    BATTER_WEAK_ZONE = 0.35
-    # 弱点ゾーンとの差がこの範囲以内なら三振
-    STRIKE_THRESHOLD = 0.20
+    BATTER_WEAK_ZONE = 0.40
+    # 弱点ゾーンとの距離がこの値に達すると三振確率が0になる
+    STRIKE_PROB_SPREAD = 0.30
     # キャッチャーが主張するゾーン
     CATCHER_ZONE = 0.0
     # 報酬計算のベース額（円）
@@ -56,8 +60,13 @@ class Player(BasePlayer):
     reward = models.IntegerField(blank=True)
 
 
-def get_is_strike(zone: float) -> bool:
-    return abs(zone - C.BATTER_WEAK_ZONE) <= C.STRIKE_THRESHOLD
+def get_strike_probability(zone: float) -> float:
+    distance = abs(zone - C.BATTER_WEAK_ZONE)
+    return max(0.0, 1.0 - distance / C.STRIKE_PROB_SPREAD)
+
+
+def draw_is_strike(zone: float) -> bool:
+    return random.random() < get_strike_probability(zone)
 
 
 # --- PAGES ---
@@ -75,7 +84,7 @@ class Practice(Page):
         return dict(
             max_practice=C.NUM_PRACTICE_PITCHES,
             batter_weak_zone=C.BATTER_WEAK_ZONE,
-            strike_threshold=C.STRIKE_THRESHOLD,
+            strike_prob_spread=C.STRIKE_PROB_SPREAD,
         )
 
     @staticmethod
@@ -118,7 +127,7 @@ class FinalStep2(Page):
     def before_next_page(player: Player, timeout_happened):
         q = player.sign_q
         actual_zone = (C.CATCHER_ZONE + q) / 2
-        is_strike = get_is_strike(actual_zone)
+        is_strike = draw_is_strike(actual_zone)
 
         player.actual_zone = round(actual_zone, 4)
         player.is_strike = is_strike

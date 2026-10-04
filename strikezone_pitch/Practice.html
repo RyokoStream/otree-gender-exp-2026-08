@@ -50,15 +50,19 @@
   var maxPractice = {{ max_practice }};
   var historyData = [];
   var batterWeakZone = {{ batter_weak_zone }};
-  var strikeThreshold = {{ strike_threshold }};
+  var strikeProbSpread = {{ strike_prob_spread }};
+
+  function getStrikeProbability(zone) {
+    var distance = Math.abs(zone - batterWeakZone);
+    return Math.max(0, 1 - distance / strikeProbSpread);
+  }
 
   function getBatterResult(zone) {
-    var diff = Math.abs(zone - batterWeakZone);
-    if (diff <= strikeThreshold) {
-      return { isStrike: true, text: "空振り三振！" };
-    } else {
-      return { isStrike: false, text: "ホームラン！" };
-    }
+    var isStrike = Math.random() < getStrikeProbability(zone);
+    return {
+      isStrike: isStrike,
+      text: isStrike ? "空振り三振！" : "ホームラン！"
+    };
   }
 
   function renderHistory() {
