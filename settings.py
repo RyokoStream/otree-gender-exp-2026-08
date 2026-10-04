@@ -8,6 +8,12 @@ SESSION_CONFIGS = [
         app_sequence=['gender_lottery'],
         num_demo_participants=2,
     ),
+    dict(
+        name='strikezone_pitch',
+        display_name="ストライクゾーン配球ゲーム",
+        app_sequence=['strikezone_pitch'],
+        num_demo_participants=1,
+    ),
     # ▼ もとからあるサンプルアプリ一覧
     dict(
         name='guess_two_thirds',

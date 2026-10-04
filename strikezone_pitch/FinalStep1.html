@@ -1,0 +1,41 @@
+{{ block title }}
+2. 本番ラウンド - 適正ゾーンの質問
+{{ endblock }}
+
+{{ block styles }}
+{{ include_sibling '_style.html' }}
+{{ endblock }}
+
+{{ block content }}
+
+<div class="section-desc">
+  観察結果を踏まえて、回答してください。
+</div>
+
+<div class="control-group">
+  {{ formfield 'ideal_zone' }}
+</div>
+
+<div class="history-title">▼ 観察データ（復習用）</div>
+<table class="sz-table">
+  <thead>
+    <tr>
+      <th>回数</th>
+      <th>投球ゾーン</th>
+      <th>結果</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{ for item in history }}
+    <tr>
+      <td>{{ item.count }}</td>
+      <td>{{ item.zone }}</td>
+      <td>{{ item.result }}</td>
+    </tr>
+    {{ endfor }}
+  </tbody>
+</table>
+
+{{ next_button }}
+
+{{ endblock }}

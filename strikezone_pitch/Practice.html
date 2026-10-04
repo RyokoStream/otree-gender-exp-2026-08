@@ -1,0 +1,112 @@
+{{ block title }}
+1. 観察ラウンド - バッターの癖を観察
+{{ endblock }}
+
+{{ block styles }}
+{{ include_sibling '_style.html' }}
+{{ endblock }}
+
+{{ block content }}
+
+<div class="section-desc">
+  ゾーン（0.00 〜 1.00）を選択して投げ、バッターの反応（三振かホームランか）を観察してください。同じバッターと本番で勝負します。
+</div>
+
+<div class="control-group">
+  <label for="practiceInput">投球するゾーンを入力してください (0.00 〜 1.00):</label>
+  <input type="number" id="practiceInput" min="0" max="1" step="0.01">
+  <button type="button" class="btn-strikezone" id="pitchBtn" onclick="pitchPractice()">
+    投球して反応を観察する (<span id="pitchCount">0</span>/{{ max_practice }})
+  </button>
+</div>
+
+<div class="history-title">▼ 観察データ履歴（全{{ max_practice }}回）</div>
+<table class="sz-table">
+  <thead>
+    <tr>
+      <th>回数</th>
+      <th>投球ゾーン</th>
+      <th>結果</th>
+    </tr>
+  </thead>
+  <tbody id="historyBody">
+    <tr>
+      <td colspan="3" style="color: #999;">投球データはまだありません</td>
+    </tr>
+  </tbody>
+</table>
+
+<div id="proceedWrap" class="sz-hidden" style="margin-top: 20px;">
+  <button type="submit" class="btn-strikezone btn-red">本番勝負へ進む</button>
+</div>
+
+<div style="display:none">{{ form.practice_data }}</div>
+
+<script>
+(function () {
+  var practiceCount = 0;
+  var maxPractice = {{ max_practice }};
+  var historyData = [];
+  var batterWeakZone = {{ batter_weak_zone }};
+  var strikeThreshold = {{ strike_threshold }};
+
+  function getBatterResult(zone) {
+    var diff = Math.abs(zone - batterWeakZone);
+    if (diff <= strikeThreshold) {
+      return { isStrike: true, text: "空振り三振！" };
+    } else {
+      return { isStrike: false, text: "ホームラン！" };
+    }
+  }
+
+  function renderHistory() {
+    var html = "";
+    historyData.forEach(function (item) {
+      html += "<tr><td>" + item.count + "</td><td>" + item.zone + "</td><td>" + item.result + "</td></tr>";
+    });
+    document.getElementById("historyBody").innerHTML = html;
+  }
+
+  window.pitchPractice = function () {
+    if (practiceCount >= maxPractice) return;
+
+    var inputElem = document.getElementById("practiceInput");
+    var val = inputElem.value;
+
+    if (val === "") {
+      alert("ゾーンを入力してください。");
+      return;
+    }
+
+    var zone = parseFloat(val);
+    if (isNaN(zone) || zone < 0 || zone > 1) {
+      alert("0.00〜1.00の範囲で入力してください。");
+      return;
+    }
+
+    var resultObj = getBatterResult(zone);
+
+    practiceCount++;
+    historyData.push({
+      count: practiceCount,
+      zone: zone.toFixed(2),
+      result: resultObj.text,
+      isStrike: resultObj.isStrike
+    });
+
+    document.getElementById("pitchCount").textContent = practiceCount;
+    renderHistory();
+    inputElem.value = "";
+
+    document.getElementById("id_practice_data").value = JSON.stringify(historyData);
+
+    if (practiceCount >= maxPractice) {
+      document.getElementById("pitchBtn").disabled = true;
+      inputElem.disabled = true;
+      document.getElementById("proceedWrap").classList.remove("sz-hidden");
+    }
+  };
+})();
+</script>
+
+{{ endblock }}

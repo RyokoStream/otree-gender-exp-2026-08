@@ -1,0 +1,44 @@
+{{ block title }}
+2. 本番ラウンド - サインの選択
+{{ endblock }}
+
+{{ block styles }}
+{{ include_sibling '_style.html' }}
+{{ endblock }}
+
+{{ block content }}
+
+<div class="message-box">
+  📢 <strong>キャッチャーの意見:</strong><br>
+  「キャッチャーは、<strong>ゾーン {{ catcher_zone }}（一番上）</strong>に投げるように言ってきました。」
+</div>
+
+<div class="control-group">
+  {{ formfield 'sign_q' }}
+</div>
+
+<p class="section-desc">※「Next」ボタンを押すと、そのサインで一球勝負の投球が行われます。</p>
+
+<div class="history-title">▼ 観察データ（復習用）</div>
+<table class="sz-table">
+  <thead>
+    <tr>
+      <th>回数</th>
+      <th>投球ゾーン</th>
+      <th>結果</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{ for item in history }}
+    <tr>
+      <td>{{ item.count }}</td>
+      <td>{{ item.zone }}</td>
+      <td>{{ item.result }}</td>
+    </tr>
+    {{ endfor }}
+  </tbody>
+</table>
+
+{{ next_button }}
+
+{{ endblock }}

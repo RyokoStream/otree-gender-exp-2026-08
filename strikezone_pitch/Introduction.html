@@ -1,0 +1,21 @@
+{{ block title }}
+⚾ ストライクゾーン配球ゲーム
+{{ endblock }}
+
+{{ block styles }}
+{{ include_sibling '_style.html' }}
+{{ endblock }}
+
+{{ block content }}
+
+<div class="intro-box">
+  <strong>【ルール説明】</strong><br>
+  あなたがストライクを投げるゾーンを決めます。（ほかの球種は投げられません）<br>
+  このバッターは必ず大きく振ってくるので、<strong>結果は三振かホームラン</strong>です。<br><br>
+  また、キャッチャーはあなたと違う意見を持っている可能性が高いですが、あなたはキャッチャーとの信頼関係を大事にするため、キャッチャーにサインを送りますが、<strong>キャッチャーと自分の意見の中間（平均）のゾーン（一番上が 1、一番下が 0）</strong>に投げます。<br>
+  （キャッチャーもあなたの意思を反映して平均のゾーンに投げるのはよしとします。）
+</div>
+
+{{ next_button }}
+
+{{ endblock }}

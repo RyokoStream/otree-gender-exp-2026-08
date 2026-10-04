@@ -1,0 +1,39 @@
+{{ block title }}
+結果
+{{ endblock }}
+
+{{ block styles }}
+{{ include_sibling '_style.html' }}
+{{ endblock }}
+
+{{ block content }}
+
+{{ if is_strike }}
+<div class="result-card strike">
+  <h2 style="margin-top:0; color: #27ae60;">打たれなかった！（空振り三振！）</h2>
+{{ else }}
+<div class="result-card homerun">
+  <h2 style="margin-top:0; color: #d35400;">痛恨のホームラン！打たれました…</h2>
+{{ endif }}
+
+  <div class="detail-info">
+    ・あなたが適切と考えたゾーン: <strong>{{ ideal_zone }}</strong><br>
+    ・キャッチャーの主張: <strong>1.00（ゾーン1）</strong><br>
+    ・あなたが伝えたサイン (q): <strong>{{ sign_q }}</strong><br>
+    ・実際の投球ゾーン (1 + q) / 2: <strong>{{ actual_zone }}</strong>
+  </div>
+
+  {{ if is_strike }}
+  <div style="font-size: 14px; color: #555; margin-top: 8px;">
+    計算式: 2000 × (1 + {{ sign_q }}) / 2
+  </div>
+  {{ else }}
+  <div style="font-size: 14px; color: #555; margin-top: 8px;">
+    キャッチャーの言い分が正しかったことになり計算式: 2000 × (1 - {{ sign_q }}) / 2
+  </div>
+  {{ endif }}
+
+  <div class="reward-text">獲得報酬: {{ reward }} 円</div>
+</div>
+
+{{ endblock }}
