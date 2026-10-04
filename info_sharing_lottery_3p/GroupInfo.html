@@ -1,0 +1,43 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    グループメンバーの確認（第 {{ round_num }} / 4 ラウンド）
+{% endblock %}
+
+{% block content %}
+
+    <div class="card mb-4" style="border: 2px solid #6f42c1; border-radius: 8px; overflow: hidden; background-color: #fcfaff;">
+        <div class="card-header text-white font-weight-bold" style="background-color: #6f42c1; font-size: 1.2rem;">
+            👥 あなたのグループのメンバー構成
+        </div>
+        <div class="card-body p-4">
+            <p style="font-size: 1.15rem; line-height: 1.6;">
+                このラウンドであなたと一緒に意思決定を行うグループメンバー（あなたを含む3人）の性別は以下の通りです。
+            </p>
+
+            <div class="my-4 p-3" style="background-color: #ffffff; border: 2px solid #e9ecef; border-radius: 8px;">
+                <ul style="font-size: 1.25rem; line-height: 2.0; margin-bottom: 0; list-style-type: none; padding-left: 10px;">
+                    {% for member in group_info %}
+                        <li>
+                            <strong style="color: #495057;">{{ member.role_name }}:</strong> 
+                            <span style="color: #0d6efd; font-weight: bold;">{{ member.gender }}</span>
+                            {% if member.is_me %}
+                                <span class="badge bg-secondary ms-2" style="font-size: 0.9rem;">あなた</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <p class="text-muted" style="font-size: 1.05rem; margin-bottom: 0;">
+                💡 メンバー構成を確認したら、「次へ」ボタンを押して意思決定に進んでください。
+            </p>
+        </div>
+    </div>
+
+    <div class="text-end mt-4 mb-5">
+        {% next_button %}
+    </div>
+
+{% endblock %}

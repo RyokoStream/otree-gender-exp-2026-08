@@ -39,7 +39,7 @@
                                 {{ prob_result1 }}%
                             </div>
                             <div style="font-size: 0.95rem; font-weight: bold; color: #212529; margin-top: 8px;">
-                                得られる金額<br><span style="color: #0d6efd;">P × 2000円</span>
+                                損失額<br><span style="color: #d9534f;">(1 - P) × 2000円</span>
                             </div>
                         </td>
                         <td style="width: 50%; padding: 15px; background-color: #f8f9fa;">
@@ -49,7 +49,7 @@
                                 {{ prob_result2 }}%
                             </div>
                             <div style="font-size: 0.95rem; font-weight: bold; color: #212529; margin-top: 8px;">
-                                得られる金額<br><span style="color: #0d6efd;">(1 - P) × 2000円</span>
+                                損失額<br><span style="color: #d9534f;">P × 2000円</span>
                             </div>
                         </td>
                     </tr>
@@ -58,7 +58,7 @@
         </div>
     </div>
 
-    <!-- 相手のくじ（確率を反転して表示） -->
+    <!-- ペア相手のくじ（確率を反転して表示） -->
     <div class="col-md-6">
         <div class="card h-100" style="border: 2px solid #6c757d; border-radius: 8px; overflow: hidden;">
             <div class="card-header text-white font-weight-bold" style="background-color: #6c757d; font-size: 1.1rem;">
@@ -75,7 +75,7 @@
                                 {{ prob_result2 }}%
                             </div>
                             <div style="font-size: 0.95rem; font-weight: bold; color: #212529; margin-top: 8px;">
-                                得られる金額<br><span style="color: #0d6efd;">P × 2000円</span>
+                                損失額<br><span style="color: #d9534f;">(1 - P) × 2000円</span>
                             </div>
                         </td>
                         <td style="width: 50%; padding: 15px; background-color: #f8f9fa;">
@@ -86,7 +86,7 @@
                                 {{ prob_result1 }}%
                             </div>
                             <div style="font-size: 0.95rem; font-weight: bold; color: #212529; margin-top: 8px;">
-                                得られる金額<br><span style="color: #0d6efd;">(1 - P) × 2000円</span>
+                                損失額<br><span style="color: #d9534f;">P × 2000円</span>
                             </div>
                         </td>
                     </tr>
@@ -100,11 +100,9 @@
 <div class="card mb-3">
     <div class="card-body">
         <p style="font-size: 1.2rem; font-weight: bold;" class="mb-3">
-            相手がどのような p を宣言してくるのかを考えながら、あなたにとって望ましい p の値を 
+            相手がどのような　p を宣言してくるのかについて考慮しながら、あなたにとって望ましい p の値を 
             <span style="color: #d9534f; font-size: 1.3rem;">0 〜 100 の整数</span> で宣言してください。
         </p>
-        
-        <!-- 入力フォームの文字・ラベル・枠を大きく指定 -->
         <div class="large-form-area">
             {% formfields %}
         </div>
@@ -112,24 +110,21 @@
 </div>
 
 <style>
-    /* フォーム内のラベル（項目名）の文字を大きく */
     .large-form-area label {
         font-size: 1.25rem !important;
         font-weight: bold;
     }
-    /* 入力ボックス（input）内の数字・文字を大きく */
     .large-form-area input.form-control {
         font-size: 1.5rem !important;
         height: auto !important;
         padding: 10px 15px !important;
-        text-align: center; /* 数字を中央揃えにしたい場合 */
+        text-align: center;
     }
-    /* エラーメッセージが出た場合の文字を大きく */
     .large-form-area .form-control-errors {
         font-size: 1.1rem !important;
     }
 </style>
- 
+
     <!-- 4. ボタン文言 -->
     <div class="mt-4 text-center">
         {% if round_num < 3 %}

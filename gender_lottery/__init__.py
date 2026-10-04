@@ -2,52 +2,133 @@ import random
 from otree.api import *
 
 doc = """
-情報共有型くじ実験
+情報共有型くじ実験（両役体験練習付き）
+同意手続きと属性入力（ID・性別）は consent アプリで済ませてある前提。
 """
+
 
 class C(BaseConstants):
     NAME_IN_URL = 'gender_lottery'
     PLAYERS_PER_GROUP = 2
-    NUM_ROUNDS = 1
+    NUM_ROUNDS = 3
+    PROBS_A_RESULT1 = {1: 60, 2: 70, 3: 80}
 
 
 class Subsession(BaseSubsession):
     pass
 
 
+def creating_session(subsession: Subsession):
+    # ラウンド1の時点で、グループごとに支払対象ラウンド（1〜3）を1つ確定させておく
+    if subsession.round_number == 1:
+        for group in subsession.get_groups():
+            group.session.vars[f'selected_round_group_{group.id_in_subsession}'] = random.randint(1, C.NUM_ROUNDS)
+
+
 class Group(BaseGroup):
-    # 集計された P の値（2人の入力の平均値）
     group_P = models.FloatField()
 
 
 class Player(BasePlayer):
-    # 性別選択
-    gender = models.StringField(
-        label="あなたの性別を選択してください。",
-        choices=['男性', '女性', 'その他・回答しない'],
-        widget=widgets.RadioSelect
+    practice_p1 = models.IntegerField(
+        label="【プレイヤーAとして】p の値を入力してください（0 〜 100）:",
+        min=0, max=100
     )
-    # p の入力（0.0 から 1.0 の間）
-    p_input = models.FloatField(
-        label="p の値を入力してください（0.0 〜 1.0）:",
-        min=0.0,
-        max=1.0
+    practice_p2 = models.IntegerField(
+        label="【プレイヤーBとして】p の値を入力してください（0 〜 100）:",
+        min=0, max=100
     )
-    # 抽選結果と最終確定金額
+    p_input = models.IntegerField(
+        label="p の値を入力してください（0 〜 100）:",
+        min=0, max=100
+    )
     drawn_result = models.StringField()
-    final_payoff = models.FloatField()
+    choice_payoff = models.FloatField()
+    round_payoff = models.FloatField()
+
+
+# --- ヘルパー ---
+
+def pair_consented(player: Player):
+    """consent アプリで両者が同意した場合のみ True。本編を表示する条件。"""
+    return player.participant.vars.get('pair_consented', False)
 
 
 # --- PAGES ---
 
-class Demographics(Page):
+class PaymentInstruction(Page):
+    """報酬ルールの説明"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1 and pair_consented(player)
+
+
+class Instructions(Page):
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1 and pair_consented(player)
+
+
+class Practice(Page):
+    """練習1（プレイヤーAの立場）"""
     form_model = 'player'
-    form_fields = ['gender']
+    form_fields = ['practice_p1']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1 and pair_consented(player)
 
 
-class DemographicsWaitPage(WaitPage):
-    title_text = "待機中"
-    body_text = "ペアの相手が入力するのを待っています..."
+class PracticeResults(Page):
+    """練習1の結果"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1 and pair_consented(player)
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        my_p_int = player.practice_p1
+        my_p_ratio = my_p_int / 100.0
+        other_p_ratio = 0.50
+        group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
+        return {
+            'my_p': my_p_int,
+            'other_p': 50,
+            'group_P': group_P,
+            'amount_result1': round(group_P * 2000),
+            'amount_result2': round((1 - group_P) * 2000),
+        }
+
+
+class Practice2(Page):
+    """練習2（プレイヤーBの立場）"""
+    form_model = 'player'
+    form_fields = ['practice_p2']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1 and pair_consented(player)
+
+
+class PracticeResults2(Page):
+    """練習2の結果"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == 1 and pair_consented(player)
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        my_p_int = player.practice_p2
+        my_p_ratio = my_p_int / 100.0
+        other_p_ratio = 0.50
+        group_P = round((my_p_ratio + other_p_ratio) / 2, 4)
+        return {
+            'my_p': my_p_int,
+            'other_p': 50,
+            'group_P': group_P,
+            'amount_result1': round(group_P * 2000),
+            'amount_result2': round((1 - group_P) * 2000),
+        }
 
 
 class Decision(Page):
@@ -55,97 +136,176 @@ class Decision(Page):
     form_fields = ['p_input']
 
     @staticmethod
+    def is_displayed(player: Player):
+        return pair_consented(player)
+
+    @staticmethod
     def vars_for_template(player: Player):
         other_player = player.get_others_in_group()[0]
-        
+        # ID・性別は consent アプリで入力され、participant.vars に控えてある
+        other_vars = other_player.participant.vars
         is_player_a = (player.id_in_group == 1)
-        
+        r_num = player.round_number
+        prob_a_res1 = C.PROBS_A_RESULT1[r_num]
+        prob_a_res2 = 100 - prob_a_res1
+
         if is_player_a:
             role_name = "プレイヤーA"
-            prob_result1 = 70
-            prob_result2 = 30
+            prob_result1 = prob_a_res1
+            prob_result2 = prob_a_res2
         else:
             role_name = "プレイヤーB"
-            prob_result1 = 30
-            prob_result2 = 70
+            prob_result1 = prob_a_res2
+            prob_result2 = prob_a_res1
 
         return {
             'role_name': role_name,
-            'other_gender': other_player.gender,
+            'other_id': other_vars.get('student_id', ''),
+            'other_gender': other_vars.get('gender', ''),
             'prob_result1': prob_result1,
             'prob_result2': prob_result2,
+            'round_num': r_num,
         }
 
 
+# --- 成果集計・最終謝礼決定 ---
 class ResultsWaitPage(WaitPage):
     title_text = "集計中"
-    body_text = "全員の入力値を集計し、くじの抽選を行っています..."
+    body_text = "ペアの入力完了を待っています..."
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return pair_consented(player)
 
     @staticmethod
     def after_all_players_arrive(group: Group):
         players = group.get_players()
-        # 2人の入力値の平均を計算して集計 P とする
-        avg_p = sum([p.p_input for p in players]) / len(players)
-        group.group_P = round(avg_p, 4)
+        p1 = players[0]
+        p2 = players[1]
 
-        P = group.group_P
+        # 1. 宣言された p の平均値から P を計算 (0.0 〜 1.0)
+        p1_val = p1.p_input if p1.p_input is not None else 50
+        p2_val = p2.p_input if p2.p_input is not None else 50
+        group.group_P = (p1_val + p2_val) / 200.0
 
-        # プレイヤーごとに確率に従って自動抽選を実施
+        # 2. ラウンドごとの得られる金額決定（利得フレーム）
+        round_num = group.round_number
+        prob_res1 = C.PROBS_A_RESULT1.get(round_num, 50) / 100.0
+        is_result1 = random.random() < prob_res1
+
         for p in players:
-            is_player_a = (p.id_in_group == 1)
-            prob_res1_threshold = 0.70 if is_player_a else 0.30
+            p.drawn_result = "状況1" if is_result1 else "状況2"
 
-            # 乱数を使って 確率に応じ「結果1」か「結果2」を決定
-            if random.random() < prob_res1_threshold:
-                p.drawn_result = "結果 1"
-                p.final_payoff = round(P * 100, 2)
-            else:
-                p.drawn_result = "結果 2"
-                p.final_payoff = round((1 - P) * 100, 2)
+            if p.id_in_group == 1:  # プレイヤーA
+                if is_result1:
+                    p.choice_payoff = group.group_P * 2000  # 利得: P × 2000円
+                else:
+                    p.choice_payoff = (1.0 - group.group_P) * 2000  # 利得: (1 - P) × 2000円
+            else:  # プレイヤーB
+                if is_result1:
+                    p.choice_payoff = (1.0 - group.group_P) * 2000  # 利得: (1 - P) × 2000円
+                else:
+                    p.choice_payoff = group.group_P * 2000  # 利得: P × 2000円
 
-            # oTree標準の利得フィールドにも保存
-            p.payoff = p.final_payoff
+            p.round_payoff = p.choice_payoff
+
+        # 3. 最終ラウンド終了時の清算処理（1/4 ずつの二段階抽選）
+        if group.round_number == C.NUM_ROUNDS:
+            for p in players:
+                # 【第1段階】4つの選択肢から 1/4 (25%) で選出
+                category_choice = random.choice(['consensus_r1', 'consensus_r2', 'consensus_r3', 'slider_task'])
+
+                if category_choice.startswith('consensus_r'):
+                    target_round = int(category_choice.replace('consensus_r', ''))
+                    selected_player = p.in_round(target_round)
+                    p.participant.vars['selected_round'] = target_round
+                    final_choice = {
+                        'task_type': 'gender_lottery',
+                        'title': f'合意形成タスク（第{target_round}ラウンド）',
+                        'payoff': selected_player.round_payoff,
+                    }
+                    p.participant.vars['final_choice_detail'] = final_choice
+                    p.participant.payoff = final_choice['payoff']
+                else:
+                    # 【第2段階】確実等価性タスク（CE）
+                    q_num = random.randint(1, 22)
+                    slider_answers = p.participant.vars.get('slider_answers', {})
+                    sure_payoffs = p.participant.vars.get('slider_sure_payoffs', [])
+                    slider_high = p.participant.vars.get('slider_lottery_high', 2000)
+                    slider_low = p.participant.vars.get('slider_lottery_low', 0)
+
+                    chosen_lottery = slider_answers.get(q_num, True)
+                    final_choice = {
+                        'task_type': 'slider',
+                        'title': f'確実等価性タスク（第{q_num}問）',
+                        'is_lottery': chosen_lottery,
+                        'sure_payoff': sure_payoffs[q_num - 1] if q_num - 1 < len(sure_payoffs) else 0,
+                        'high': slider_high,
+                        'low': slider_low,
+                    }
+                    p.participant.vars['final_choice_detail'] = final_choice
+
+                    if final_choice['is_lottery']:
+                        won = random.random() < 0.5
+                        p.participant.payoff = final_choice['high'] if won else final_choice['low']
+                    else:
+                        p.participant.payoff = final_choice['sure_payoff']
 
 
-class Results(Page):
+class FinalResults(Page):
+    """全3回終了後の最終清算画面"""
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.round_number == C.NUM_ROUNDS and pair_consented(player)
+
     @staticmethod
     def vars_for_template(player: Player):
-        group = player.group
-        other_player = player.get_others_in_group()[0]
-        
+        all_rounds_data = []
         is_player_a = (player.id_in_group == 1)
         role_name = "プレイヤーA" if is_player_a else "プレイヤーB"
-        
-        if is_player_a:
-            prob_result1 = 70
-            prob_result2 = 30
-        else:
-            prob_result1 = 30
-            prob_result2 = 70
 
-        P = group.group_P
-        
-        amount_result1 = round(P * 100, 2)
-        amount_result2 = round((1 - P) * 100, 2)
+        for p in player.in_all_rounds():
+            r_num = p.round_number
+            other_p = p.get_others_in_group()[0]
+            prob_a_res1 = C.PROBS_A_RESULT1[r_num]
+            prob_a_res2 = 100 - prob_a_res1
+            prob_result1 = prob_a_res1 if is_player_a else prob_a_res2
+            prob_result2 = prob_a_res2 if is_player_a else prob_a_res1
+            group_P = p.group.group_P
+
+            all_rounds_data.append({
+                'round_num': r_num,
+                'my_p': p.p_input,
+                'other_p': other_p.p_input,
+                'group_P': group_P,
+                'prob_result1': prob_result1,
+                'prob_result2': prob_result2,
+                'amount_result1': round(group_P * 2000),
+                'amount_result2': round((1 - group_P) * 2000),
+                'drawn_result': p.drawn_result,
+                'round_payoff': int(p.round_payoff),
+            })
+
+        selected_round = player.participant.vars.get('selected_round')
+        final_detail = player.participant.vars.get('final_choice_detail', {})
 
         return {
+            'all_rounds': all_rounds_data,
+            'selected_round': selected_round,
             'role_name': role_name,
-            'my_p': player.p_input,
-            'other_p': other_player.p_input,
-            'group_P': P,
-            'prob_result1': prob_result1,
-            'prob_result2': prob_result2,
-            'amount_result1': amount_result1,
-            'amount_result2': amount_result2,
-            'drawn_result': player.drawn_result,
-            'final_payoff': player.final_payoff,
+            'final_detail': final_detail,
+            'final_payoff': int(player.participant.payoff),
         }
 
 
 page_sequence = [
-    Demographics, 
-    DemographicsWaitPage, 
-    Decision, 
-    ResultsWaitPage, 
-    Results
+    PaymentInstruction,   # 報酬ルールの説明
+    Instructions,
+    Practice,
+    PracticeResults,
+    Practice2,
+    PracticeResults2,
+    Decision,
+    ResultsWaitPage,
+    FinalResults
 ]

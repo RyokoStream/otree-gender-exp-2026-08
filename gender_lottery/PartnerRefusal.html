@@ -1,0 +1,33 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+実験終了のおしらせ
+{% endblock %}
+
+{% block content %}
+
+<div class="card border-warning mb-4">
+    <div class="card-body p-5">
+        <h4 class="card-title text-warning mb-4" style="font-size: 1.4rem; font-weight: bold;">
+            【重要】ペア相手の参加辞退による実験終了
+        </h4>
+        
+        <p class="card-text lead" style="font-size: 1.1rem; line-height: 1.7;">
+            ペアとなる予定のもう一人の参加者が研究への同意を行わなかったため（または途中で参加を辞退したため）、本日のペア実験を進めることができなくなりました。
+        </p>
+
+        <hr class="my-4">
+
+        <p style="font-size: 1.15rem; line-height: 1.7;">
+            ご自身は正しく同意手続きを行っていただきましたので、本日の謝礼金として<b>基本参加手当＋平均獲得額（計 1,300円）</b>をお支払いいたします。
+        </p>
+
+        <div class="alert alert-info mt-4 mb-0 p-4" role="alert" style="font-size: 1.1rem;">
+            この画面が表示されましたら、お手続きは完了となります。指示に従い退室してください。<br>
+            ご協力ありがとうございました。
+        </div>
+    </div>
+</div>
+
+{% endblock %}
