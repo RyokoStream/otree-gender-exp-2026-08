@@ -14,10 +14,12 @@
 
 <div class="control-group">
   <label for="practiceInput">投球するゾーンを入力してください (0.00 〜 1.00):</label>
-  <input type="number" id="practiceInput" min="0" max="1" step="0.01">
-  <button type="button" class="btn-strikezone" id="pitchBtn" onclick="pitchPractice()">
-    投球して反応を観察する (<span id="pitchCount">0</span>/{{ max_practice }})
-  </button>
+  <div class="pitch-row">
+    <input type="number" id="practiceInput" min="0" max="1" step="0.01" onkeydown="if(event.key==='Enter'){event.preventDefault(); pitchPractice();}">
+    <button type="button" class="btn-strikezone" id="pitchBtn" onclick="pitchPractice()">
+      投球して反応を観察する (<span id="pitchCount">0</span>/{{ max_practice }})
+    </button>
+  </div>
 </div>
 
 <div class="history-title">▼ 観察データ履歴（全{{ max_practice }}回）</div>
