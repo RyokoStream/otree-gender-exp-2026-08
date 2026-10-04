@@ -111,6 +111,7 @@ class FinalStep2(Page):
         return dict(
             history=json.loads(player.practice_data),
             catcher_zone=C.CATCHER_ZONE,
+            reward_base=C.REWARD_BASE,
         )
 
     @staticmethod

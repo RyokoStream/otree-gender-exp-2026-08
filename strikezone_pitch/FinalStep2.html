@@ -11,7 +11,14 @@
 <div class="message-box">
   📢 <strong>キャッチャーの意見:</strong><br>
   <span style="font-size: 17px;">「キャッチャーは、<strong>ゾーン {{ catcher_zone }}（一番上）</strong>に投げるように言ってきました。」</span><br>
-  キャッチャーの、投げるべき投球ゾーンの予想と、あなたの投げるべきゾーンの、平均のところを投げる、ということが約束になっています。そのことをよく考えて、自分の予想をキャッチャーに伝えてください。
+  <strong style="font-size: 17px;">キャッチャーの、投げるべき投球ゾーンの予想と、あなたの投げるべきゾーンの、平均のところを投げる、ということが約束になっています。そのことをよく考えて、自分の予想をキャッチャーに伝えてください。</strong>
+</div>
+
+<div class="detail-info">
+  <strong>謝礼金の構造</strong><br>
+  ・空振り三振の場合: {{ reward_base }} × (1 + q) / 2 円<br>
+  ・ホームランの場合: {{ reward_base }} × (1 - q) / 2 円<br>
+  （q はあなたがキャッチャーに伝えるサインの値です）
 </div>
 
 <div class="control-group">
